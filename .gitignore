@@ -1,0 +1,14 @@
+venv
+db.sqlite3
+# .env
+
+postgres_data
+redis_data
+logs
+media
+static
+
+# .vscode
+
+__pycache__/
+celerybeat-schedule

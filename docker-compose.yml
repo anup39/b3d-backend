@@ -1,0 +1,69 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgis/postgis:latest
+    env_file: pg_env.txt
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  web:
+    env_file: .env # Change env_sample.txt to env.txt
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    # command:
+    #   ["bash", "-c", "chmod +x /code/entrypoint.sh && sh /code/entrypoint.sh"]
+    depends_on:
+      - postgres
+
+  redis:
+    image: redis:alpine
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - ./redis_data:/var/lib/redis
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    entrypoint: "celery -A project worker -l DEBUG -Q default,b3d --pool=solo"
+    depends_on:
+      - web
+    volumes:
+      - .:/code
+      - ./logs/:/logs/
+    env_file:
+      - .env
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    entrypoint: "celery -A project beat --loglevel=debug"
+    depends_on:
+      - web
+      - worker
+    volumes:
+      - .:/code
+      - ./logs/:/logs/
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
+    name: postgres_data
+  redis_data:
+    name: redis_data
+  logs:
+    name: logs
