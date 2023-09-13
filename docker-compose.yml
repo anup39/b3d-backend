@@ -1,11 +1,20 @@
 version: "3"
 
 services:
+  node-odm:
+    image: opendronemap/nodeodm
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    oom_score_adj: 500
+    volumes:
+      - ./data:/var/www/data
+
   postgres:
     image: postgis/postgis:latest
     env_file: pg_env.txt
-    ports:
-      - "5432:5432"
+    # ports:
+      # - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
 
@@ -24,46 +33,61 @@ services:
     depends_on:
       - postgres
 
-  redis:
-    image: redis:alpine
-    restart: always
-    command: redis-server --appendonly yes
+  geoserver:
+    image: kartoza/geoserver:latest
+    environment:
+      - GEOSERVER_ADMIN_USER=admin
+      - GEOSERVER_ADMIN_PASSWORD=geoserver
     volumes:
-      - ./redis_data:/var/lib/redis
+      -  ./geoserver_data:/opt/geoserver/data_dir
+      -  ./data:/opt/geoserver/data_dir/odm_data
 
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    entrypoint: "celery -A project worker -l DEBUG -Q default,b3d --pool=solo"
-    depends_on:
-      - web
-    volumes:
-      - .:/code
-      - ./logs/:/logs/
-    env_file:
-      - .env
+    ports:
+      - "8080:8080"
+    restart: on-failure
 
-  beat:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    entrypoint: "celery -A project beat --loglevel=debug"
-    depends_on:
-      - web
-      - worker
-    volumes:
-      - .:/code
-      - ./logs/:/logs/
-    env_file:
-      - .env
+  # redis:
+  #   image: redis:alpine
+  #   restart: always
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - ./redis_data:/var/lib/redis
+
+  # worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   entrypoint: "celery -A project worker -l DEBUG -Q default,b3d --pool=solo"
+  #   depends_on:
+  #     - web
+  #   volumes:
+  #     - .:/code
+  #     - ./logs/:/logs/
+  #   env_file:
+  #     - .env
+
+  # beat:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   entrypoint: "celery -A project beat --loglevel=debug"
+  #   depends_on:
+  #     - web
+  #     - worker
+  #   volumes:
+  #     - .:/code
+  #     - ./logs/:/logs/
+  #   env_file:
+  #     - .env
 
 volumes:
   postgres_data:
     name: postgres_data
-  redis_data:
-    name: redis_data
-  logs:
-    name: logs
+  geoserver_data:
+    name: geoserver_data
+  # redis_data:
+  #   name: redis_data
+  # logs:
+  #   name: logs
