@@ -1,14 +1,14 @@
 version: "3"
 
 services:
-  node-odm:
-    image: opendronemap/nodeodm
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-    oom_score_adj: 500
-    volumes:
-      - ./data:/var/www/data
+  # node-odm:
+  #   image: opendronemap/nodeodm
+  #   ports:
+  #     - "3000:3000"
+  #   restart: unless-stopped
+  #   oom_score_adj: 500
+  #   volumes:
+  #     - ./data:/var/www/data
 
   postgres:
     image: postgis/postgis:latest
@@ -33,18 +33,18 @@ services:
     depends_on:
       - postgres
 
-  geoserver:
-    image: kartoza/geoserver:latest
-    environment:
-      - GEOSERVER_ADMIN_USER=admin
-      - GEOSERVER_ADMIN_PASSWORD=geoserver
-    volumes:
-      -  ./geoserver_data:/opt/geoserver/data_dir
-      -  ./data:/opt/geoserver/data_dir/odm_data
+  # geoserver:
+  #   image: kartoza/geoserver:latest
+  #   environment:
+  #     - GEOSERVER_ADMIN_USER=admin
+  #     - GEOSERVER_ADMIN_PASSWORD=geoserver
+  #   volumes:
+  #     -  ./geoserver_data:/opt/geoserver/data_dir
+  #     -  ./data:/opt/geoserver/data_dir/odm_data
 
-    ports:
-      - "8080:8080"
-    restart: on-failure
+  #   ports:
+  #     - "8080:8080"
+  #   restart: on-failure
 
   # redis:
   #   image: redis:alpine
@@ -85,8 +85,8 @@ services:
 volumes:
   postgres_data:
     name: postgres_data
-  geoserver_data:
-    name: geoserver_data
+  # geoserver_data:
+  #   name: geoserver_data
   # redis_data:
   #   name: redis_data
   # logs:
