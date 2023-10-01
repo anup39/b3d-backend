@@ -15,3 +15,6 @@ class ExampleViewSet(viewsets.ViewSet):
         handleExampleTask.delay()
 
         return Response(data)
+    
+
+# Create a login and Register api
