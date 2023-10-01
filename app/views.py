@@ -4,6 +4,9 @@ from rest_framework import viewsets
 from .tasks import handleExampleTask
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework import generics
+from django.contrib.auth.models import User
+from .serializers import UserRegistrationSerializer
 
 # Create your views here.
 
@@ -15,7 +18,8 @@ class ExampleViewSet(viewsets.ViewSet):
             'message': 'Hello, API!',
             'status': 'success'
         }
-        handleExampleTask.delay()
+        # This is to be on to check the task and celery status
+        # handleExampleTask.delay()
 
         return Response(data)
     
@@ -33,3 +37,7 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.pk,
             'email': user.email
         })
+    
+class UserRegistrationView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserRegistrationSerializer
