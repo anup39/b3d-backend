@@ -25,6 +25,11 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class GlobalStandardCategorySerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name =  obj.name
+        return full_name
     class Meta:
         model = GlobalStandardCategory
         fields = "__all__"
@@ -34,7 +39,7 @@ class GlobalSubCategorySerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
 
     def get_full_name(self, obj):
-        full_name = obj.standard_category.name +"|"+ obj.name
+        full_name = obj.standard_category.name +" | "+ obj.name
         return full_name
     class Meta:
         model = GlobalSubCategory
@@ -44,7 +49,7 @@ class GlobalCategorySerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
 
     def get_full_name(self, obj):
-        full_name = obj.sub_category.standard_category.name + "|" + obj.sub_category.name + "|" + obj.name
+        full_name = obj.sub_category.standard_category.name + " | " + obj.sub_category.name + " | " + obj.name
         return full_name
 
     class Meta:
@@ -52,6 +57,12 @@ class GlobalCategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class GlobalCategoryStyleSerializer(serializers.ModelSerializer):
+
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name =  obj.category.sub_category.standard_category.name + " | " + obj.category.sub_category.name + " | " + obj.category.name
+        return full_name
 
     class Meta:
         model = GlobalCategoryStyle
