@@ -6,8 +6,10 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from django.contrib.auth.models import User
-from .models import Project
+from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
 from .serializers import UserRegistrationSerializer , ProjectSerializer
+from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
+
 
 # Create your views here.
 
@@ -47,3 +49,24 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     
+
+# For standard Categories
+class GlobalStandardCategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = GlobalStandardCategorySerializer
+    queryset = GlobalStandardCategory.objects.all()
+    pagination_class = None
+
+class GlobalSubCategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = GlobalSubCategorySerializer
+    queryset = GlobalSubCategory.objects.all()
+    pagination_class = None
+
+class GlobalCategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = GlobalCategorySerializer
+    queryset = GlobalCategory.objects.all()
+    pagination_class = None
+
+class GlobalCategoryStyleViewSet(viewsets.ModelViewSet):
+    serializer_class = GlobalCategoryStyleSerializer
+    queryset = GlobalCategoryStyle.objects.all()
+    pagination_class = None
