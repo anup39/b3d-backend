@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     'corsheaders',
+    'colorfield',
     'celery',
     'django_celery_beat',
     'django_celery_results',

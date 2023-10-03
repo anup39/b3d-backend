@@ -6,7 +6,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from django.contrib.auth.models import User
-from .serializers import UserRegistrationSerializer
+from .models import Project
+from .serializers import UserRegistrationSerializer , ProjectSerializer
 
 # Create your views here.
 
@@ -41,3 +42,8 @@ class CustomAuthToken(ObtainAuthToken):
 class UserRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    
