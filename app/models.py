@@ -66,7 +66,7 @@ class GlobalCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which category you want to seperate your project layer"), verbose_name=_("Name"))
     sub_category = models.ForeignKey(GlobalSubCategory, on_delete=models.PROTECT, help_text=_(
-        "Sub Category related to the project"), verbose_name=_("Sub Category"), null=True, blank=True)
+        "Sub Category related to the project"), verbose_name=_("Sub Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
