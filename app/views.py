@@ -12,6 +12,10 @@ from .serializers import UserRegistrationSerializer , ProjectSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
 
+
+
+
+
 # Create your views here.
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -78,7 +82,7 @@ class StandardCategoryViewSet(viewsets.ModelViewSet):
     queryset = StandardCategory.objects.filter(is_display=True)
     serializer_class = StandardCategorySerializer 
     filter_backends = [DjangoFilterBackend]
-    filterset_fields=['project',]
+    filterset_fields=['project','name',]
     # filter_class = StandardCategoryFilter
 
 

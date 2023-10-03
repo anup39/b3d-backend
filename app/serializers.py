@@ -40,10 +40,16 @@ class GlobalStandardCategorySerializer(serializers.ModelSerializer):
 
 class GlobalSubCategorySerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
+    standard_category_name = serializers.SerializerMethodField('get_standard_category_name')
+
 
     def get_full_name(self, obj):
         full_name = obj.standard_category.name +" | "+ obj.name
         return full_name
+    
+    def get_standard_category_name(self,obj):
+        standard_category_name = obj.standard_category.name
+        return standard_category_name
     class Meta:
         model = GlobalSubCategory
         fields = "__all__"
@@ -74,6 +80,11 @@ class GlobalCategoryStyleSerializer(serializers.ModelSerializer):
 
 # For project Categories
 class StandardCategorySerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name =  obj.name
+        return full_name
 
     class Meta:
         model = StandardCategory
@@ -81,6 +92,11 @@ class StandardCategorySerializer(serializers.ModelSerializer):
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name = obj.standard_category.name +" | "+ obj.name
+        return full_name
 
     class Meta:
         model = SubCategory
@@ -89,6 +105,11 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name = obj.sub_category.standard_category.name + " | " + obj.sub_category.name + " | " + obj.name
+        return full_name
 
     class Meta:
         model = Category
@@ -96,6 +117,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CategoryStyleSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name =  obj.category.sub_category.standard_category.name + " | " + obj.category.sub_category.name + " | " + obj.category.name
+        return full_name
 
     class Meta:
         model = CategoryStyle
