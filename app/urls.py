@@ -1,6 +1,7 @@
 from rest_framework import routers
 from .views import ExampleViewSet, CustomAuthToken, UserRegistrationView , ProjectViewSet
 from .views import GlobalStandardCategoryViewSet, GlobalSubCategoryViewSet , GlobalCategoryViewSet ,GlobalCategoryStyleViewSet
+from .views import StandardCategoryViewSet, SubCategoryViewSet , CategoryViewSet ,CategoryStyleViewSet
 from django.urls import path, include
 
 
@@ -13,6 +14,11 @@ router.register('global-standard-category', GlobalStandardCategoryViewSet)
 router.register('global-sub-category', GlobalSubCategoryViewSet)
 router.register('global-category', GlobalCategoryViewSet)
 router.register('global-category-style', GlobalCategoryStyleViewSet)
+router.register('standard-category', StandardCategoryViewSet)
+router.register('sub-category', SubCategoryViewSet)
+router.register('category',CategoryViewSet)
+router.register('category-style',CategoryStyleViewSet)
+# router.register('category-geometry', CategoryGeometryViewSet)
 
 
 urlpatterns = [

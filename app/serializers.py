@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
+from .models import StandardCategory, SubCategory, Category ,CategoryStyle
+
 
 
 
@@ -24,6 +26,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields="__all__"
 
 
+# For Global Categoriess
 class GlobalStandardCategorySerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
 
@@ -68,3 +71,32 @@ class GlobalCategoryStyleSerializer(serializers.ModelSerializer):
         model = GlobalCategoryStyle
         fields = "__all__"
 
+
+# For project Categories
+class StandardCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StandardCategory
+        fields = "__all__"
+
+
+class SubCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SubCategory
+        fields = "__all__"
+
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+
+class CategoryStyleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CategoryStyle
+        fields = "__all__"
