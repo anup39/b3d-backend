@@ -9,10 +9,10 @@ router = routers.DefaultRouter()
 
 
 router.register('projects',ProjectViewSet)
-router.register(r'global-standard-category', GlobalStandardCategoryViewSet)
-router.register(r'global-sub-category', GlobalSubCategoryViewSet)
-router.register(r'global-category', GlobalCategoryViewSet)
-router.register(r'global-category-style', GlobalCategoryStyleViewSet)
+router.register('global-standard-category', GlobalStandardCategoryViewSet)
+router.register('global-sub-category', GlobalSubCategoryViewSet)
+router.register('global-category', GlobalCategoryViewSet)
+router.register('global-category-style', GlobalCategoryStyleViewSet)
 
 
 urlpatterns = [
