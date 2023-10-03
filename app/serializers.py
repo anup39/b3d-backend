@@ -31,11 +31,22 @@ class GlobalStandardCategorySerializer(serializers.ModelSerializer):
 
 
 class GlobalSubCategorySerializer(serializers.ModelSerializer):
+    fullname = serializers.SerializerMethodField('get_fullname')
+
+    def get_fullname(self, obj):
+        full_name = obj.standard_category.name +"|"+ obj.name
+        return full_name
     class Meta:
         model = GlobalSubCategory
         fields = "__all__"
 
 class GlobalCategorySerializer(serializers.ModelSerializer):
+    fullname = serializers.SerializerMethodField('get_fullname')
+
+    def get_fullname(self, obj):
+        full_name = obj.sub_category.standard_category.name + "|" + obj.sub_category.name + "|" + obj.name
+        return full_name
+
     class Meta:
         model = GlobalCategory
         fields = "__all__"
