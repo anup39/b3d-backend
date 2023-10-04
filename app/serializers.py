@@ -93,6 +93,11 @@ class StandardCategorySerializer(serializers.ModelSerializer):
 
 class SubCategorySerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
+    standard_category_name = serializers.SerializerMethodField('get_standard_category_name')
+
+    def get_standard_category_name(self,obj):
+        standard_category_name = obj.standard_category.name
+        return standard_category_name
 
     def get_full_name(self, obj):
         full_name = obj.standard_category.name +" | "+ obj.name

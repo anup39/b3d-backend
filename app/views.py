@@ -11,8 +11,8 @@ from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .serializers import UserRegistrationSerializer , ProjectSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
-
-
+from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
+from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
 
 
 
@@ -63,11 +63,15 @@ class GlobalStandardCategoryViewSet(viewsets.ModelViewSet):
 class GlobalSubCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = GlobalSubCategorySerializer
     queryset = GlobalSubCategory.objects.all()
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = GlobalSubCategoryFilter
     pagination_class = None
 
 class GlobalCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = GlobalCategorySerializer
     queryset = GlobalCategory.objects.all()
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = GlobalCategoryFilter
     pagination_class = None
 
 class GlobalCategoryStyleViewSet(viewsets.ModelViewSet):
@@ -82,17 +86,14 @@ class StandardCategoryViewSet(viewsets.ModelViewSet):
     queryset = StandardCategory.objects.filter(is_display=True)
     serializer_class = StandardCategorySerializer 
     filter_backends = [DjangoFilterBackend]
-    filterset_fields=['project','name',]
-    # filter_class = StandardCategoryFilter
+    filterset_class = StandardCategoryFilter
 
 
 class SubCategoryViewSet(viewsets.ModelViewSet):
-
     queryset = SubCategory.objects.filter(is_display=True)
     serializer_class = SubCategorySerializer 
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields=['project','standard_category']
-    # filter_class = SubCategoryFilter
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = SubCategoryFilter
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -100,8 +101,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.filter(is_display=True)
     serializer_class = CategorySerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields=['project','sub_category']
-    # filter_class = CategoryFilter
+    filterset_class = CategoryFilter
 
 
 class CategoryStyleViewSet(viewsets.ModelViewSet):
@@ -109,5 +109,4 @@ class CategoryStyleViewSet(viewsets.ModelViewSet):
     queryset = CategoryStyle.objects.all()
     serializer_class = CategoryStyleSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields=['project','category']
-    # filter_class = CategoryStyleFilter
+    filterset_class = CategoryStyleFilter

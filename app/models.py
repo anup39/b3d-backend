@@ -65,6 +65,8 @@ class GlobalSubCategory(models.Model):
 class GlobalCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which category you want to seperate your project layer"), verbose_name=_("Name"))
+    standard_category = models.ForeignKey(GlobalStandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Standard Category related to the project"), verbose_name=_("Standard Category"))
     sub_category = models.ForeignKey(GlobalSubCategory, on_delete=models.PROTECT, help_text=_(
         "Sub Category related to the project"), verbose_name=_("Sub Category"))
     description = models.TextField(default="", blank=True, help_text=_(
@@ -123,6 +125,8 @@ class SubCategory(models.Model):
         "Sub Category related to the project"), verbose_name=_("Project") )
     standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
         "Standard Category related to the project"), verbose_name=_("Standard Category"))
+    global_standard_category = models.ForeignKey(GlobalStandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Global Standard Category related to the project"), verbose_name=_("Global Standard Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
@@ -145,8 +149,12 @@ class Category(models.Model):
         "Category related to the project"), verbose_name=_("Project"))
     standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
         "Standard Category related to the project"), verbose_name=_("Standard Category"))
+    global_standard_category = models.ForeignKey(GlobalStandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Global Standard Category related to the project"), verbose_name=_("Global Standard Category"))
     sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
         "Sub Category related to the project"), verbose_name=_("Sub Category"))
+    global_sub_category = models.ForeignKey(GlobalSubCategory, on_delete=models.PROTECT, help_text=_(
+        "Global Sub Category related to the project"), verbose_name=_("Global Sub Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
@@ -172,6 +180,8 @@ class CategoryStyle(models.Model):
         "Style related to the project"), verbose_name=_("Project"))
     category = models.OneToOneField(Category, on_delete=models.PROTECT, help_text=_(
         "Geometry related to this Category"), verbose_name=_("Category"))
+    global_category = models.OneToOneField(GlobalCategory, on_delete=models.PROTECT, help_text=_(
+        "Geometry related to this Category"), verbose_name=_("Global Category"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
     fill = ColorField(default='#2c3e50', help_text=_(
