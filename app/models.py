@@ -129,6 +129,8 @@ class SubCategory(models.Model):
         "Standard Category related to the project"), verbose_name=_("Standard Category"))
     global_standard_category = models.ForeignKey(GlobalStandardCategory, on_delete=models.PROTECT, help_text=_(
         "Global Standard Category related to the project"), verbose_name=_("Global Standard Category"))
+    global_sub_category = models.ForeignKey(GlobalSubCategory, on_delete=models.PROTECT, help_text=_(
+        "Global Sub Category related to the project"), verbose_name=_("Global Sub Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
@@ -157,6 +159,8 @@ class Category(models.Model):
         "Sub Category related to the project"), verbose_name=_("Sub Category"))
     global_sub_category = models.ForeignKey(GlobalSubCategory, on_delete=models.PROTECT, help_text=_(
         "Global Sub Category related to the project"), verbose_name=_("Global Sub Category"))
+    global_category = models.ForeignKey(GlobalCategory, on_delete=models.PROTECT, help_text=_(
+        "Global Category related to the project"), verbose_name=_("Global  Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(

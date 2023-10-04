@@ -56,10 +56,22 @@ class GlobalSubCategorySerializer(serializers.ModelSerializer):
 
 class GlobalCategorySerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
+    standard_category_name = serializers.SerializerMethodField('get_standard_category_name')
+    sub_category_name = serializers.SerializerMethodField('get_sub_category_name')
+
+
 
     def get_full_name(self, obj):
         full_name = obj.sub_category.standard_category.name + " | " + obj.sub_category.name + " | " + obj.name
         return full_name
+    
+    def get_standard_category_name(self,obj):
+        standard_category_name = obj.sub_category.standard_category.name
+        return standard_category_name
+    
+    def get_sub_category_name(self,obj):
+        sub_category_name = obj.standard_category.name + " | " + obj.sub_category.name
+        return sub_category_name
 
     class Meta:
         model = GlobalCategory

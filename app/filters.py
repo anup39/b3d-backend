@@ -3,15 +3,6 @@ from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import GlobalSubCategory ,GlobalCategory
 
 
-class StandardCategoryFilter(django_filters.FilterSet):
-    project = django_filters.CharFilter(field_name='project__id')
-    view_name = django_filters.CharFilter(field_name='view_name')
-
-
-    class Meta:
-        model = StandardCategory
-        fields = ['project','view_name']
-
 
 class GlobalSubCategoryFilter(django_filters.FilterSet):
     standard_category_ids = django_filters.CharFilter(
@@ -32,16 +23,6 @@ class GlobalSubCategoryFilter(django_filters.FilterSet):
 
         standard_category_ids = value.split(',')
         return queryset.filter(standard_category__id__in=standard_category_ids)
-
-
-class SubCategoryFilter(django_filters.FilterSet):
-    project = django_filters.CharFilter(field_name='project__id')
-    standard_category = django_filters.CharFilter(field_name='standard_category__id')
-    class Meta:
-        model = SubCategory
-        fields = ['project','standard_category']
-
-
 
 class GlobalCategoryFilter(django_filters.FilterSet):
     standard_category_ids = django_filters.CharFilter(
@@ -76,14 +57,34 @@ class GlobalCategoryFilter(django_filters.FilterSet):
 
         sub_category_ids = value.split(',')
         return queryset.filter(sub_category__id__in=sub_category_ids)
+class StandardCategoryFilter(django_filters.FilterSet):
+    project = django_filters.CharFilter(field_name='project__id')
+    view_name = django_filters.CharFilter(field_name='view_name')
+
+
+    class Meta:
+        model = StandardCategory
+        fields = ['project','view_name']
+
+
+class SubCategoryFilter(django_filters.FilterSet):
+    project = django_filters.CharFilter(field_name='project__id')
+    standard_category = django_filters.CharFilter(field_name='standard_category__id')
+    view_name = django_filters.CharFilter(field_name='view_name')
+
+    class Meta:
+        model = SubCategory
+        fields = ['project','standard_category','view_name']
 
 class CategoryFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(field_name='project__id')
     sub_category = django_filters.CharFilter(field_name='sub_category__id')
+    view_name = django_filters.CharFilter(field_name='view_name')
+
 
     class Meta:
         model = Category
-        fields = ['project','sub_category']
+        fields = ['project','sub_category','view_name']
 
 class CategoryStyleFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(field_name='project__id')
