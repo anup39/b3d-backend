@@ -1,8 +1,9 @@
-from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from colorfield.fields import ColorField
+from django.contrib.gis.db import models
+from django.db.models import Manager as GeoManager
 # Create your models here.
 
 
@@ -207,3 +208,78 @@ class CategoryStyle(models.Model):
     class Meta:
         verbose_name = _("CategoryStyle")
         verbose_name_plural = _("CategoryStyles")
+
+
+class PolygonData(models.Model):
+    id = models.AutoField(primary_key=True)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
+        "Polygon related to the project"), verbose_name=_("Project"))
+    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Standard Category related to the polygon"), verbose_name=_("Standard Category"),null=True,blank=True)
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
+        "Sub Category related to the polygon"), verbose_name=_("Sub Category"),null=True,blank=True)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
+        "Cateogyr related to this polygon"), verbose_name=_("Category"),null=True,blank=True)
+    created = models.DateTimeField(default=timezone.now)
+    geom = models.PolygonField(srid=4326, dim=2)
+    attributes = models.JSONField(default=dict, blank=True, null=True)
+    
+    # label = models.CharField
+
+    objects = GeoManager()
+
+    class Meta:
+        verbose_name_plural = 'PolygonData'
+
+    def __str__(self):
+        return str(self.project.name)
+    
+
+class LineStringData(models.Model):
+    id = models.AutoField(primary_key=True)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
+        "LineString related to the project"), verbose_name=_("Project"))
+    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Standard Category related to the LineString"), verbose_name=_("Standard Category"),null=True,blank=True)
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
+        "Sub Category related to the LineString"), verbose_name=_("Sub Category"),null=True,blank=True)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
+        "Cateogyr related to this LineString"), verbose_name=_("Category"),null=True,blank=True)
+    created = models.DateTimeField(default=timezone.now)
+    geom = models.LineStringField(srid=4326, dim=2)
+    attributes = models.JSONField(default=dict, blank=True, null=True)
+    
+    # label = models.CharField
+
+    objects = GeoManager()
+
+    class Meta:
+        verbose_name_plural = 'LineStringData'
+
+    def __str__(self):
+        return str(self.project.name)
+    
+
+class PointData(models.Model):
+    id = models.AutoField(primary_key=True)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
+        "Point related to the project"), verbose_name=_("Project"))
+    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Standard Category related to the Point"), verbose_name=_("Standard Category"),null=True,blank=True)
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
+        "Sub Category related to the Point"), verbose_name=_("Sub Category"),null=True,blank=True)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
+        "Cateogyr related to this Point"), verbose_name=_("Category"),null=True,blank=True)
+    created = models.DateTimeField(default=timezone.now)
+    geom = models.PointField(srid=4326, dim=2)
+    attributes = models.JSONField(default=dict, blank=True, null=True)
+    
+    # label = models.CharField
+
+    objects = GeoManager()
+
+    class Meta:
+        verbose_name_plural = 'PointData'
+
+    def __str__(self):
+        return str(self.project.name)
