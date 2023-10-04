@@ -102,6 +102,8 @@ class StandardCategory(models.Model):
         "In which standard category you want to seperate your project layer"), verbose_name=_("Name"),unique=False)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
         "Standard Category related to the project"), verbose_name=_("Project"))
+    global_standard_category = models.ForeignKey(GlobalStandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Global Standard Category related to the project"), verbose_name=_("Global Standard Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(

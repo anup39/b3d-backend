@@ -5,10 +5,12 @@ from .models import GlobalSubCategory ,GlobalCategory
 
 class StandardCategoryFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(field_name='project__id')
+    view_name = django_filters.CharFilter(field_name='view_name')
+
 
     class Meta:
         model = StandardCategory
-        fields = ['project']
+        fields = ['project','view_name']
 
 
 class GlobalSubCategoryFilter(django_filters.FilterSet):
