@@ -33,6 +33,27 @@ services:
     depends_on:
       - postgres
 
+  martin:
+    build:
+      context: ../martin
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4000:3000"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/b3d
+      - RUST_LOG=actix_web=info,martin=debug,tokio_postgres=debug
+    depends_on:
+      - postgres
+
+
+
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file: pg_env.txt
+    ports:
+      - "5051:80"
+    restart: always
   # geoserver:
   #   image: kartoza/geoserver:latest
   #   environment:

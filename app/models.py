@@ -172,9 +172,36 @@ class Category(models.Model):
     is_deleted = models.BooleanField(default=False)
 
 
+    def save(self, *args, **kwargs):
+        created = not self.pk  # Check if the instance is being created or updated
+        super().save(*args, **kwargs)  # Call the parent class's save method
+
+        # Create or update the CategoryStyle instance
+        try:
+            category_style = CategoryStyle.objects.get(category=self)
+        except CategoryStyle.DoesNotExist:
+            global_category_style = GlobalCategoryStyle.objects.get(category=self.global_category)
+            fill=global_category_style.fill,  
+            # fill_opacity=global_category_style.fill_opacity,  
+            stroke=global_category_style.stroke, 
+            # stroke_width=global_category_style.stroke_width,  
+            # xml=global_category_style.xml,  
+            category_style = CategoryStyle(
+                project=self.project,
+                category=self,
+                global_category=self.global_category,
+                fill=fill,  
+                # fill_opacity=fill_opacity,  
+                stroke=stroke,
+                # stroke_width=stroke_width, 
+                # xml=xml,  
+            )
+        category_style.save()
+
+
 
     def __str__(self):
-        return self.project.name + "|" + self.standard_category.name+"|"+ self.sub_category.name+"|" + self.name
+        return self.project.name + " | " + self.standard_category.name+" | "+ self.sub_category.name+" | " + self.name
 
     class Meta:
         verbose_name = _("Category")
@@ -203,7 +230,7 @@ class CategoryStyle(models.Model):
     
     
     def __str__(self):
-        return self.category.project.name + " - " + self.category.name
+        return self.category.project.name + " | " + self.category.sub_category.standard_category.name +  " | " + self.category.sub_category.name + " | " + self.category.name
 
     class Meta:
         verbose_name = _("CategoryStyle")
