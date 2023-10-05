@@ -2,8 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
-
-
+from .models import PolygonData
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -143,3 +142,10 @@ class CategoryStyleSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryStyle
         fields = "__all__"
+
+
+# For Polygon 
+class PolygonDataSerializer (serializers.ModelSerializer):
+    class Meta:
+        model=PolygonData
+        fields="__all__"

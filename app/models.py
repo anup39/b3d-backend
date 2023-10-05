@@ -219,7 +219,7 @@ class PolygonData(models.Model):
     sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
         "Sub Category related to the polygon"), verbose_name=_("Sub Category"),null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
-        "Cateogyr related to this polygon"), verbose_name=_("Category"),null=True,blank=True)
+        "Cateogyr related to this polygon"), verbose_name=_("Category"))
     created = models.DateTimeField(default=timezone.now)
     geom = models.PolygonField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict, blank=True, null=True)
@@ -244,7 +244,7 @@ class LineStringData(models.Model):
     sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
         "Sub Category related to the LineString"), verbose_name=_("Sub Category"),null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
-        "Cateogyr related to this LineString"), verbose_name=_("Category"),null=True,blank=True)
+        "Cateogyr related to this LineString"), verbose_name=_("Category"))
     created = models.DateTimeField(default=timezone.now)
     geom = models.LineStringField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict, blank=True, null=True)
@@ -269,7 +269,7 @@ class PointData(models.Model):
     sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
         "Sub Category related to the Point"), verbose_name=_("Sub Category"),null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
-        "Cateogyr related to this Point"), verbose_name=_("Category"),null=True,blank=True)
+        "Cateogyr related to this Point"), verbose_name=_("Category"))
     created = models.DateTimeField(default=timezone.now)
     geom = models.PointField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict, blank=True, null=True)

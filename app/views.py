@@ -8,11 +8,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
+from .models import PolygonData
 from .serializers import UserRegistrationSerializer , ProjectSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
+from .serializers import PolygonDataSerializer
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
+
 
 
 
@@ -110,3 +113,9 @@ class CategoryStyleViewSet(viewsets.ModelViewSet):
     serializer_class = CategoryStyleSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryStyleFilter
+
+
+# For PolygonData
+class PolygonDataViewSet(viewsets.ModelViewSet):
+    queryset = PolygonData.objects.all()
+    serializer_class = PolygonDataSerializer
