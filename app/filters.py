@@ -1,9 +1,18 @@
 import django_filters
+from .models import Project
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import GlobalSubCategory ,GlobalCategory
 
 
+# Project filter
+class ProjectFilter(django_filters.FilterSet):
+    owner = django_filters.CharFilter(field_name='owner')
 
+    class Meta:
+        model = Project
+        fields = ['owner']
+
+# Global Categories filter
 class GlobalSubCategoryFilter(django_filters.FilterSet):
     standard_category_ids = django_filters.CharFilter(
         method='filter_by_standard_category_ids',

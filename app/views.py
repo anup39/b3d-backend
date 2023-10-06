@@ -13,6 +13,7 @@ from .serializers import UserRegistrationSerializer , ProjectSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
 from .serializers import PolygonDataSerializer
+from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
 
@@ -45,7 +46,7 @@ class CustomAuthToken(ObtainAuthToken):
         return Response({
             'token': token.key,
             'user_id': user.pk,
-            'email': user.email
+            'username': user.username
         })
     
 class UserRegistrationView(generics.CreateAPIView):
@@ -55,6 +56,8 @@ class UserRegistrationView(generics.CreateAPIView):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProjectFilter
     
 
 # For standard Categories
