@@ -173,10 +173,9 @@ class Category(models.Model):
 
 
     def save(self, *args, **kwargs):
-        created = not self.pk  # Check if the instance is being created or updated
-        super().save(*args, **kwargs)  # Call the parent class's save method
-
-        # Create or update the CategoryStyle instance
+        created = not self.pk  
+        super().save(*args, **kwargs)  
+      
         try:
             category_style = CategoryStyle.objects.get(category=self)
         except CategoryStyle.DoesNotExist:

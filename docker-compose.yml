@@ -48,24 +48,26 @@ services:
 
 
 
-  pgadmin:
-    image: dpage/pgadmin4
-    env_file: pg_env.txt
-    ports:
-      - "5051:80"
-    restart: always
-  # geoserver:
-  #   image: kartoza/geoserver:latest
-  #   environment:
-  #     - GEOSERVER_ADMIN_USER=admin
-  #     - GEOSERVER_ADMIN_PASSWORD=geoserver
-  #   volumes:
-  #     -  ./geoserver_data:/opt/geoserver/data_dir
-  #     -  ./data:/opt/geoserver/data_dir/odm_data
-
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   env_file: pg_env.txt
   #   ports:
-  #     - "8080:8080"
-  #   restart: on-failure
+  #     - "5051:80"
+  #   restart: always
+
+
+  geoserver:
+    image: kartoza/geoserver:latest
+    environment:
+      - GEOSERVER_ADMIN_USER=admin
+      - GEOSERVER_ADMIN_PASSWORD=geoserver
+    volumes:
+      -  ./geoserver_data:/opt/geoserver/data_dir
+      # -  ./data:/opt/geoserver/data_dir/odm_data
+
+    ports:
+      - "8080:8080"
+    restart: on-failure
 
   # redis:
   #   image: redis:alpine
