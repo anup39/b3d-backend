@@ -319,7 +319,7 @@ class RasterData(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "Name for the rater data"), verbose_name=_("Name"))
     created_on = models.DateTimeField(default=timezone.now)
-    shape_file = models.FileField(upload_to="Uploads/RasterData")
+    tif_file = models.FileField(upload_to="Uploads/RasterData")
 
     def __str__(self):
         return self.name
