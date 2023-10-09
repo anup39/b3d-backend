@@ -18,6 +18,7 @@ from .serializers import RasterDataSerializer
 from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
+from .filters import RasterDataFilter
 
 
 
@@ -130,3 +131,5 @@ class PolygonDataViewSet(viewsets.ModelViewSet):
 class RasterDataViewSet(viewsets.ModelViewSet):
     queryset = RasterData.objects.all()
     serializer_class = RasterDataSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RasterDataFilter

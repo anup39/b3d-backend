@@ -2,6 +2,7 @@ import django_filters
 from .models import Project
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import GlobalSubCategory ,GlobalCategory
+from .models import RasterData
 
 
 # Project filter
@@ -102,3 +103,10 @@ class CategoryStyleFilter(django_filters.FilterSet):
     class Meta:
         model = CategoryStyle
         fields = ['project','category']
+
+class RasterDataFilter(django_filters.FilterSet):
+    project = django_filters.CharFilter(field_name='project__id')
+
+    class Meta:
+        model= RasterData
+        fields = ['project',]
