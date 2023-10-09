@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import PolygonData
+from .models import RasterData
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -148,4 +149,10 @@ class CategoryStyleSerializer(serializers.ModelSerializer):
 class PolygonDataSerializer (serializers.ModelSerializer):
     class Meta:
         model=PolygonData
+        fields="__all__"
+
+
+class RasterDataSerializer (serializers.ModelSerializer):
+    class Meta:
+        model=RasterData
         fields="__all__"

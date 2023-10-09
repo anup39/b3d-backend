@@ -309,3 +309,21 @@ class PointData(models.Model):
 
     def __str__(self):
         return str(self.project.name)
+    
+
+# make endpoint like this "/tiles/{z}/{x}/{y}@{scale}x.{format}
+class RasterData(models.Model):
+    id = models.AutoField(primary_key=True)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
+        "Point related to the project"), verbose_name=_("Project"))
+    name = models.CharField(max_length=255, help_text=_(
+        "Name for the rater data"), verbose_name=_("Name"))
+    created_on = models.DateTimeField(default=timezone.now)
+    shape_file = models.FileField(upload_to="Uploads/RasterData")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'RasterData'
+

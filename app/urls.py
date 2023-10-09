@@ -3,6 +3,7 @@ from .views import ExampleViewSet, CustomAuthToken, UserRegistrationView , Proje
 from .views import GlobalStandardCategoryViewSet, GlobalSubCategoryViewSet , GlobalCategoryViewSet ,GlobalCategoryStyleViewSet
 from .views import StandardCategoryViewSet, SubCategoryViewSet , CategoryViewSet ,CategoryStyleViewSet
 from .views import PolygonDataViewSet
+from .views import RasterDataViewSet
 from django.urls import path, include
 
 
@@ -20,6 +21,7 @@ router.register('sub-category', SubCategoryViewSet)
 router.register('category',CategoryViewSet)
 router.register('category-style',CategoryStyleViewSet)
 router.register('polygon-data', PolygonDataViewSet)
+router.register('raster-data', RasterDataViewSet)
 
 
 urlpatterns = [
