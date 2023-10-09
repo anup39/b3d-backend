@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from colorfield.fields import ColorField
 from django.contrib.gis.db import models
 from django.db.models import Manager as GeoManager
+import uuid
 # Create your models here.
 
 
@@ -314,6 +315,7 @@ class PointData(models.Model):
 # make endpoint like this "/tiles/{z}/{x}/{y}@{scale}x.{format}
 class RasterData(models.Model):
     id = models.AutoField(primary_key=True)
+    uuid = models.UUIDField( default=uuid.uuid4, editable=False ,unique=True)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
         "Point related to the project"), verbose_name=_("Project"))
     name = models.CharField(max_length=255, help_text=_(
