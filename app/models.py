@@ -198,6 +198,17 @@ class Category(models.Model):
             )
         category_style.save()
 
+    def delete(self, *args, **kwargs):
+        # Check if a CategoryStyle exists for this category
+        try:
+            category_style = CategoryStyle.objects.get(category=self)
+            category_style.delete()  # Delete the related CategoryStyle
+        except CategoryStyle.DoesNotExist:
+            pass  # If no CategoryStyle exists, do nothing
+
+        super().delete(*args, **kwargs)  # Call the parent class's delete method
+
+
 
 
     def __str__(self):
@@ -210,12 +221,12 @@ class Category(models.Model):
 
 
 class CategoryStyle(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
-        "Style related to the project"), verbose_name=_("Project"))
-    category = models.OneToOneField(Category, on_delete=models.PROTECT, help_text=_(
-        "Geometry related to this Category"), verbose_name=_("Category"))
-    global_category = models.OneToOneField(GlobalCategory, on_delete=models.PROTECT, help_text=_(
-        "Geometry related to this Category"), verbose_name=_("Global Category"))
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, help_text=_(
+        "Style related to the project"), verbose_name=_("Project"), null=True,blank=True)
+    category = models.OneToOneField(Category, on_delete=models.SET_NULL, help_text=_(
+        "Geometry related to this Category"), verbose_name=_("Category"),null=True,blank=True)
+    global_category = models.OneToOneField(GlobalCategory, on_delete=models.SET_NULL, help_text=_(
+        "Geometry related to this Category"), verbose_name=_("Global Category"),null=True,blank=True)
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
     fill = ColorField(default='#2c3e50', help_text=_(
@@ -229,9 +240,7 @@ class CategoryStyle(models.Model):
     is_deleted = models.BooleanField(default=False)
     
     
-    def __str__(self):
-        return self.category.project.name + " | " + self.category.sub_category.standard_category.name +  " | " + self.category.sub_category.name + " | " + self.category.name
-
+ 
     class Meta:
         verbose_name = _("CategoryStyle")
         verbose_name_plural = _("CategoryStyles")
@@ -239,14 +248,14 @@ class CategoryStyle(models.Model):
 
 class PolygonData(models.Model):
     id = models.AutoField(primary_key=True)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
-        "Polygon related to the project"), verbose_name=_("Project"))
-    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, help_text=_(
+        "Polygon related to the project"), verbose_name=_("Project") ,null=True,blank=True)
+    standard_category = models.ForeignKey(StandardCategory, on_delete=models.SET_NULL, help_text=_(
         "Standard Category related to the polygon"), verbose_name=_("Standard Category"),null=True,blank=True)
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, help_text=_(
         "Sub Category related to the polygon"), verbose_name=_("Sub Category"),null=True,blank=True)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
-        "Cateogyr related to this polygon"), verbose_name=_("Category"))
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
+        "Cateogyr related to this polygon"), verbose_name=_("Category"),null=True,blank=True)
     created = models.DateTimeField(default=timezone.now)
     geom = models.PolygonField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict, blank=True, null=True)
@@ -264,14 +273,14 @@ class PolygonData(models.Model):
 
 class LineStringData(models.Model):
     id = models.AutoField(primary_key=True)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
-        "LineString related to the project"), verbose_name=_("Project"))
-    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, help_text=_(
+        "LineString related to the project"), verbose_name=_("Project"), null=True,blank=True)
+    standard_category = models.ForeignKey(StandardCategory, on_delete=models.SET_NULL, help_text=_(
         "Standard Category related to the LineString"), verbose_name=_("Standard Category"),null=True,blank=True)
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, help_text=_(
         "Sub Category related to the LineString"), verbose_name=_("Sub Category"),null=True,blank=True)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
-        "Cateogyr related to this LineString"), verbose_name=_("Category"))
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
+        "Cateogyr related to this LineString"), verbose_name=_("Category") ,null=True,blank=True)
     created = models.DateTimeField(default=timezone.now)
     geom = models.LineStringField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict, blank=True, null=True)
@@ -289,14 +298,14 @@ class LineStringData(models.Model):
 
 class PointData(models.Model):
     id = models.AutoField(primary_key=True)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
-        "Point related to the project"), verbose_name=_("Project"))
-    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, help_text=_(
+        "Point related to the project"), verbose_name=_("Project"),null=True,blank=True)
+    standard_category = models.ForeignKey(StandardCategory, on_delete=models.SET_NULL, help_text=_(
         "Standard Category related to the Point"), verbose_name=_("Standard Category"),null=True,blank=True)
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, help_text=_(
         "Sub Category related to the Point"), verbose_name=_("Sub Category"),null=True,blank=True)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, help_text=_(
-        "Cateogyr related to this Point"), verbose_name=_("Category"))
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
+        "Cateogyr related to this Point"), verbose_name=_("Category"),null=True,blank=True)
     created = models.DateTimeField(default=timezone.now)
     geom = models.PointField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict, blank=True, null=True)
