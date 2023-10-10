@@ -186,13 +186,14 @@ class Category(models.Model):
             stroke=global_category_style.stroke, 
             # stroke_width=global_category_style.stroke_width,  
             # xml=global_category_style.xml,  
+            print(type(fill), stroke)
             category_style = CategoryStyle(
                 project=self.project,
                 category=self,
                 global_category=self.global_category,
-                fill=fill,  
+                fill=fill[0],  
                 # fill_opacity=fill_opacity,  
-                stroke=stroke,
+                stroke=stroke[0],
                 # stroke_width=stroke_width, 
                 # xml=xml,  
             )

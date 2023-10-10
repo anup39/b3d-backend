@@ -54,6 +54,8 @@ class Metadata(TaskNestedView):
                 # info['maxzoom'] += ZOOM_EXTRA_LEVELS
                 # info['minzoom'] -= ZOOM_EXTRA_LEVELS
                 info['bounds'] = {'value': src.bounds}
+               
+                # print(dir(src.dataset), 'bounds')
                 return Response(info)
         except IndexError as e:
             # Caught when trying to get an invalid raster metadata
