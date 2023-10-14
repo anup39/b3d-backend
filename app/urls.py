@@ -32,6 +32,6 @@ urlpatterns = [
     path('api-token-auth/', CustomAuthToken.as_view()),
     path('register/', UserRegistrationView.as_view(), name='user-registration'),
     path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
-    path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
+    # path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
 
 ]
