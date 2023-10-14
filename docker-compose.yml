@@ -1,25 +1,9 @@
 version: "3"
 
 services:
-  # node-odm:
-  #   image: opendronemap/nodeodm
-  #   ports:
-  #     - "3000:3000"
-  #   restart: unless-stopped
-  #   oom_score_adj: 500
-  #   volumes:
-  #     - ./data:/var/www/data
-
-  postgres:
-    image: postgis/postgis:15-3.4-alpine
-    env_file: pg_env.txt
-    # ports:
-      # - "5432:5432"
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-
   web:
-    env_file: .env # Change env_sample.txt to env.txt
+    container_name: webapp
+    env_file: .env
     build:
       context: .
       dockerfile: Dockerfile
@@ -28,47 +12,12 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+    networks:
+      - b3d
     # command:
     #   ["bash", "-c", "chmod +x /code/entrypoint.sh && sh /code/entrypoint.sh"]
-    depends_on:
-      - postgres
-
-  martin:
-    build:
-      context: ../martin
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "4000:3000"
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/b3d
-      - RUST_LOG=actix_web=info,martin=debug,tokio_postgres=debug
-    depends_on:
-      - postgres
-
-
-
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   env_file: pg_env.txt
-  #   ports:
-  #     - "5051:80"
-  #   restart: always
-
-
-  # geoserver:
-  #   image: kartoza/geoserver:latest
-  #   environment:
-  #     - GEOSERVER_ADMIN_USER=admin
-  #     - GEOSERVER_ADMIN_PASSWORD=geoserver
-  #   volumes:
-  #     -  ./geoserver_data:/opt/geoserver/data_dir
-  #     -  ./media/Uploads/RasterData:/opt/geoserver/data_dir/raster_data
-
-  #   ports:
-  #     - "8080:8080"
-  #   restart: on-failure
-
+  
+  
   # redis:
   #   image: redis:alpine
   #   restart: always
@@ -105,12 +54,14 @@ services:
   #   env_file:
   #     - .env
 
-volumes:
-  postgres_data:
-    name: postgres_data
-  # geoserver_data:
-  #   name: geoserver_data
+# volumes:
   # redis_data:
   #   name: redis_data
   # logs:
   #   name: logs
+
+
+networks:
+  b3d:
+    external:
+      name: b3d
