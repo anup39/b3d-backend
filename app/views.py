@@ -33,7 +33,7 @@ class ExampleViewSet(viewsets.ViewSet):
             'status': 'success'
         }
         # This is to be on to check the task and celery status
-        # handleExampleTask.delay()
+        handleExampleTask.delay()
 
         return Response(data)
     

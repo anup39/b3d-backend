@@ -18,26 +18,32 @@ services:
     #   ["bash", "-c", "chmod +x /code/entrypoint.sh && sh /code/entrypoint.sh"]
   
   
-  # redis:
-  #   image: redis:alpine
-  #   restart: always
-  #   command: redis-server --appendonly yes
-  #   volumes:
-  #     - ./redis_data:/var/lib/redis
+  redis:
+    container_name: redis
+    image: redis:alpine
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/var/lib/redis
+    networks:
+      - b3d
 
-  # worker:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   entrypoint: "celery -A project worker -l DEBUG -Q default,b3d --pool=solo"
-  #   depends_on:
-  #     - web
-  #   volumes:
-  #     - .:/code
-  #     - ./logs/:/logs/
-  #   env_file:
-  #     - .env
+  worker:
+    container_name: worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    entrypoint: "celery -A project worker -l DEBUG -Q default,b3d --pool=solo"
+    depends_on:
+      - web
+    volumes:
+      - .:/code
+      - logs:/logs/
+    env_file:
+      - .env
+    networks:
+      - b3d
 
   # beat:
   #   build:
@@ -54,14 +60,14 @@ services:
   #   env_file:
   #     - .env
 
-# volumes:
-  # redis_data:
-  #   name: redis_data
-  # logs:
-  #   name: logs
-
+volumes:
+  redis_data:
+    name: redis_data
+  logs:
+    name: logs
 
 networks:
   b3d:
     external:
       name: b3d
+
