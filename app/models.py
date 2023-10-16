@@ -343,10 +343,6 @@ class RasterData(models.Model):
         super().save(*args, **kwargs)  
         
         try:
-            print("Lets start task")
-            print(self.id , self.tif_file )
-            file_name = os.path.splitext(os.path.basename(str(self.tif_file)))[0]
-            print(file_name ,"file_name")
             handleCreateBands.delay(str(self.tif_file), self.pk)
         except:
             print("Some problem occured")
