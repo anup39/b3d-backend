@@ -134,6 +134,3 @@ class RasterDataViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RasterDataFilter
 
-
-
-#

@@ -4,7 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from colorfield.fields import ColorField
 from django.contrib.gis.db import models
 from django.db.models import Manager as GeoManager
-import uuid
+import uuid , os
+from .tasks import handleCreateBands
 # Create your models here.
 
 
@@ -335,6 +336,20 @@ class RasterData(models.Model):
 
     def __str__(self):
         return self.name
+
+
+    def save(self, *args, **kwargs):
+        created = not self.pk  
+        super().save(*args, **kwargs)  
+        
+        try:
+            print("Lets start task")
+            print(self.id , self.tif_file )
+            file_name = os.path.splitext(os.path.basename(str(self.tif_file)))[0]
+            print(file_name ,"file_name")
+            handleCreateBands.delay(str(self.tif_file), self.pk)
+        except:
+            print("Some problem occured")
 
     class Meta:
         verbose_name_plural = 'RasterData'
