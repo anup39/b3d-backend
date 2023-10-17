@@ -337,16 +337,6 @@ class RasterData(models.Model):
     def __str__(self):
         return self.name
 
-
-    def save(self, *args, **kwargs):
-        created = not self.pk  
-        super().save(*args, **kwargs)  
-        
-        try:
-            handleCreateBands.delay(str(self.tif_file), self.pk)
-        except:
-            print("Some problem occured")
-
     class Meta:
         verbose_name_plural = 'RasterData'
 

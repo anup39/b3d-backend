@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from .tasks import handleExampleTask
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework import generics
+from rest_framework import generics ,status
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
@@ -19,6 +19,8 @@ from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
 from .filters import RasterDataFilter
+from .tasks import handleCreateBands
+from .tasks import handleCreateBandsNormal
 
 
 
@@ -133,4 +135,18 @@ class RasterDataViewSet(viewsets.ModelViewSet):
     serializer_class = RasterDataSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = RasterDataFilter
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        id = serializer.data.get('id')
+        tif_file=serializer.data.get('tif_file')
+        headers = self.get_success_headers(serializer.data)
+        result = handleCreateBandsNormal(tif_file,id ) 
+
+        if result:
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        
+        return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
 
