@@ -16,8 +16,7 @@ services:
       - b3d
     # command:
     #   ["bash", "-c", "chmod +x /code/entrypoint.sh && sh /code/entrypoint.sh"]
-  
-  
+
   redis:
     container_name: redis
     image: redis:alpine
@@ -70,4 +69,3 @@ networks:
   b3d:
     external:
       name: b3d
-
