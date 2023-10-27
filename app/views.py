@@ -147,6 +147,5 @@ class RasterDataViewSet(viewsets.ModelViewSet):
 
         if result:
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        
         return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
 
