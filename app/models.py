@@ -4,10 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from colorfield.fields import ColorField
 from django.contrib.gis.db import models
 from django.db.models import Manager as GeoManager
-import uuid , os
-from .tasks import handleCreateBands
-# Create your models here.
-
 
 class Project(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT, help_text=_("The person who created the project"), verbose_name=_("Owner"))

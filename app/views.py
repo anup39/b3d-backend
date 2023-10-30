@@ -19,8 +19,7 @@ from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
 from .filters import RasterDataFilter
-from .tasks import handleCreateBands
-from .tasks import handleCreateBandsNormal
+
 
 
 
@@ -143,7 +142,7 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         id = serializer.data.get('id')
         tif_file=serializer.data.get('tif_file')
         headers = self.get_success_headers(serializer.data)
-        result = handleCreateBandsNormal(tif_file,id ) 
+        # result = handleCreateBandsNormal(tif_file,id ) 
 
         if result:
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
