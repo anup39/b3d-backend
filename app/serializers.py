@@ -153,6 +153,11 @@ class PolygonDataSerializer (serializers.ModelSerializer):
 
 
 class RasterDataSerializer (serializers.ModelSerializer):
+    path_of_file = serializers.SerializerMethodField('get_path_of_file')
+
+    def get_path_of_file(self,obj):
+        return str(obj.tif_file)
+    
     class Meta:
         model=RasterData
         fields="__all__"

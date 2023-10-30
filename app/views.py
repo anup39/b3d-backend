@@ -1,3 +1,4 @@
+import os 
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .tasks import handleExampleTask
@@ -19,6 +20,8 @@ from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
 from .filters import RasterDataFilter
+from .create_bands import handleCreateBandsNormal
+from django.conf import settings
 
 
 
@@ -140,9 +143,11 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         id = serializer.data.get('id')
-        tif_file=serializer.data.get('tif_file')
+        file_path = os.path.join(settings.MEDIA_ROOT , serializer.data.get("path_of_file"))
         headers = self.get_success_headers(serializer.data)
-        # result = handleCreateBandsNormal(tif_file,id ) 
+        output_folder = os.path.join(settings.BASE_DIR ,"optimized")
+        result = handleCreateBandsNormal(file_path=file_path,raster_id=id,output_folder= output_folder) 
+
 
         if result:
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
