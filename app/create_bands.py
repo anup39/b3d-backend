@@ -116,7 +116,8 @@ def handleCreateBandsNormal(file_path , raster_id ,output_folder):
 
                     if not in_memory:
                         os.remove(tempraster)
-                        pass     
+                        pass
+                         
 
                     print('in end')           
 

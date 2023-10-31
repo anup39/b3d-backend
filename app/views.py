@@ -1,7 +1,8 @@
 import os 
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .tasks import handleExampleTask
+from rest_framework.views import APIView
+from .tasks import handleExampleTask, handleCreateBandsNormal_
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework import generics ,status
@@ -22,12 +23,23 @@ from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
 from .filters import RasterDataFilter
 from .create_bands import handleCreateBandsNormal
 from django.conf import settings
+from celery.result import AsyncResult
 
 
 
 
 
 # Create your views here.
+
+
+class TaskStatusView(APIView):
+    def get(self, request, task_id):
+        result = AsyncResult(task_id)
+        response_data = {
+            'status': result.status,
+            'result': result.result,
+        }
+        return Response(response_data)
 
 class ExampleViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -146,7 +158,15 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         file_path = os.path.join(settings.MEDIA_ROOT , serializer.data.get("path_of_file"))
         headers = self.get_success_headers(serializer.data)
         output_folder = os.path.join(settings.BASE_DIR ,"optimized")
-        result = handleCreateBandsNormal(file_path=file_path,raster_id=id,output_folder= output_folder) 
+        # result = handleCreateBandsNormal(file_path=file_path,raster_id=id,output_folder= output_folder) 
+        result = handleCreateBandsNormal_.delay(file_path=file_path,raster_id=id,output_folder= output_folder) 
+        task_id = result.task_id  # Get the task_id
+
+        # Update the RasterData instance with the task_id
+        raster_data_instance = RasterData.objects.get(id=id)
+        raster_data_instance.task_id = task_id
+        raster_data_instance.save()  # Save the updated instance
+
 
 
         if result:
