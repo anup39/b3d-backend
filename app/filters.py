@@ -106,7 +106,9 @@ class CategoryStyleFilter(django_filters.FilterSet):
 
 class RasterDataFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(field_name='project__id')
+    is_display = django_filters.BooleanFilter(field_name='is_display')
+
 
     class Meta:
         model= RasterData
-        fields = ['project',]
+        fields = ['project','is_display',]
