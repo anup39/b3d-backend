@@ -12,9 +12,9 @@ def handleExampleTask(self):
 
 
 @shared_task(bind=True, max_retries=3, soft_time_limit=2000)
-def handleCreateBandsNormal_(self,file_path,raster_id,output_folder):
+def handleCreateBandsNormal_(self,file_path,raster_id,output_folder,model):
     try:
-        result = handleCreateBandsNormal(file_path,raster_id,output_folder)
+        result = handleCreateBandsNormal(file_path,raster_id,output_folder,model)
         return result
         
     except Exception as e:

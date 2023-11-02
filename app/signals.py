@@ -13,6 +13,13 @@ def delete_raster_data_files(sender, instance, **kwargs):
         if os.path.isfile(instance.tif_file.path):
             print(instance.tif_file.path)
             os.remove(instance.tif_file.path)
+
+     # Delete the associated file from the media storage
+    if instance.screenshot_image:
+        if os.path.isfile(instance.screenshot_image.path):
+            print(instance.screenshot_image.path)
+            if not (instance.screenshot_image.path == f"{settings.BASE_DIR}/media/Uploads/RasterImage/raster_sample.png"):     
+                os.remove(instance.screenshot_image.path)
        
 
     # Delete the optimized files

@@ -159,17 +159,15 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         output_folder = os.path.join(settings.BASE_DIR ,"optimized")
         # result = handleCreateBandsNormal(file_path=file_path,raster_id=id,output_folder= output_folder) 
-        result = handleCreateBandsNormal_.delay(file_path=file_path,raster_id=id,output_folder= output_folder) 
-        task_id = result.task_id  # Get the task_id
+
+        result = handleCreateBandsNormal_.delay(file_path=file_path,raster_id=id,output_folder= output_folder ,model="RasterData") 
+        task_id = result.task_id  
 
         # Update the RasterData instance with the task_id
         raster_data_instance = RasterData.objects.get(id=id)
         raster_data_instance.task_id = task_id
         raster_data_instance.save()  # Save the updated instance
 
-
-
         if result:
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
-

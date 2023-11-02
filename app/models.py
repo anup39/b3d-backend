@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from colorfield.fields import ColorField
 from django.contrib.gis.db import models
 from django.db.models import Manager as GeoManager
+from .make_thumbnail import make_thumbnail
 
 class Project(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT, help_text=_("The person who created the project"), verbose_name=_("Owner"))
@@ -319,6 +320,10 @@ class PointData(models.Model):
         return str(self.project.name)
     
 
+def validate_png(value):
+    if not value.name.endswith('.png'):
+        raise ValidationError("Only PNG files are allowed.")    
+
 # make endpoint like this "/tiles/{z}/{x}/{y}@{scale}x.{format}
 class RasterData(models.Model):
     id = models.AutoField(primary_key=True)
@@ -327,13 +332,24 @@ class RasterData(models.Model):
         "Point related to the project"), verbose_name=_("Project"))
     name = models.CharField(max_length=255, help_text=_(
         "Name for the rater data"), verbose_name=_("Name"))
+    file_name = models.CharField(max_length=255, help_text=_(
+        "Name for the rater file"), verbose_name=_("File Name"),default="")
     tif_file = models.FileField(upload_to="Uploads/RasterData")
     progress = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=255, help_text=_( "Status for the task"), verbose_name=_("Status"),default="Uploaded")
     file_size = models.PositiveIntegerField(default=0)
+    projection = models.CharField(max_length=255, help_text=_( "Projection of the Tif"), verbose_name=_("Projection"),default="Not Defined")
+    screenshot_image = models.ImageField(upload_to='Uploads/RasterImage', default='Uploads/RasterImage/raster_sample.png',  validators=[validate_png])
     is_display = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     created_on = models.DateTimeField(default=timezone.now)
+
+    # def save(self, *args, **kwargs):
+    #     if self.screenshot_image:
+    #         if not make_thumbnail(self.screenshot_image):
+    #             raise Exception(
+    #                 'Could not create thumbnail- is the file type is valid')
+    #     super(RasterData, self).save(*args, **kwargs)
 
 
     def __str__(self):
