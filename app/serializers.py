@@ -10,7 +10,7 @@ from .models import Role, UserRole
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'password', 'email')
+        fields = ('username', 'password', 'email' ,'id')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

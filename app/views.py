@@ -181,7 +181,7 @@ class RoleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
-class UserRoleViewSet(viewsets.ReadOnlyModelViewSet):
+class UserRoleViewSet(viewsets.ModelViewSet):
     queryset = UserRole.objects.all()
     serializer_class = UserRoleSerializer
     filter_backends = [DjangoFilterBackend,]
