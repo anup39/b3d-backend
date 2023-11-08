@@ -26,7 +26,7 @@ router.register('category-style',CategoryStyleViewSet)
 router.register('polygon-data', PolygonDataViewSet)
 router.register('raster-data', RasterDataViewSet)
 router.register('roles',RoleViewSet)
-router.register('user-role',RoleViewSet)
+router.register('user-role',UserRoleViewSet)
 
 
 
