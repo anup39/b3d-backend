@@ -4,6 +4,7 @@ from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCa
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import PolygonData
 from .models import RasterData
+from .models import Role, UserRole
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -160,4 +161,17 @@ class RasterDataSerializer (serializers.ModelSerializer):
     
     class Meta:
         model=RasterData
+        fields="__all__"
+
+
+#For Roles
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Role
+        fields="__all__"
+
+
+class UserRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=UserRole
         fields="__all__"

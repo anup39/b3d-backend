@@ -12,11 +12,13 @@ from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCa
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import PolygonData
 from .models import RasterData
+from .models import Role, UserRole
 from .serializers import UserRegistrationSerializer , ProjectSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
 from .serializers import PolygonDataSerializer
 from .serializers import RasterDataSerializer
+from .serializers import RoleSerializer, UserRoleSerializer
 from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
@@ -171,3 +173,13 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         if result:
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
+
+
+#For Roles 
+class RoleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+class UserRoleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = UserRole.objects.all()
+    serializer_class = UserRoleSerializer

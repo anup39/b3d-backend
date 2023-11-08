@@ -18,8 +18,8 @@ class Project(models.Model):
     def __str__(self):
         return self.name
     class Meta:
-        verbose_name = _("Project")
-        verbose_name_plural = _("Projects")
+        verbose_name = _("Client")
+        verbose_name_plural = _("Clients")
 
 
 class CaseInsensitiveCharField(models.CharField):
