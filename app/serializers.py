@@ -166,6 +166,11 @@ class RasterDataSerializer (serializers.ModelSerializer):
 
 #For Roles
 class RoleSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name =  obj.name
+        return full_name
     class Meta:
         model=Role
         fields="__all__"
