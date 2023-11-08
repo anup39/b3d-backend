@@ -3,6 +3,7 @@ from .models import Project
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import GlobalSubCategory ,GlobalCategory
 from .models import RasterData
+from .models import UserRole
 
 
 # Project filter
@@ -112,3 +113,13 @@ class RasterDataFilter(django_filters.FilterSet):
     class Meta:
         model= RasterData
         fields = ['project','is_display',]
+
+
+
+class UserRoleFilter(django_filters.FilterSet):
+    user = django_filters.CharFilter(field_name='user__id')
+
+
+    class Meta:
+        model= UserRole
+        fields = ['user',]

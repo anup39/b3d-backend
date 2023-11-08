@@ -18,11 +18,12 @@ from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySeri
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
 from .serializers import PolygonDataSerializer
 from .serializers import RasterDataSerializer
-from .serializers import RoleSerializer, UserRoleSerializer
+from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
 from .filters import RasterDataFilter
+from .filters import UserRoleFilter
 from .create_bands import handleCreateBandsNormal
 from django.conf import settings
 from celery.result import AsyncResult
@@ -183,3 +184,11 @@ class RoleViewSet(viewsets.ReadOnlyModelViewSet):
 class UserRoleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = UserRole.objects.all()
     serializer_class = UserRoleSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = UserRoleFilter
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset= User.objects.filter(is_active=True)
+    serializer_class = UserSerializer
+

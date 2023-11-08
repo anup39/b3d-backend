@@ -172,6 +172,16 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class UserRoleSerializer(serializers.ModelSerializer):
+
+    role_name = serializers.SerializerMethodField('get_role_name')
+
+    def get_role_name(self,obj):
+        return str(obj.role.name)
     class Meta:
         model=UserRole
+        fields="__all__"
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
         fields="__all__"
