@@ -24,6 +24,7 @@ from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
 from .filters import RasterDataFilter
 from .filters import UserRoleFilter
+from .filters import UserProjectFilter
 from .create_bands import handleCreateBandsNormal
 from django.conf import settings
 from celery.result import AsyncResult
@@ -195,5 +196,8 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UserProjectViewSet(viewsets.ModelViewSet):
     queryset= UserProject.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserProjectSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = UserProjectFilter
+    
 

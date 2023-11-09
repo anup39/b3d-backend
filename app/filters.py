@@ -4,6 +4,7 @@ from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import GlobalSubCategory ,GlobalCategory
 from .models import RasterData
 from .models import UserRole
+from .models import UserProject
 
 
 # Project filter
@@ -123,3 +124,13 @@ class UserRoleFilter(django_filters.FilterSet):
     class Meta:
         model= UserRole
         fields = ['user',]
+
+class UserProjectFilter(django_filters.FilterSet):
+    user = django_filters.CharFilter(field_name='user__id')
+    project = django_filters.CharFilter(field_name='project__id')
+
+
+
+    class Meta:
+        model= UserProject
+        fields = ['user','project',]

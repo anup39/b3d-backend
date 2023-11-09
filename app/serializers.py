@@ -193,6 +193,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProjectSerializer(serializers.ModelSerializer):
+    user_name = serializers.SerializerMethodField('get_user_name')
+    project_name = serializers.SerializerMethodField('get_project_name')
+
+    def get_user_name(self,obj):
+        return str(obj.user.username)
+
+    def get_project_name(self,obj):
+        return str(obj.project.name)
     class Meta:
         model=UserProject
         fields="__all__"
