@@ -28,7 +28,7 @@ router.register('raster-data', RasterDataViewSet)
 router.register('global-roles',RoleViewSet)
 router.register('user-role',UserRoleViewSet)
 router.register('users',UserViewSet)
-router.register('user-project',UserProjectViewSet)
+router.register('user-projects',UserProjectViewSet)
 
 
 
