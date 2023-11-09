@@ -11,10 +11,11 @@ class Project(models.Model):
     name = models.CharField(max_length=255, help_text=_("A label used to describe the project"), verbose_name=_("Name"))
     description = models.TextField(default="" , help_text=_("More in-depth description of the project"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_("Creation date"), verbose_name=_("Created at"))
-    deleting = models.BooleanField(db_index=True, default=False, help_text=_("Whether this project has been marked for deletion. Projects that have running tasks need to wait for tasks to be properly cleaned up before they can be deleted."), verbose_name=_("Deleting"))
-    tags = models.TextField(db_index=True, default="",  help_text=_("Project tags"), verbose_name=_("Tags"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
-
+   
     def __str__(self):
         return self.name
     class Meta:
@@ -36,6 +37,9 @@ class GlobalStandardCategory(models.Model):
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.name)
@@ -50,6 +54,9 @@ class GlobalSubCategory(models.Model):
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (("standard_category", "name"),)
@@ -73,6 +80,9 @@ class GlobalCategory(models.Model):
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.sub_category.standard_category.name + "|" + "|" +self.sub_category.name+"|"+ self.name
@@ -91,6 +101,9 @@ class GlobalCategoryStyle(models.Model):
     xml  = models.TextField(null=True )
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     
     def __str__(self):
         return self.category.sub_category.standard_category.name +"|"+  self.category.sub_category.name +"|"+ self.category.name
@@ -106,12 +119,14 @@ class StandardCategory(models.Model):
         "Global Standard Category related to the project"), verbose_name=_("Global Standard Category"))
     description = models.TextField(default="",  help_text=_(
         "Description about this category"), verbose_name=_("Description"))
+    view_name = models.CharField(max_length=255,  null=True)
+    publised = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
-    publised = models.BooleanField(default=False)
-    view_name = models.CharField(max_length=255,  null=True)
-    is_display = models.BooleanField(default=False)
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
+
 
 
     def __str__(self):
@@ -133,11 +148,12 @@ class SubCategory(models.Model):
         "Global Sub Category related to the project"), verbose_name=_("Global Sub Category"))
     description = models.TextField(default="",  help_text=_(
         "Description about this category"), verbose_name=_("Description"))
+    view_name = models.CharField(max_length=255,  null=True)
+    publised = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
-    publised = models.BooleanField(default=False)
-    view_name = models.CharField(max_length=255,  null=True)
-    is_display = models.BooleanField(default=False)
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
 
@@ -163,11 +179,12 @@ class Category(models.Model):
         "Global Category related to the project"), verbose_name=_("Global  Category"))
     description = models.TextField(default="",  help_text=_(
         "Description about this category"), verbose_name=_("Description"))
+    view_name = models.CharField(max_length=255,  null=True)
+    publised = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
-    publised = models.BooleanField(default=False)
-    view_name = models.CharField(max_length=255,  null=True)
-    is_display = models.BooleanField(default=False)
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
 
@@ -226,8 +243,7 @@ class CategoryStyle(models.Model):
         "Geometry related to this Category"), verbose_name=_("Category"),null=True)
     global_category = models.OneToOneField(GlobalCategory, on_delete=models.SET_NULL, help_text=_(
         "Geometry related to this Category"), verbose_name=_("Global Category"),null=True)
-    created_at = models.DateTimeField(default=timezone.now, help_text=_(
-        "Creation date"), verbose_name=_("Created at"))
+
     fill = ColorField(default='#2c3e50', help_text=_(
         "Fill color for the polygon"), verbose_name=_("Fill Color"))
     fill_opacity = models.DecimalField(decimal_places=2, max_digits=3, default=0.5)
@@ -235,6 +251,9 @@ class CategoryStyle(models.Model):
         "Stroke coloe for the polygon"), verbose_name=_("Stroke Color"))
     stroke_width = models.PositiveIntegerField(default=1 )
     xml  = models.TextField(null=True)
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     
@@ -255,9 +274,12 @@ class PolygonData(models.Model):
         "Sub Category related to the polygon"), verbose_name=_("Sub Category"),null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this polygon"), verbose_name=_("Category"),null=True)
-    created = models.DateTimeField(default=timezone.now)
     geom = models.PolygonField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     
     # label = models.CharField
 
@@ -280,9 +302,12 @@ class LineStringData(models.Model):
         "Sub Category related to the LineString"), verbose_name=_("Sub Category"),null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this LineString"), verbose_name=_("Category") ,null=True)
-    created = models.DateTimeField(default=timezone.now)
     geom = models.LineStringField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     
     # label = models.CharField
 
@@ -305,9 +330,12 @@ class PointData(models.Model):
         "Sub Category related to the Point"), verbose_name=_("Sub Category"),null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this Point"), verbose_name=_("Category"),null=True)
-    created = models.DateTimeField(default=timezone.now)
     geom = models.PointField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     
     # label = models.CharField
 
@@ -339,10 +367,12 @@ class RasterData(models.Model):
     status = models.CharField(max_length=255, help_text=_( "Status for the task"), verbose_name=_("Status"),default="Uploaded")
     file_size = models.PositiveIntegerField(default=0)
     projection = models.CharField(max_length=255, help_text=_( "Projection of the Tif"), verbose_name=_("Projection"),default="Not Defined")
-    screenshot_image = models.ImageField(upload_to='Uploads/RasterImage', default='Uploads/RasterImage/raster_sample.png',  validators=[validate_png])
-    is_display = models.BooleanField(default=False)
+    screenshot_image = models.ImageField(upload_to='Uploads/RasterImage', default='Uploads/RasterImage/raster_sample.png',  validators=[validate_png])   
+    created_at = models.DateTimeField(default=timezone.now)
+    is_display = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
-    created_on = models.DateTimeField(default=timezone.now)
+    is_edited = models.BooleanField(default=False)
+
 
     # def save(self, *args, **kwargs):
     #     if self.screenshot_image:
@@ -362,6 +392,11 @@ class RasterData(models.Model):
 class Role(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, help_text=_( "Name of the Role"), verbose_name=_("Name"),default="basic")
+    created_at = models.DateTimeField(default=timezone.now, help_text=_("Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+    
 
     def __str__(self) -> str:
         return self.name
@@ -372,6 +407,10 @@ class UserRole(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,  help_text=_("The person who created the project"), verbose_name=_("User"))
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, help_text= _("Role of the user"), verbose_name=_("Role"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_("Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.role.name
@@ -381,6 +420,10 @@ class UserProject(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,  help_text=_("User"), verbose_name=_("User"))
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text= _("Project"), verbose_name=_("Project"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_("Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.user.username + "|"+self.project.name
