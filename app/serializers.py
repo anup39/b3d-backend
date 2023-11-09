@@ -200,12 +200,20 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProjectSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField('get_user_name')
     project_name = serializers.SerializerMethodField('get_project_name')
+    role_name = serializers.SerializerMethodField('get_role_name')
+
+
 
     def get_user_name(self,obj):
         return str(obj.user.username)
 
     def get_project_name(self,obj):
         return str(obj.project.name)
+
+    def get_role_name(self,obj):
+        user_role = UserRole.objects.get(user=obj.user)
+        return str(user_role.role.name)
+    
     class Meta:
         model=UserProject
         fields="__all__"
