@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from colorfield.fields import ColorField
 from django.contrib.gis.db import models
 from django.db.models import Manager as GeoManager
-from .make_thumbnail import make_thumbnail
 
 class Project(models.Model):
     owner = models.ForeignKey(User, on_delete=models.SET_NULL,null=True, help_text=_("The person who created the project"), verbose_name=_("Owner"))
@@ -188,42 +187,30 @@ class Category(models.Model):
 
 
     def save(self, *args, **kwargs):
-        created = not self.pk  
         super().save(*args, **kwargs)  
-      
         try:
             category_style = CategoryStyle.objects.get(category=self)
         except CategoryStyle.DoesNotExist:
             global_category_style = GlobalCategoryStyle.objects.get(category=self.global_category)
             fill=global_category_style.fill,  
-            # fill_opacity=global_category_style.fill_opacity,  
             stroke=global_category_style.stroke, 
-            # stroke_width=global_category_style.stroke_width,  
-            # xml=global_category_style.xml,  
-            print(type(fill), stroke)
             category_style = CategoryStyle(
                 project=self.project,
                 category=self,
                 global_category=self.global_category,
                 fill=fill[0],  
-                # fill_opacity=fill_opacity,  
                 stroke=stroke[0],
-                # stroke_width=stroke_width, 
-                # xml=xml,  
             )
         category_style.save()
 
     def delete(self, *args, **kwargs):
-        # Check if a CategoryStyle exists for this category
         try:
             category_style = CategoryStyle.objects.get(category=self)
-            category_style.delete()  # Delete the related CategoryStyle
+            category_style.delete()  
         except CategoryStyle.DoesNotExist:
-            pass  # If no CategoryStyle exists, do nothing
+            pass  
 
-        super().delete(*args, **kwargs)  # Call the parent class's delete method
-
-
+        super().delete(*args, **kwargs)  
 
 
     def __str__(self):
@@ -279,7 +266,6 @@ class PolygonData(models.Model):
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     
-    # label = models.CharField
 
     objects = GeoManager()
 
@@ -306,8 +292,7 @@ class LineStringData(models.Model):
     is_display = models.BooleanField(default=True)
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
-    
-    # label = models.CharField
+
 
     objects = GeoManager()
 
@@ -335,8 +320,6 @@ class PointData(models.Model):
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     
-    # label = models.CharField
-
     objects = GeoManager()
 
     class Meta:
@@ -370,14 +353,6 @@ class RasterData(models.Model):
     is_display = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     is_edited = models.BooleanField(default=False)
-
-
-    # def save(self, *args, **kwargs):
-    #     if self.screenshot_image:
-    #         if not make_thumbnail(self.screenshot_image):
-    #             raise Exception(
-    #                 'Could not create thumbnail- is the file type is valid')
-    #     super(RasterData, self).save(*args, **kwargs)
 
 
     def __str__(self):

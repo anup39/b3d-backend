@@ -30,12 +30,6 @@ from django.conf import settings
 from celery.result import AsyncResult
 
 
-
-
-
-# Create your views here.
-
-
 class TaskStatusView(APIView):
     def get(self, request, task_id):
         result = AsyncResult(task_id)
