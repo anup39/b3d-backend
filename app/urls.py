@@ -5,7 +5,7 @@ from .views import StandardCategoryViewSet, SubCategoryViewSet , CategoryViewSet
 from .views import PolygonDataViewSet
 from .views import RasterDataViewSet
 from .views import TaskStatusView
-from .views import RoleViewSet, UserRoleViewSet, UserViewSet
+from .views import RoleViewSet, UserRoleViewSet, UserViewSet , UserProjectViewSet
 from django.urls import path, include , re_path
 from .tiler import Metadata, Tiles
 
@@ -28,6 +28,8 @@ router.register('raster-data', RasterDataViewSet)
 router.register('global-roles',RoleViewSet)
 router.register('user-role',UserRoleViewSet)
 router.register('users',UserViewSet)
+router.register('user-project',UserProjectViewSet)
+
 
 
 

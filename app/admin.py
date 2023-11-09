@@ -4,7 +4,7 @@ from .models import GlobalStandardCategory, GlobalCategory, GlobalSubCategory , 
 from .models import StandardCategory, SubCategory, Category,CategoryStyle
 from .models import PolygonData,LineStringData ,PointData
 from .models import RasterData
-from .models import Role, UserRole
+from .models import Role, UserRole , UserProject
 
 # Register your models here.
 admin.site.register(Project)
@@ -25,5 +25,6 @@ admin.site.register(RasterData)
 
 admin.site.register(Role)
 admin.site.register(UserRole)
+admin.site.register(UserProject)
 
 

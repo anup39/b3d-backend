@@ -375,3 +375,12 @@ class UserRole(models.Model):
 
     def __str__(self) -> str:
         return self.role.name
+
+
+class UserProject(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,  help_text=_("User"), verbose_name=_("User"))
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text= _("Project"), verbose_name=_("Project"))
+
+    def __str__(self) -> str:
+        return self.user.username + "|"+self.project.name

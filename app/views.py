@@ -12,13 +12,13 @@ from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCa
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import PolygonData
 from .models import RasterData
-from .models import Role, UserRole
+from .models import Role, UserRole , UserProject
 from .serializers import UserRegistrationSerializer , ProjectSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
 from .serializers import PolygonDataSerializer
 from .serializers import RasterDataSerializer
-from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
+from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer , UserProjectSerializer
 from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
@@ -190,5 +190,10 @@ class UserRoleViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset= User.objects.filter(is_active=True)
+    serializer_class = UserSerializer
+
+
+class UserProjectViewSet(viewsets.ModelViewSet):
+    queryset= UserProject.objects.all()
     serializer_class = UserSerializer
 
