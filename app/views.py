@@ -76,12 +76,42 @@ class UserRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
 
+
+#TODO When project created create the userproject also
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ProjectFilter
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = ProjectFilter
     
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        try:
+            user = request.user 
+            print(user,'user')
+
+            if user is not None:
+                role = UserRole.objects.get(user=user)
+                if str(role) == "admin":
+                    pass
+                else:
+                    user_projects = UserProject.objects.filter(user=user)
+                    print(user_projects,"user projects")
+                    project_ids = user_projects.values_list('project_id', flat=True)  
+                    queryset = queryset.filter(id__in=project_ids)
+        except:
+            # Continue with your existing code
+            queryset = self.filter_queryset(queryset)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 
 # For standard Categories
 class GlobalStandardCategoryViewSet(viewsets.ModelViewSet):

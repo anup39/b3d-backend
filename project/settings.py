@@ -167,3 +167,10 @@ CELERY_TASK_ROUTES = {
     'app.tasks.handleCreateBandsNormal_': {'queue': 'default'},
 
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
