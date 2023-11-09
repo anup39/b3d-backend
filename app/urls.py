@@ -4,10 +4,10 @@ from .views import GlobalStandardCategoryViewSet, GlobalSubCategoryViewSet , Glo
 from .views import StandardCategoryViewSet, SubCategoryViewSet , CategoryViewSet ,CategoryStyleViewSet
 from .views import PolygonDataViewSet
 from .views import RasterDataViewSet
-from .views import TaskStatusView
 from .views import RoleViewSet, UserRoleViewSet, UserViewSet , UserProjectViewSet
 from django.urls import path, include , re_path
-from .tiler import Metadata, Tiles
+# from .views import TaskStatusView
+# from .tiler import Metadata, Tiles
 
 
 
@@ -40,8 +40,8 @@ urlpatterns = [
          name='example-api'),
     path('api-token-auth/', CustomAuthToken.as_view()),
     path('register/', UserRegistrationView.as_view(), name='user-registration'),
-    path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
+    # path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
-    path('task-status/<str:task_id>/', TaskStatusView.as_view(), name='task-status'),
+    # path('task-status/<str:task_id>/', TaskStatusView.as_view(), name='task-status'),
 
 ]

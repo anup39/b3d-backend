@@ -98,7 +98,6 @@ class GlobalCategoryStyle(models.Model):
     stroke = ColorField(default='#C86AFF', help_text=_(
         "Stroke color for the polygon"), verbose_name=_("Stroke Color"))
     stroke_width = models.PositiveIntegerField(default=1 )
-    xml  = models.TextField(null=True )
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
     is_display = models.BooleanField(default=True)
@@ -250,7 +249,6 @@ class CategoryStyle(models.Model):
     stroke = ColorField(default='#ffffff', help_text=_(
         "Stroke coloe for the polygon"), verbose_name=_("Stroke Color"))
     stroke_width = models.PositiveIntegerField(default=1 )
-    xml  = models.TextField(null=True)
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
     is_display = models.BooleanField(default=True)
