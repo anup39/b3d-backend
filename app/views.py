@@ -28,6 +28,7 @@ from .filters import UserProjectFilter
 from .create_bands import handleCreateBandsNormal
 from django.conf import settings
 from celery.result import AsyncResult
+from .utils import handle_delete_request
 
 
 class TaskStatusView(APIView):
@@ -73,7 +74,7 @@ class UserRegistrationView(generics.CreateAPIView):
 
 #TODO When project created create the userproject also
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.filter(is_deleted=False).order_by('created_at')
+    queryset = Project.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = ProjectSerializer
     # filter_backends = [DjangoFilterBackend]
     # filterset_class = ProjectFilter
@@ -105,61 +106,71 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        payload = request.data
+        if 'is_deleted' in payload:
+            if 'is_deleted' is True:
+                result = handle_delete_request(id = kwargs.get('pk'), model='Project')
+                if result:
+                    return self.update(request, *args, **kwargs)
+                return Response({'message': "Error in Deleting the project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return self.update(request, *args, **kwargs)
+        return self.update(request, *args, **kwargs)
+    
+
 
 
 # For standard Categories
 class GlobalStandardCategoryViewSet(viewsets.ModelViewSet):
+    queryset = GlobalStandardCategory.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = GlobalStandardCategorySerializer
-    queryset = GlobalStandardCategory.objects.all()
     pagination_class = None
 
 class GlobalSubCategoryViewSet(viewsets.ModelViewSet):
+    queryset = GlobalSubCategory.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = GlobalSubCategorySerializer
-    queryset = GlobalSubCategory.objects.all()
     filter_backends = [DjangoFilterBackend,]
     filterset_class = GlobalSubCategoryFilter
     pagination_class = None
 
 class GlobalCategoryViewSet(viewsets.ModelViewSet):
+    queryset = GlobalCategory.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = GlobalCategorySerializer
-    queryset = GlobalCategory.objects.all()
     filter_backends = [DjangoFilterBackend,]
     filterset_class = GlobalCategoryFilter
     pagination_class = None
 
 class GlobalCategoryStyleViewSet(viewsets.ModelViewSet):
+    queryset = GlobalCategoryStyle.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = GlobalCategoryStyleSerializer
-    queryset = GlobalCategoryStyle.objects.all()
     pagination_class = None
 
 
 #For project categories
 class StandardCategoryViewSet(viewsets.ModelViewSet):
-
-    queryset = StandardCategory.objects.filter(is_display=True)
+    queryset = StandardCategory.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = StandardCategorySerializer 
     filter_backends = [DjangoFilterBackend]
     filterset_class = StandardCategoryFilter
 
 
 class SubCategoryViewSet(viewsets.ModelViewSet):
-    queryset = SubCategory.objects.filter(is_display=True)
+    queryset = SubCategory.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = SubCategorySerializer 
     filter_backends = [DjangoFilterBackend,]
     filterset_class = SubCategoryFilter
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-
-    queryset = Category.objects.filter(is_display=True)
+    queryset = Category.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = CategorySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryFilter
 
 
 class CategoryStyleViewSet(viewsets.ModelViewSet):
-
-    queryset = CategoryStyle.objects.all()
+    queryset = CategoryStyle.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = CategoryStyleSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryStyleFilter
@@ -167,13 +178,13 @@ class CategoryStyleViewSet(viewsets.ModelViewSet):
 
 # For PolygonData
 class PolygonDataViewSet(viewsets.ModelViewSet):
-    queryset = PolygonData.objects.all()
+    queryset = PolygonData.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = PolygonDataSerializer
 
 
 # For RasterData
 class RasterDataViewSet(viewsets.ModelViewSet):
-    queryset = RasterData.objects.all()
+    queryset = RasterData.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = RasterDataSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = RasterDataFilter
@@ -203,11 +214,11 @@ class RasterDataViewSet(viewsets.ModelViewSet):
 
 #For Roles 
 class RoleViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Role.objects.all()
+    queryset = Role.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = RoleSerializer
 
 class UserRoleViewSet(viewsets.ModelViewSet):
-    queryset = UserRole.objects.all()
+    queryset = UserRole.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = UserRoleSerializer
     filter_backends = [DjangoFilterBackend,]
     filterset_class = UserRoleFilter
@@ -219,7 +230,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class UserProjectViewSet(viewsets.ModelViewSet):
-    queryset= UserProject.objects.all()
+    queryset= UserProject.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = UserProjectSerializer
     filter_backends = [DjangoFilterBackend,]
     filterset_class = UserProjectFilter
