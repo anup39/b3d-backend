@@ -79,6 +79,7 @@ class GlobalCategory(models.Model):
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
+    type_of_geometry = models.CharField(max_length=255, default="Polygon")
     is_display = models.BooleanField(default=True)
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
@@ -177,6 +178,7 @@ class Category(models.Model):
         "Global Category related to the project"), verbose_name=_("Global  Category"))
     description = models.TextField(default="",  help_text=_(
         "Description about this category"), verbose_name=_("Description"))
+    type_of_geometry = models.CharField(max_length=255, default="Polygon")
     view_name = models.CharField(max_length=255,  null=True)
     publised = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
