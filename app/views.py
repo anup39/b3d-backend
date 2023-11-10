@@ -83,15 +83,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         try:
             user = request.user 
-            print(user,'user')
-
             if user is not None:
                 role = UserRole.objects.get(user=user)
                 if str(role) == "admin":
                     pass
                 else:
                     user_projects = UserProject.objects.filter(user=user)
-                    print(user_projects,"user projects")
                     project_ids = user_projects.values_list('project_id', flat=True)  
                     queryset = queryset.filter(id__in=project_ids)
         except:
@@ -110,16 +107,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
         kwargs['partial'] = True
         payload = request.data
         if 'is_deleted' in payload:
-            if 'is_deleted' is True:
-                result = handle_delete_request(id = kwargs.get('pk'), model='Project')
+            if payload.get('is_deleted') is True:
+                result = handle_delete_request(id = kwargs.get('pk'), fk='project')
                 if result:
                     return self.update(request, *args, **kwargs)
                 return Response({'message': "Error in Deleting the project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return self.update(request, *args, **kwargs)
         return self.update(request, *args, **kwargs)
     
-
-
 
 # For standard Categories
 class GlobalStandardCategoryViewSet(viewsets.ModelViewSet):
