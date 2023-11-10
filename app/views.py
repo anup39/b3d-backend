@@ -73,7 +73,7 @@ class UserRegistrationView(generics.CreateAPIView):
 
 #TODO When project created create the userproject also
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+    queryset = Project.objects.filter(is_deleted=False).order_by('created_at')
     serializer_class = ProjectSerializer
     # filter_backends = [DjangoFilterBackend]
     # filterset_class = ProjectFilter
