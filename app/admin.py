@@ -1,12 +1,14 @@
 from django.contrib import admin
+from .models import Client
 from .models import Project
 from .models import GlobalStandardCategory, GlobalCategory, GlobalSubCategory , GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category,CategoryStyle
 from .models import PolygonData,LineStringData ,PointData
 from .models import RasterData
-from .models import Role, UserRole , UserProject
+from .models import Role, UserRole 
 
 # Register your models here.
+admin.site.register(Client)
 admin.site.register(Project)
 admin.site.register(GlobalStandardCategory)
 admin.site.register(GlobalCategory)
@@ -25,6 +27,6 @@ admin.site.register(RasterData)
 
 admin.site.register(Role)
 admin.site.register(UserRole)
-admin.site.register(UserProject)
+
 
 

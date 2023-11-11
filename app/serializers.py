@@ -1,26 +1,42 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
+from .models import Client, Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category ,CategoryStyle
 from .models import PolygonData
 from .models import RasterData
-from .models import Role, UserRole , UserProject
+from .models import Role, UserRole 
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'email' ,'id')
-        extra_kwargs = {'password': {'write_only': True}}
+
+class UserSerializer(serializers.ModelSerializer):
+    role_name = serializers.SerializerMethodField('get_role_name')
+
+    def get_role_name(self,obj):
+        user_role = UserRole.objects.get(user=obj)
+        return str(user_role.role.name)
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            first_name= validated_data['first_name'],
+            last_name= validated_data['last_name']
         )
         return user
     
+    class Meta:
+        model=User
+        fields = ('username', 'password', 'email' ,'id' , 'first_name','last_name','role_name','date_joined')
+        extra_kwargs = {'password': {'write_only': True}}
+
+
+
+class ClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Client
+        fields="__all__"
+
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model=Project
@@ -186,34 +202,6 @@ class UserRoleSerializer(serializers.ModelSerializer):
         model=UserRole
         fields="__all__"
 
-class UserSerializer(serializers.ModelSerializer):
-    role_name = serializers.SerializerMethodField('get_role_name')
-
-    def get_role_name(self,obj):
-        user_role = UserRole.objects.get(user=obj)
-        return str(user_role.role.name)
-    class Meta:
-        model=User
-        fields="__all__"
-
-
-class UserProjectSerializer(serializers.ModelSerializer):
-    user_name = serializers.SerializerMethodField('get_user_name')
-    project_name = serializers.SerializerMethodField('get_project_name')
-    role_name = serializers.SerializerMethodField('get_role_name')
 
 
 
-    def get_user_name(self,obj):
-        return str(obj.user.username)
-
-    def get_project_name(self,obj):
-        return str(obj.project.name)
-
-    def get_role_name(self,obj):
-        user_role = UserRole.objects.get(user=obj.user)
-        return str(user_role.role.name)
-    
-    class Meta:
-        model=UserProject
-        fields="__all__"
