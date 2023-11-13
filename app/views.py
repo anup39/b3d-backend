@@ -1,4 +1,4 @@
-import os 
+import os
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .tasks import handleExampleTask, handleCreateBandsNormal_
@@ -7,26 +7,27 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
-from .models import Client, Project ,GlobalStandardCategory, GlobalSubCategory, GlobalCategory ,GlobalCategoryStyle
-from .models import StandardCategory, SubCategory, Category ,CategoryStyle
+from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
+from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData
 from .models import RasterData
 from .models import Role, UserRole
-from .serializers import  ClientSerializer, ProjectSerializer
+from .serializers import ClientSerializer, ProjectSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
 from .serializers import PolygonDataSerializer
 from .serializers import RasterDataSerializer
-from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer 
+from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 # from .filters import ProjectFilter
-from .filters import StandardCategoryFilter, SubCategoryFilter ,CategoryFilter ,CategoryStyleFilter
-from .filters import GlobalSubCategoryFilter ,GlobalCategoryFilter
+from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
+from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter
 from .filters import RasterDataFilter
 from .filters import UserRoleFilter
 # from .create_bands import handleCreateBandsNormal
 from django.conf import settings
 # from celery.result import AsyncResult
 from .utils import handle_delete_request
+from django.db.models import Q
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -40,9 +41,10 @@ class ExampleViewSet(viewsets.ViewSet):
         handleExampleTask.delay()
 
         return Response(data)
-    
+
+
 class UserViewSet(viewsets.ModelViewSet):
-    queryset= User.objects.filter(is_active=True)
+    queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializer
 
 
@@ -59,9 +61,9 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.pk,
             'username': user.username
         })
-    
 
-#For Roles 
+
+# For Roles
 class RoleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Role.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = RoleSerializer
@@ -69,54 +71,90 @@ class RoleViewSet(viewsets.ReadOnlyModelViewSet):
 
 # For standard Categories
 class GlobalStandardCategoryViewSet(viewsets.ModelViewSet):
-    queryset = GlobalStandardCategory.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = GlobalStandardCategory.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = GlobalStandardCategorySerializer
     pagination_class = None
 
+
 class GlobalSubCategoryViewSet(viewsets.ModelViewSet):
-    queryset = GlobalSubCategory.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = GlobalSubCategory.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = GlobalSubCategorySerializer
     filter_backends = [DjangoFilterBackend,]
     filterset_class = GlobalSubCategoryFilter
     pagination_class = None
 
+
 class GlobalCategoryViewSet(viewsets.ModelViewSet):
-    queryset = GlobalCategory.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = GlobalCategory.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = GlobalCategorySerializer
     filter_backends = [DjangoFilterBackend,]
     filterset_class = GlobalCategoryFilter
     pagination_class = None
 
+
 class GlobalCategoryStyleViewSet(viewsets.ModelViewSet):
-    queryset = GlobalCategoryStyle.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = GlobalCategoryStyle.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = GlobalCategoryStyleSerializer
     pagination_class = None
-
 
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = ClientSerializer
 
+    def create(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        first_name = request.data.get('firstname')
+        last_name = request.data.get('lastname')
+        username_exist = User.objects.filter(Q(username=username)).exists()
+        if username_exist:
+            return Response({'message': "Username already exists"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        email_exist = User.objects.filter(Q(email=email)).exists()
+        if email_exist:
+            return Response({'message': "Email already exists"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-#TODO When project created create the userproject also
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+        mutable_data = request.data.copy()
+        mutable_data['name'] = first_name + " " + last_name
+        mutable_data['user'] = user.id
+        serializer = self.get_serializer(data=mutable_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# TODO When project created create the userproject also
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = ProjectSerializer
     # filter_backends = [DjangoFilterBackend]
     # filterset_class = ProjectFilter
-    
+
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         try:
-            user = request.user 
+            user = request.user
             if user is not None:
                 role = UserRole.objects.get(user=user)
                 if str(role) == "admin":
                     pass
                 else:
                     # user_projects = UserProject.objects.filter(user=user)
-                    project_ids = user_projects.values_list('project_id', flat=True)  
+                    project_ids = user_projects.values_list(
+                        'project_id', flat=True)
                     queryset = queryset.filter(id__in=project_ids)
         except:
             # Continue with your existing code
@@ -135,16 +173,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
         payload = request.data
         if 'is_deleted' in payload:
             if payload.get('is_deleted') is True:
-                result = handle_delete_request(id = kwargs.get('pk'), fk='project')
+                result = handle_delete_request(
+                    id=kwargs.get('pk'), fk='project')
                 if result:
                     return self.update(request, *args, **kwargs)
                 return Response({'message': "Error in Deleting the project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return self.update(request, *args, **kwargs)
-    
+
 
 # For RasterData
 class RasterDataViewSet(viewsets.ModelViewSet):
-    queryset = RasterData.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = RasterData.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = RasterDataSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = RasterDataFilter
@@ -154,13 +194,15 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         id = serializer.data.get('id')
-        file_path = os.path.join(settings.MEDIA_ROOT , serializer.data.get("path_of_file"))
+        file_path = os.path.join(
+            settings.MEDIA_ROOT, serializer.data.get("path_of_file"))
         headers = self.get_success_headers(serializer.data)
-        output_folder = os.path.join(settings.BASE_DIR ,"optimized")
-        # result = handleCreateBandsNormal(file_path=file_path,raster_id=id,output_folder= output_folder) 
+        output_folder = os.path.join(settings.BASE_DIR, "optimized")
+        # result = handleCreateBandsNormal(file_path=file_path,raster_id=id,output_folder= output_folder)
 
-        result = handleCreateBandsNormal_.delay(file_path=file_path,raster_id=id,output_folder= output_folder ,model="RasterData") 
-        task_id = result.task_id  
+        result = handleCreateBandsNormal_.delay(
+            file_path=file_path, raster_id=id, output_folder=output_folder, model="RasterData")
+        task_id = result.task_id
 
         # Update the RasterData instance with the task_id
         raster_data_instance = RasterData.objects.get(id=id)
@@ -169,33 +211,37 @@ class RasterDataViewSet(viewsets.ModelViewSet):
 
         if result:
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
+        return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-#For project categories
+# For project categories
 class StandardCategoryViewSet(viewsets.ModelViewSet):
-    queryset = StandardCategory.objects.filter(is_deleted=False).order_by('-created_at')
-    serializer_class = StandardCategorySerializer 
+    queryset = StandardCategory.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = StandardCategorySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = StandardCategoryFilter
 
 
 class SubCategoryViewSet(viewsets.ModelViewSet):
-    queryset = SubCategory.objects.filter(is_deleted=False).order_by('-created_at')
-    serializer_class = SubCategorySerializer 
+    queryset = SubCategory.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = SubCategorySerializer
     filter_backends = [DjangoFilterBackend,]
     filterset_class = SubCategoryFilter
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = Category.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = CategorySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryFilter
 
 
 class CategoryStyleViewSet(viewsets.ModelViewSet):
-    queryset = CategoryStyle.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = CategoryStyle.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = CategoryStyleSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryStyleFilter
@@ -203,20 +249,14 @@ class CategoryStyleViewSet(viewsets.ModelViewSet):
 
 # For PolygonData
 class PolygonDataViewSet(viewsets.ModelViewSet):
-    queryset = PolygonData.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = PolygonData.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = PolygonDataSerializer
 
 
-
 class UserRoleViewSet(viewsets.ModelViewSet):
-    queryset = UserRole.objects.filter(is_deleted=False).order_by('-created_at')
+    queryset = UserRole.objects.filter(
+        is_deleted=False).order_by('-created_at')
     serializer_class = UserRoleSerializer
     filter_backends = [DjangoFilterBackend,]
     filterset_class = UserRoleFilter
-
-
-
-
-
-    
-
