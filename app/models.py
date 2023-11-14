@@ -208,7 +208,7 @@ class StandardCategory(models.Model):
 
 
     def __str__(self):
-        return str(self.project.name) + "|"+str(self.name)
+        return str(self.client.name) + "|"+str(self.name)
 
 
 
@@ -241,7 +241,7 @@ class SubCategory(models.Model):
 
 
     # def __str__(self):
-    #     return str(self.project.name) + "|"+str(self.standard_category.name)+"|"+str(self.name)
+    #     return str(self.client.name) + "|"+str(self.standard_category.name)+"|"+str(self.name)
 
                 
 class Category(models.Model):
@@ -303,7 +303,7 @@ class Category(models.Model):
 
 
     # def __str__(self):
-    #     return self.project.name + " | " + self.standard_category.name+" | "+ self.sub_category.name+" | " + self.name
+    #     return self.client.name + " | " + self.standard_category.name+" | "+ self.sub_category.name+" | " + self.name
 
     class Meta:
         verbose_name = _("Category")
