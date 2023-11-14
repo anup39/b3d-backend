@@ -195,9 +195,23 @@ class RoleSerializer(serializers.ModelSerializer):
 class UserRoleSerializer(serializers.ModelSerializer):
 
     role_name = serializers.SerializerMethodField('get_role_name')
+    username = serializers.SerializerMethodField('get_username')
+    email = serializers.SerializerMethodField('get_email')
+    date_joined = serializers.SerializerMethodField('get_date_joined')
 
     def get_role_name(self,obj):
         return str(obj.role.name)
+
+    def get_username(self,obj):
+        return str(obj.user.username)
+
+    def get_email(self,obj):
+        return str(obj.user.email)
+
+    def get_date_joined(self,obj):
+        return str(obj.user.date_joined)
+
+    
     class Meta:
         model=UserRole
         fields="__all__"
