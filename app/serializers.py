@@ -49,6 +49,27 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class RasterDataSerializer (serializers.ModelSerializer):
+    path_of_file = serializers.SerializerMethodField('get_path_of_file')
+    client_name = serializers.SerializerMethodField('get_client_name')
+    project_name = serializers.SerializerMethodField('get_project_name')
+
+    def get_path_of_file(self, obj):
+        return str(obj.tif_file)
+
+    def get_client_name(self, obj):
+        client_name = obj.client.name
+        return client_name
+
+    def get_project_name(self, obj):
+        project_name = obj.project.name
+        return project_name
+
+    class Meta:
+        model = RasterData
+        fields = "__all__"
+
+
 # For Global Categoriess
 class GlobalStandardCategorySerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
@@ -180,17 +201,6 @@ class CategoryStyleSerializer(serializers.ModelSerializer):
 class PolygonDataSerializer (serializers.ModelSerializer):
     class Meta:
         model = PolygonData
-        fields = "__all__"
-
-
-class RasterDataSerializer (serializers.ModelSerializer):
-    path_of_file = serializers.SerializerMethodField('get_path_of_file')
-
-    def get_path_of_file(self, obj):
-        return str(obj.tif_file)
-
-    class Meta:
-        model = RasterData
         fields = "__all__"
 
 
