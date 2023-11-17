@@ -137,6 +137,18 @@ class ClientViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        payload = request.data
+        if 'is_deleted' in payload:
+            if payload.get('is_deleted') is True:
+                result = handle_delete_request(
+                    id=kwargs.get('pk'), fk='client')
+                if result:
+                    return self.update(request, *args, **kwargs)
+                return Response({'message': "Error in Deleting the client"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return self.update(request, *args, **kwargs)
+
 
 # TODO When project created create the userproject also
 class ProjectViewSet(viewsets.ModelViewSet):

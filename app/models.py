@@ -258,8 +258,8 @@ class SubCategory(models.Model):
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
-    # def __str__(self):
-    #     return str(self.client.name) + "|"+str(self.standard_category.name)+"|"+str(self.name)
+    def __str__(self):
+        return str(self.client.name) + "|"+str(self.standard_category.name)+"|"+str(self.name)
 
 
 class Category(models.Model):
@@ -324,8 +324,8 @@ class Category(models.Model):
 
         super().delete(*args, **kwargs)
 
-    # def __str__(self):
-    #     return self.client.name + " | " + self.standard_category.name+" | "+ self.sub_category.name+" | " + self.name
+    def __str__(self):
+        return self.client.name + " | " + self.standard_category.name+" | "+ self.sub_category.name+" | " + self.name
 
     class Meta:
         verbose_name = _("Category")
@@ -481,4 +481,7 @@ class UserRole(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self) -> str:
-        return self.user.username + " | " + self.role.name
+        if self.client:
+            return self.user.username + " | " + self.client.name + " | " + self.role.name
+        else:
+            return self.user.username + " | " + self.role.name
