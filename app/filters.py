@@ -1,7 +1,7 @@
 import django_filters
 from .models import Project
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
-from .models import GlobalSubCategory, GlobalCategory
+from .models import GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
 from .models import RasterData
 from .models import UserRole
 
@@ -71,6 +71,14 @@ class GlobalCategoryFilter(django_filters.FilterSet):
 
         sub_category_ids = value.split(',')
         return queryset.filter(sub_category__id__in=sub_category_ids)
+
+
+class GlobalCategoryStyleFilter(django_filters.FilterSet):
+    category = django_filters.CharFilter(field_name='category__id')
+
+    class Meta:
+        model = GlobalCategoryStyle
+        fields = ['category',]
 
 
 class StandardCategoryFilter(django_filters.FilterSet):

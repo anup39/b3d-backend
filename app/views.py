@@ -20,7 +20,7 @@ from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 # from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
-from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter
+from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
 from .filters import RasterDataFilter
 from .filters import UserRoleFilter
 # from .create_bands import handleCreateBandsNormal
@@ -99,6 +99,8 @@ class GlobalCategoryStyleViewSet(viewsets.ModelViewSet):
     queryset = GlobalCategoryStyle.objects.filter(
         is_deleted=False).order_by('-created_at')
     serializer_class = GlobalCategoryStyleSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = GlobalCategoryStyleFilter
     pagination_class = None
 
 
