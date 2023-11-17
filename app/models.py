@@ -325,7 +325,7 @@ class Category(models.Model):
         super().delete(*args, **kwargs)
 
     def __str__(self):
-        return self.client.name + " | " + self.standard_category.name+" | "+ self.sub_category.name+" | " + self.name
+        return self.client.name + " | " + self.standard_category.name+" | " + self.sub_category.name+" | " + self.name
 
     class Meta:
         verbose_name = _("Category")
@@ -358,6 +358,9 @@ class CategoryStyle(models.Model):
     is_display = models.BooleanField(default=True)
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.client.name + " | " + self.category.standard_category.name+" | " + self.category.sub_category.name+" | " + self.category.name
 
     class Meta:
         verbose_name = _("CategoryStyle")
