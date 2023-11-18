@@ -84,10 +84,11 @@ class GlobalCategoryStyleFilter(django_filters.FilterSet):
 class StandardCategoryFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(field_name='project__id')
     view_name = django_filters.CharFilter(field_name='view_name')
+    client = django_filters.CharFilter(field_name='client__id')
 
     class Meta:
         model = StandardCategory
-        fields = ['project', 'view_name']
+        fields = ['project', 'view_name', 'client',]
 
 
 class SubCategoryFilter(django_filters.FilterSet):
@@ -95,38 +96,42 @@ class SubCategoryFilter(django_filters.FilterSet):
     standard_category = django_filters.CharFilter(
         field_name='standard_category__id')
     view_name = django_filters.CharFilter(field_name='view_name')
+    client = django_filters.CharFilter(field_name='client__id')
 
     class Meta:
         model = SubCategory
-        fields = ['project', 'standard_category', 'view_name']
+        fields = ['project', 'standard_category', 'view_name', 'client']
 
 
 class CategoryFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(field_name='project__id')
     sub_category = django_filters.CharFilter(field_name='sub_category__id')
     view_name = django_filters.CharFilter(field_name='view_name')
+    client = django_filters.CharFilter(field_name='client__id')
 
     class Meta:
         model = Category
-        fields = ['project', 'sub_category', 'view_name']
+        fields = ['project', 'sub_category', 'view_name', 'client']
 
 
 class CategoryStyleFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(field_name='project__id')
     category = django_filters.CharFilter(field_name='category__id')
+    client = django_filters.CharFilter(field_name='client__id')
 
     class Meta:
         model = CategoryStyle
-        fields = ['project', 'category']
+        fields = ['project', 'category', 'client']
 
 
 class RasterDataFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(field_name='project__id')
     is_display = django_filters.BooleanFilter(field_name='is_display')
+    client = django_filters.CharFilter(field_name='client__id')
 
     class Meta:
         model = RasterData
-        fields = ['project', 'is_display',]
+        fields = ['project', 'is_display', 'client']
 
 
 class UserRoleFilter(django_filters.FilterSet):
