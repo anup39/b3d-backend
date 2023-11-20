@@ -8,11 +8,11 @@ from .models import UserRole
 
 # Project filter
 class ProjectFilter(django_filters.FilterSet):
-    owner = django_filters.CharFilter(field_name='owner')
+    client = django_filters.CharFilter(field_name='client__id')
 
     class Meta:
         model = Project
-        fields = ['owner']
+        fields = ['client']
 
 # Global Categories filter
 

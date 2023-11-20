@@ -18,7 +18,7 @@ from .serializers import StandardCategorySerializer, SubCategorySerializer, Cate
 from .serializers import PolygonDataSerializer
 from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
-# from .filters import ProjectFilter
+from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
 from .filters import RasterDataFilter
@@ -154,33 +154,33 @@ class ClientViewSet(viewsets.ModelViewSet):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = ProjectSerializer
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_class = ProjectFilter
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProjectFilter
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        try:
-            user = request.user
-            if user is not None:
-                role = UserRole.objects.get(user=user)
-                if str(role) == "admin":
-                    pass
-                else:
-                    # user_projects = UserProject.objects.filter(user=user)
-                    project_ids = user_projects.values_list(
-                        'project_id', flat=True)
-                    queryset = queryset.filter(id__in=project_ids)
-        except:
-            # Continue with your existing code
-            queryset = self.filter_queryset(queryset)
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.get_queryset()
+    #     try:
+    #         user = request.user
+    #         if user is not None:
+    #             role = UserRole.objects.get(user=user)
+    #             if str(role) == "admin":
+    #                 pass
+    #             else:
+    #                 # user_projects = UserProject.objects.filter(user=user)
+    #                 project_ids = user_projects.values_list(
+    #                     'project_id', flat=True)
+    #                 queryset = queryset.filter(id__in=project_ids)
+    #     except:
+    #         # Continue with your existing code
+    #         queryset = self.filter_queryset(queryset)
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+    #     page = self.paginate_queryset(queryset)
+    #     if page is not None:
+    #         serializer = self.get_serializer(page, many=True)
+    #         return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     return Response(serializer.data)
 
     def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
