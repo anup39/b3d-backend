@@ -8,11 +8,11 @@ from .models import Role, UserRole
 
 
 class UserSerializer(serializers.ModelSerializer):
-    role_name = serializers.SerializerMethodField('get_role_name')
+    # role_name = serializers.SerializerMethodField('get_role_name')
 
-    def get_role_name(self, obj):
-        user_role = UserRole.objects.get(user=obj)
-        return str(user_role.role.name)
+    # def get_role_name(self, obj):
+    #     user_role = UserRole.objects.get(user=obj)
+    #     return str(user_role.role.name)
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -27,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'password', 'email', 'id',
-                  'first_name', 'last_name', 'role_name', 'date_joined')
+                  'first_name', 'last_name', 'date_joined', 'is_active')
         extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -227,18 +227,15 @@ class UserRoleSerializer(serializers.ModelSerializer):
     def get_role_name(self, obj):
         return str(obj.role.name)
 
-    def get_username(self,obj):
+    def get_username(self, obj):
         return str(obj.user.username)
 
-    def get_email(self,obj):
+    def get_email(self, obj):
         return str(obj.user.email)
 
-    def get_date_joined(self,obj):
+    def get_date_joined(self, obj):
         return str(obj.user.date_joined)
 
-    
     class Meta:
-        model=UserRole
-        fields="__all__"
-
-
+        model = UserRole
+        fields = "__all__"
