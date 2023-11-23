@@ -194,8 +194,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 return Response({'message': "Error in Deleting the project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return self.update(request, *args, **kwargs)
 
-
 # For RasterData
+
+
 class RasterDataViewSet(viewsets.ModelViewSet):
     queryset = RasterData.objects.filter(
         is_deleted=False).order_by('-created_at')
@@ -221,6 +222,8 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         # Update the RasterData instance with the task_id
         raster_data_instance = RasterData.objects.get(id=id)
         raster_data_instance.task_id = task_id
+        # TODO : Check in local why the task id not saved to model
+
         raster_data_instance.save()  # Save the updated instance
 
         if result:
