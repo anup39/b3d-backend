@@ -372,9 +372,9 @@ class PolygonData(models.Model):
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
         "Client Associated with this"), verbose_name=_("Client"))
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, help_text=_(
-        "Polygon related to the project"), verbose_name=_("Project"), null=True)
+        "Polygon related to the project"), verbose_name=_("Property"), null=True)
     properti = models.ForeignKey(RasterData, on_delete=models.SET_NULL, null=True, help_text=_(
-        "Polygon related to this property"), verbose_name=_("Property"))
+        "Polygon related to this property"), verbose_name=_("map"))
     standard_category = models.ForeignKey(StandardCategory, on_delete=models.SET_NULL, help_text=_(
         "Standard Category related to the polygon"), verbose_name=_("Standard Category"), null=True)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, help_text=_(

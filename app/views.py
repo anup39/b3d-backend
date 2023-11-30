@@ -2,7 +2,7 @@ import os
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .tasks import handleExampleTask, handleCreateBandsNormal_
-from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.views import ObtainAuthToken, APIView
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
@@ -108,6 +108,31 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = ClientSerializer
 
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.get_queryset()
+    #     try:
+    #         user = request.user
+    #         if user is not None:
+    #             role = UserRole.objects.get(user=user)
+    #             if str(role) == "admin":
+    #                 pass
+    #             else:
+    #                 # user_projects = UserProject.objects.filter(user=user)
+    #                 project_ids = user_projects.values_list(
+    #                     'project_id', flat=True)
+    #                 queryset = queryset.filter(id__in=project_ids)
+    #     except:
+    #         # Continue with your existing code
+    #         queryset = self.filter_queryset(queryset)
+
+    #     page = self.paginate_queryset(queryset)
+    #     if page is not None:
+    #         serializer = self.get_serializer(page, many=True)
+    #         return self.get_paginated_response(serializer.data)
+
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         username = request.data.get('username')
         email = request.data.get('email')
@@ -156,31 +181,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProjectFilter
-
-    # def list(self, request, *args, **kwargs):
-    #     queryset = self.get_queryset()
-    #     try:
-    #         user = request.user
-    #         if user is not None:
-    #             role = UserRole.objects.get(user=user)
-    #             if str(role) == "admin":
-    #                 pass
-    #             else:
-    #                 # user_projects = UserProject.objects.filter(user=user)
-    #                 project_ids = user_projects.values_list(
-    #                     'project_id', flat=True)
-    #                 queryset = queryset.filter(id__in=project_ids)
-    #     except:
-    #         # Continue with your existing code
-    #         queryset = self.filter_queryset(queryset)
-
-    #     page = self.paginate_queryset(queryset)
-    #     if page is not None:
-    #         serializer = self.get_serializer(page, many=True)
-    #         return self.get_paginated_response(serializer.data)
-
-    #     serializer = self.get_serializer(queryset, many=True)
-    #     return Response(serializer.data)
 
     def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
@@ -277,3 +277,19 @@ class UserRoleViewSet(viewsets.ModelViewSet):
     serializer_class = UserRoleSerializer
     filter_backends = [DjangoFilterBackend,]
     filterset_class = UserRoleFilter
+
+
+class MapMeasuringsViewSets(APIView):
+    def get(self, request, *args, **kwargs):
+
+        if request.query_params:
+            if request.query_params.get("client"):
+                return Response({"message": request.query_params.get("client"), "section": "client"})
+
+            if request.query_params.get("project"):
+                return Response({"message": request.query_params.get("project"), "section": "project"})
+
+            if request.query_params.get("property"):
+                return Response({"message": request.query_params.get("property"), "section": "property"})
+
+        return Response({"messaage":  "No parameters found"})
