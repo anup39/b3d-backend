@@ -254,8 +254,45 @@ class CategoryControlSerializer(serializers.ModelSerializer):
         return False
 
     def get_extent(self, obj):
+        categroy_id = obj.id
+        query = f'''
+            SELECT 
+            ST_Extent(extent) AS combined_extent
+            FROM(
+                SELECT 
+                    'app_point' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_pointdata
+                WHERE 
+                    category_id = '{categroy_id}'
 
-        return []
+                UNION ALL
+
+                SELECT 
+                    'app_polygondata' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_polygondata
+                WHERE 
+                    category_id = '{categroy_id}'
+
+                UNION ALL
+
+                SELECT 
+                    'app_linestringdata' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_linestringdata
+                WHERE 
+                    category_id = '{categroy_id}'
+            ) AS combined_extents;
+        '''
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return results
 
     class Meta:
         model = SubCategory
@@ -283,7 +320,45 @@ class SubCategoryControlSerializer(serializers.ModelSerializer):
         return False
 
     def get_extent(self, obj):
-        return []
+        sub_categroy_id = obj.id
+        query = f'''
+            SELECT 
+            ST_Extent(extent) AS combined_extent
+            FROM(
+                SELECT 
+                    'app_point' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_pointdata
+                WHERE 
+                    sub_category_id = '{sub_categroy_id}'
+
+                UNION ALL
+
+                SELECT 
+                    'app_polygondata' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_polygondata
+                WHERE 
+                    sub_category_id = '{sub_categroy_id}'
+
+                UNION ALL
+
+                SELECT 
+                    'app_linestringdata' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_linestringdata
+                WHERE 
+                    sub_category_id = '{sub_categroy_id}'
+            ) AS combined_extents;
+        '''
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return results
 
     def get_category(self, obj):
         queryset = Category.objects.filter(
