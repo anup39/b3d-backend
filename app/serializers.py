@@ -239,3 +239,35 @@ class UserRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRole
         fields = "__all__"
+
+
+class StandardCategoryControlSerializer(serializers.ModelSerializer):
+    label = serializers.SerializerMethodField('get_label')
+    checked = serializers.SerializerMethodField('get_checked')
+    expand = serializers.SerializerMethodField('get_expand')
+    indeterminate = serializers.SerializerMethodField('get_indeterminate')
+    extent = serializers.SerializerMethodField('get_extent')
+    sub_category = serializers.SerializerMethodField('get_sub_category')
+
+    def get_label(self, obj):
+        return obj.name
+
+    def get_checked(self, obj):
+        return False
+
+    def get_expand(self, obj):
+        return False
+
+    def get_indeterminate(self, obj):
+        return False
+
+    def get_extent(self, obj):
+        return []
+
+    def get_sub_category(self, obj):
+        return []
+
+    class Meta:
+        model = StandardCategory
+        fields = ['id', 'name', 'client', 'label', 'checked', 'expand',
+                  'indeterminate', 'extent', 'sub_category', ]

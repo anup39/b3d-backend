@@ -18,6 +18,7 @@ from .serializers import StandardCategorySerializer, SubCategorySerializer, Cate
 from .serializers import PolygonDataSerializer
 from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
+from .serializers import StandardCategoryControlSerializer
 from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
@@ -284,7 +285,11 @@ class MapMeasuringsViewSets(APIView):
 
         if request.query_params:
             if request.query_params.get("client"):
-                return Response({"message": request.query_params.get("client"), "section": "client"})
+                client_id = request.query_params.get("client")
+                queryset = StandardCategory.objects.filter(client=client_id)
+                serialized = StandardCategoryControlSerializer(
+                    queryset, many=True)
+                return Response(serialized.data)
 
             if request.query_params.get("project"):
                 return Response({"message": request.query_params.get("project"), "section": "project"})
