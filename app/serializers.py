@@ -5,6 +5,7 @@ from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData
 from .models import RasterData
 from .models import Role, UserRole
+from django.db import connection
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -253,6 +254,7 @@ class CategoryControlSerializer(serializers.ModelSerializer):
         return False
 
     def get_extent(self, obj):
+
         return []
 
     class Meta:
@@ -316,7 +318,45 @@ class StandardCategoryControlSerializer(serializers.ModelSerializer):
         return False
 
     def get_extent(self, obj):
-        return []
+        standard_categroy_id = obj.id
+        query = f'''
+            SELECT 
+            ST_Extent(extent) AS combined_extent
+            FROM(
+                SELECT 
+                    'app_point' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_pointdata
+                WHERE 
+                    standard_category_id = '{standard_categroy_id}'
+
+                UNION ALL
+
+                SELECT 
+                    'app_polygondata' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_polygondata
+                WHERE 
+                    standard_category_id = '{standard_categroy_id}'
+
+                UNION ALL
+
+                SELECT 
+                    'app_linestringdata' AS table_name,
+                    ST_Extent(geom) AS extent
+                FROM 
+                    app_linestringdata
+                WHERE 
+                    standard_category_id = '{standard_categroy_id}'
+            ) AS combined_extents;
+        '''
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return results
 
     def get_sub_category(self, obj):
         queryset = SubCategory.objects.filter(

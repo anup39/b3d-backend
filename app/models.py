@@ -6,6 +6,7 @@ from django.contrib.gis.db import models
 from django.db.models import Manager as GeoManager
 
 
+
 class Role(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, help_text=_(
