@@ -241,6 +241,60 @@ class UserRoleSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CategoryControlSerializer(serializers.ModelSerializer):
+    label = serializers.SerializerMethodField('get_label')
+    checked = serializers.SerializerMethodField('get_checked')
+    extent = serializers.SerializerMethodField('get_extent')
+
+    def get_label(self, obj):
+        return obj.name
+
+    def get_checked(self, obj):
+        return False
+
+    def get_extent(self, obj):
+        return []
+
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'name', 'client', 'label', 'checked', 'extent']
+
+
+class SubCategoryControlSerializer(serializers.ModelSerializer):
+    label = serializers.SerializerMethodField('get_label')
+    checked = serializers.SerializerMethodField('get_checked')
+    expand = serializers.SerializerMethodField('get_expand')
+    indeterminate = serializers.SerializerMethodField('get_indeterminate')
+    extent = serializers.SerializerMethodField('get_extent')
+    category = serializers.SerializerMethodField('get_category')
+
+    def get_label(self, obj):
+        return obj.name
+
+    def get_checked(self, obj):
+        return False
+
+    def get_expand(self, obj):
+        return False
+
+    def get_indeterminate(self, obj):
+        return False
+
+    def get_extent(self, obj):
+        return []
+
+    def get_category(self, obj):
+        queryset = Category.objects.filter(
+            sub_category=obj.id)
+        serialized = CategoryControlSerializer(queryset, many=True)
+        return serialized.data
+
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'name', 'client', 'label', 'checked', 'expand',
+                  'indeterminate', 'extent', 'category', ]
+
+
 class StandardCategoryControlSerializer(serializers.ModelSerializer):
     label = serializers.SerializerMethodField('get_label')
     checked = serializers.SerializerMethodField('get_checked')
@@ -265,7 +319,10 @@ class StandardCategoryControlSerializer(serializers.ModelSerializer):
         return []
 
     def get_sub_category(self, obj):
-        return []
+        queryset = SubCategory.objects.filter(
+            standard_category=obj.id)
+        serialized = SubCategoryControlSerializer(queryset, many=True)
+        return serialized.data
 
     class Meta:
         model = StandardCategory
