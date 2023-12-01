@@ -296,7 +296,8 @@ class CategoryControlSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'client', 'label', 'checked', 'extent']
+        fields = ['id', 'name', 'client', 'label',
+                  'checked', 'extent', 'view_name']
 
 
 class SubCategoryControlSerializer(serializers.ModelSerializer):

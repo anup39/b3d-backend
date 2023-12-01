@@ -51,3 +51,30 @@ LANGUAGE plpgsql
 STABLE
 PARALLEL SAFE;
 COMMENT ON FUNCTION function_zxy_query_app_polygondata_by_project IS 'Filters the Polygon table by project';
+
+
+CREATE OR REPLACE FUNCTION function_zxy_query_app_polygondata_by_category(
+    z integer, x integer, y integer,
+    query_params json)
+RETURNS bytea
+AS $$
+DECLARE
+    mvt bytea;
+    category text;
+BEGIN
+    category := trim((query_params::jsonb) ->> 'category');
+
+    SELECT INTO mvt ST_AsMVT(tile, 'function_zxy_query_app_polygondata_by_category', 4096, 'geom') FROM (
+        SELECT
+            ST_AsMVTGeom(ST_Transform(ST_CurveToLine(geom), 3857), ST_TileEnvelope(z, x, y), 4096, 64, true) AS geom, id , category_id
+        FROM app_polygondata 
+        WHERE  category_id::text = category
+    ) AS tile WHERE geom IS NOT NULL;
+
+    RETURN mvt;
+END;
+$$
+LANGUAGE plpgsql
+STABLE
+PARALLEL SAFE;
+COMMENT ON FUNCTION function_zxy_query_app_polygondata_by_category IS 'Filters the Polygon table by category';
