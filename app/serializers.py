@@ -295,9 +295,9 @@ class CategoryControlSerializer(serializers.ModelSerializer):
             return results
 
     class Meta:
-        model = SubCategory
+        model = Category
         fields = ['id', 'name', 'client', 'label',
-                  'checked', 'extent', 'view_name']
+                  'checked', 'extent', 'view_name', 'type_of_geometry',]
 
 
 class SubCategoryControlSerializer(serializers.ModelSerializer):
@@ -359,6 +359,7 @@ class SubCategoryControlSerializer(serializers.ModelSerializer):
         with connection.cursor() as cursor:
             cursor.execute(query)
             results = cursor.fetchall()
+            print(results[0], 'results')
             return results
 
     def get_category(self, obj):
