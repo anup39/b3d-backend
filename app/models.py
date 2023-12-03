@@ -381,6 +381,9 @@ class PolygonData(models.Model):
         "Sub Category related to the polygon"), verbose_name=_("Sub Category"), null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this polygon"), verbose_name=_("Category"), null=True)
+    standard_category_name = models.CharField(max_length=255,  null=True)
+    sub_category_name = models.CharField(max_length=255,  null=True)
+    category_name = models.CharField(max_length=255,  null=True)
     geom = models.PolygonField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
@@ -391,6 +394,16 @@ class PolygonData(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     objects = GeoManager()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        try:
+            self.standard_category_name = self.standard_category.name
+            self.sub_category_name = self.sub_category.name
+            self.category_name = self.category.name
+            self.save()
+        except:
+            pass
 
     class Meta:
         verbose_name_plural = 'PolygonData'
@@ -413,6 +426,9 @@ class LineStringData(models.Model):
         "Sub Category related to the LineString"), verbose_name=_("Sub Category"), null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this LineString"), verbose_name=_("Category"), null=True)
+    standard_category_name = models.CharField(max_length=255,  null=True)
+    sub_category_name = models.CharField(max_length=255,  null=True)
+    category_name = models.CharField(max_length=255,  null=True)
     geom = models.LineStringField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
@@ -445,6 +461,9 @@ class PointData(models.Model):
         "Sub Category related to the Point"), verbose_name=_("Sub Category"), null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this Point"), verbose_name=_("Category"), null=True)
+    standard_category_name = models.CharField(max_length=255,  null=True)
+    sub_category_name = models.CharField(max_length=255,  null=True)
+    category_name = models.CharField(max_length=255,  null=True)
     geom = models.PointField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(

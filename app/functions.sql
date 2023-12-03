@@ -66,7 +66,7 @@ BEGIN
 
     SELECT INTO mvt ST_AsMVT(tile, 'function_zxy_query_app_polygondata_by_category', 4096, 'geom') FROM (
         SELECT
-            ST_AsMVTGeom(ST_Transform(ST_CurveToLine(geom), 3857), ST_TileEnvelope(z, x, y), 4096, 64, true) AS geom, id , category_id
+            ST_AsMVTGeom(ST_Transform(ST_CurveToLine(geom), 3857), ST_TileEnvelope(z, x, y), 4096, 64, true) AS geom, id , category_id, standard_category_name , sub_category_name , category_name
         FROM app_polygondata 
         WHERE  category_id::text = category
     ) AS tile WHERE geom IS NOT NULL;
