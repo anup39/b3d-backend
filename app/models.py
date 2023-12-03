@@ -440,6 +440,16 @@ class LineStringData(models.Model):
 
     objects = GeoManager()
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        try:
+            self.standard_category_name = self.standard_category.name
+            self.sub_category_name = self.sub_category.name
+            self.category_name = self.category.name
+            self.save()
+        except:
+            pass
+
     class Meta:
         verbose_name_plural = 'LineStringData'
 
@@ -474,6 +484,16 @@ class PointData(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     objects = GeoManager()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        try:
+            self.standard_category_name = self.standard_category.name
+            self.sub_category_name = self.sub_category.name
+            self.category_name = self.category.name
+            self.save()
+        except:
+            pass
 
     class Meta:
         verbose_name_plural = 'PointData'
