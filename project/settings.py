@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-import os 
+import os
 import environ
 from pathlib import Path
 from corsheaders.defaults import default_headers
@@ -24,7 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY',  'django-insecure-yurr6h861v9#g-e#qr6v@n=+7)vk__ug%k9coqum(3ifin*#)k')
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',  'django-insecure-yurr6h861v9#g-e#qr6v@n=+7)vk__ug%k9coqum(3ifin*#)k')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -175,3 +176,5 @@ REST_FRAMEWORK = {
     ],
 }
 
+
+MAX_UPLOAD_SIZE = 1024 * 1024 * 1024 * 5  # 5 GB in bytes

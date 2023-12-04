@@ -185,7 +185,7 @@ class RasterData(models.Model):
     progress = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=255, help_text=_(
         "Status for the task"), verbose_name=_("Status"), default="Uploaded")
-    file_size = models.PositiveIntegerField(default=0)
+    file_size = models.PositiveBigIntegerField(default=0)
     projection = models.CharField(max_length=255, help_text=_(
         "Projection of the Tif"), verbose_name=_("Projection"), default="Not Defined")
     screenshot_image = models.ImageField(
