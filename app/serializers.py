@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.gis.db.models import Extent
 from django.contrib.auth.models import User
 from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
@@ -254,12 +255,15 @@ class CategoryControlSerializer(serializers.ModelSerializer):
         return False
 
     def get_extent(self, obj):
+        if obj.type_of_geometry == "Polygon":
+            extent = PolygonData.objects.filter(
+                category=obj.id).aggregate(extent=Extent('geom'))
+            return extent
 
         return []
 
     def get_fill_opacity(self, obj):
         category_style = CategoryStyle.objects.get(category=obj.id)
-
         return category_style.fill_opacity
 
     class Meta:
@@ -329,6 +333,8 @@ class StandardCategoryControlSerializer(serializers.ModelSerializer):
         return []
 
     def get_sub_category(self, obj):
+        print(dir(self), 'queryset')
+        print(dir(obj))
         queryset = SubCategory.objects.filter(
             standard_category=obj.id)
         serialized = SubCategoryControlSerializer(queryset, many=True)
