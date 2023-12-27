@@ -14,7 +14,6 @@ class UserSerializer(serializers.ModelSerializer):
     # def get_role_name(self, obj):
     #     user_role = UserRole.objects.get(user=obj)
     #     return str(user_role.role.name)
-
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],

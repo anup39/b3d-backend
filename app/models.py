@@ -204,6 +204,23 @@ class RasterData(models.Model):
         verbose_name_plural = 'Property'
 
 
+
+class OBJData(models.Model):
+    id = models.AutoField(primary_key=True)
+    obj_file = models.FileField(upload_to="Uploads/OBJData")
+    created_at = models.DateTimeField(default=timezone.now)
+    is_display = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    is_edited = models.BooleanField(default=False)
+
+    # def __str__(self):
+    #     return self.id
+
+    class Meta:
+        verbose_name_plural = 'OBJData'
+
+
+
 class StandardCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which standard category you want to seperate your project layer"), verbose_name=_("Name"))
