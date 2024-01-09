@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from .tasks import handleExampleTask, handleCreateBandsNormal_
 from rest_framework.authtoken.views import ObtainAuthToken, APIView
 from rest_framework.authtoken.models import Token
-from rest_framework import status
+from rest_framework import status, generics
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
@@ -19,6 +19,7 @@ from .serializers import PolygonDataSerializer
 from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 from .serializers import StandardCategoryControlSerializer
+from .serializers import PolygonDataGeojsonSerializer
 from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
@@ -298,3 +299,22 @@ class MapMeasuringsViewSets(APIView):
                 return Response({"message": request.query_params.get("property"), "section": "property"})
 
         return Response({"messaage":  "No parameters found"})
+
+
+# Geojson for the agriplot
+class PolygonDataGeoJSONAPIView(generics.ListAPIView):
+    serializer_class = PolygonDataGeojsonSerializer
+
+    def get_queryset(self):
+        project = self.request.query_params.get('project', None)
+        category = self.request.query_params.get('category', None)
+
+        queryset = PolygonData.objects.filter(is_display=True)
+        if project:
+            queryset = queryset.filter(project=project)
+        if category:
+            queryset = queryset.filter(category=category)
+
+        return queryset
+
+# Geojson for the agriplot

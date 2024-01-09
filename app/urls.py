@@ -6,6 +6,7 @@ from .views import PolygonDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
 from .views import RoleViewSet, UserRoleViewSet, UserViewSet
+from .views import PolygonDataGeoJSONAPIView
 from django.urls import path, include, re_path
 # from .views import TaskStatusView
 # from .tiler import Metadata, Tiles
@@ -40,7 +41,9 @@ urlpatterns = [
     path('example/', ExampleViewSet.as_view({'get': 'list'}),
          name='example-api'),
     path('api-token-auth/', CustomAuthToken.as_view()),
-    path('map-measurings/', MapMeasuringsViewSets.as_view())
+    path('map-measurings/', MapMeasuringsViewSets.as_view()),
+    path('category-geojson/',  PolygonDataGeoJSONAPIView.as_view(),
+         name='category-geojson'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
 ]

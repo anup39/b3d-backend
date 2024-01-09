@@ -6,6 +6,7 @@ from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData
 from .models import RasterData
 from .models import Role, UserRole
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -348,3 +349,10 @@ class StandardCategoryControlSerializer(serializers.ModelSerializer):
         model = StandardCategory
         fields = ['id', 'name', 'client', 'label', 'checked', 'expand',
                   'indeterminate', 'extent', 'sub_category', ]
+
+
+class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = PolygonData
+        geo_field = "geom"
+        fields = "__all__"
