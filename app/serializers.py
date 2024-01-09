@@ -246,6 +246,7 @@ class CategoryControlSerializer(serializers.ModelSerializer):
     checked = serializers.SerializerMethodField('get_checked')
     extent = serializers.SerializerMethodField('get_extent')
     fill_opacity = serializers.SerializerMethodField('get_fill_opacity')
+    fill_color = serializers.SerializerMethodField('get_fill_color')
 
     def get_label(self, obj):
         return obj.name
@@ -265,10 +266,14 @@ class CategoryControlSerializer(serializers.ModelSerializer):
         category_style = CategoryStyle.objects.get(category=obj.id)
         return category_style.fill_opacity
 
+    def get_fill_color(self, obj):
+        category_style = CategoryStyle.objects.get(category=obj.id)
+        return category_style.fill
+
     class Meta:
         model = Category
         fields = ['id', 'name', 'client', 'label',
-                  'checked', 'extent', 'view_name', 'type_of_geometry', 'fill_opacity']
+                  'checked', 'extent', 'view_name', 'type_of_geometry', 'fill_opacity', 'fill_color']
 
 
 class SubCategoryControlSerializer(serializers.ModelSerializer):
