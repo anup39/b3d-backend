@@ -275,6 +275,14 @@ class CategoryControlSerializer(serializers.ModelSerializer):
             extent = PolygonData.objects.filter(
                 category=obj.id).aggregate(extent=Extent('geom'))
             return extent
+        if obj.type_of_geometry == "LineString":
+            extent = LineStringData.objects.filter(
+                category=obj.id).aggregate(extent=Extent('geom'))
+            return extent
+        if obj.type_of_geometry == "Point":
+            extent = PointData.objects.filter(
+                category=obj.id).aggregate(extent=Extent('geom'))
+            return extent
 
         return []
 
