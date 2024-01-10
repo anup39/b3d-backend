@@ -6,7 +6,7 @@ from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
 from .views import RoleViewSet, UserRoleViewSet, UserViewSet
-from .views import PolygonDataGeoJSONAPIView
+from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView
 from django.urls import path, include, re_path
 # from .views import TaskStatusView
 # from .tiler import Metadata, Tiles
@@ -45,8 +45,12 @@ urlpatterns = [
          name='example-api'),
     path('api-token-auth/', CustomAuthToken.as_view()),
     path('map-measurings/', MapMeasuringsViewSets.as_view()),
-    path('category-geojson/',  PolygonDataGeoJSONAPIView.as_view(),
-         name='category-geojson'),
+    path('category-point-geojson/',  PointDataGeoJSONAPIView.as_view(),
+         name='category-point-geojson'),
+    path('category-linestring-geojson/',  LineStringDataGeoJSONAPIView.as_view(),
+         name='category-linestring-geojson'),
+    path('category-polygon-geojson/',  PolygonDataGeoJSONAPIView.as_view(),
+         name='category-polygon-geojson'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
 ]

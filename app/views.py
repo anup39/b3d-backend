@@ -19,7 +19,7 @@ from .serializers import PolygonDataSerializer, LineStringDataSerializer, PointD
 from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 from .serializers import StandardCategoryControlSerializer
-from .serializers import PolygonDataGeojsonSerializer
+from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer
 from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
@@ -326,6 +326,40 @@ class PolygonDataGeoJSONAPIView(generics.ListAPIView):
         category = self.request.query_params.get('category', None)
 
         queryset = PolygonData.objects.filter(is_display=True)
+        if project:
+            queryset = queryset.filter(project=project)
+        if category:
+            queryset = queryset.filter(category=category)
+
+        return queryset
+
+# Geojson for the agriplot
+
+
+class PointDataGeoJSONAPIView(generics.ListAPIView):
+    serializer_class = PointDataGeojsonSerializer
+
+    def get_queryset(self):
+        project = self.request.query_params.get('project', None)
+        category = self.request.query_params.get('category', None)
+
+        queryset = PointData.objects.filter(is_display=True)
+        if project:
+            queryset = queryset.filter(project=project)
+        if category:
+            queryset = queryset.filter(category=category)
+
+        return queryset
+
+
+class LineStringDataGeoJSONAPIView(generics.ListAPIView):
+    serializer_class = LineStringDataGeojsonSerializer
+
+    def get_queryset(self):
+        project = self.request.query_params.get('project', None)
+        category = self.request.query_params.get('category', None)
+
+        queryset = LineStringData.objects.filter(is_display=True)
         if project:
             queryset = queryset.filter(project=project)
         if category:

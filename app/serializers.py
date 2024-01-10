@@ -397,3 +397,41 @@ class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
         geo_field = "geom"
         fields = ('id', 'property', 'category',
                   'area', 'perimeter', 'centroid')
+
+
+class PointDataGeojsonSerializer(GeoFeatureModelSerializer):
+    property = serializers.SerializerMethodField('get_property')
+    category = serializers.SerializerMethodField('get_category')
+
+    def get_property(self, obj):
+        return obj.project.name
+
+    def get_category(self, obj):
+        return obj.category.name
+
+    class Meta:
+        model = PointData
+        geo_field = "geom"
+        fields = ('id', 'property', 'category')
+
+
+class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
+    property = serializers.SerializerMethodField('get_property')
+    category = serializers.SerializerMethodField('get_category')
+    perimeter = serializers.SerializerMethodField('get_perimeter')
+
+    def get_property(self, obj):
+        return obj.project.name
+
+    def get_category(self, obj):
+        return obj.category.name
+
+    def get_perimeter(self, obj):
+        # print(dir(obj.geom.length))
+        # return obj.geom.length
+        return str(round(obj.geom.length * 1000000, 2)) + " " + "miles"
+
+    class Meta:
+        model = LineStringData
+        geo_field = "geom"
+        fields = ('id', 'property', 'category', 'perimeter', )
