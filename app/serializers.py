@@ -352,7 +352,33 @@ class StandardCategoryControlSerializer(serializers.ModelSerializer):
 
 
 class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
+    property = serializers.SerializerMethodField('get_property')
+    category = serializers.SerializerMethodField('get_category')
+    area = serializers.SerializerMethodField('get_area')
+    perimeter = serializers.SerializerMethodField('get_perimeter')
+    centroid = serializers.SerializerMethodField('get_centroid')
+
+    def get_property(self, obj):
+        return obj.project.name
+
+    def get_category(self, obj):
+        return obj.category.name
+
+    def get_area(self, obj):
+        return str(round(obj.geom.area * 1000000, 2)) + " " + "ha"
+
+    def get_perimeter(self, obj):
+        # print(dir(obj.geom.length))
+        # return obj.geom.length
+        return str(round(obj.geom.length * 1000000, 2)) + " " + "miles"
+
+    def get_centroid(self, obj):
+        # print(dir(obj.geom.length))
+        # return obj.geom.length
+        return str(obj.geom.centroid)
+
     class Meta:
         model = PolygonData
         geo_field = "geom"
-        fields = "__all__"
+        fields = ('id', 'property', 'category',
+                  'area', 'perimeter', 'centroid')
