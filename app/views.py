@@ -9,13 +9,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
-from .models import PolygonData
+from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
 from .models import Role, UserRole
 from .serializers import ClientSerializer, ProjectSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
-from .serializers import PolygonDataSerializer
+from .serializers import PolygonDataSerializer, LineStringDataSerializer, PointDataSerializer
 from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 from .serializers import StandardCategoryControlSerializer
@@ -267,10 +267,26 @@ class CategoryStyleViewSet(viewsets.ModelViewSet):
 
 
 # For PolygonData
+
 class PolygonDataViewSet(viewsets.ModelViewSet):
     queryset = PolygonData.objects.filter(
         is_deleted=False).order_by('-created_at')
     serializer_class = PolygonDataSerializer
+
+
+# For LineStringData
+class LineStringDataViewSet(viewsets.ModelViewSet):
+    queryset = LineStringData.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = LineStringDataSerializer
+
+# For PointData
+
+
+class PointDataViewSet(viewsets.ModelViewSet):
+    queryset = PointData.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = PointDataSerializer
 
 
 class UserRoleViewSet(viewsets.ModelViewSet):

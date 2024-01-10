@@ -3,7 +3,7 @@ from django.contrib.gis.db.models import Extent
 from django.contrib.auth.models import User
 from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
-from .models import PolygonData
+from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
 from .models import Role, UserRole
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -202,6 +202,21 @@ class CategoryStyleSerializer(serializers.ModelSerializer):
 class PolygonDataSerializer (serializers.ModelSerializer):
     class Meta:
         model = PolygonData
+        fields = "__all__"
+
+# For LineString
+
+
+class LineStringDataSerializer (serializers.ModelSerializer):
+    class Meta:
+        model = LineStringData
+        fields = "__all__"
+
+
+# For Point
+class PointDataSerializer (serializers.ModelSerializer):
+    class Meta:
+        model = PointData
         fields = "__all__"
 
 

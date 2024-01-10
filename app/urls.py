@@ -2,7 +2,7 @@ from rest_framework import routers
 from .views import ExampleViewSet, CustomAuthToken, ClientViewSet, ProjectViewSet
 from .views import GlobalStandardCategoryViewSet, GlobalSubCategoryViewSet, GlobalCategoryViewSet, GlobalCategoryStyleViewSet
 from .views import StandardCategoryViewSet, SubCategoryViewSet, CategoryViewSet, CategoryStyleViewSet
-from .views import PolygonDataViewSet
+from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
 from .views import RoleViewSet, UserRoleViewSet, UserViewSet
@@ -32,6 +32,9 @@ router.register('category', CategoryViewSet)
 router.register('category-style', CategoryStyleViewSet)
 
 router.register('polygon-data', PolygonDataViewSet)
+router.register('linestring-data', LineStringDataViewSet)
+router.register('point-data', PointDataViewSet)
+
 
 router.register('user-role', UserRoleViewSet)
 
