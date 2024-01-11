@@ -19,7 +19,7 @@ from .serializers import PolygonDataSerializer, LineStringDataSerializer, PointD
 from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 from .serializers import StandardCategoryControlSerializer
-from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer
+from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer, UploadGeoJSONSerializer
 from .filters import ProjectFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
@@ -30,6 +30,7 @@ from django.conf import settings
 # from celery.result import AsyncResult
 from .utils import handle_delete_request
 from django.db.models import Q
+import geopandas as gpd
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -367,4 +368,20 @@ class LineStringDataGeoJSONAPIView(generics.ListAPIView):
 
         return queryset
 
-# Geojson for the agriplot
+
+class UploadGeoJSONAPIView(APIView):
+    def get(self, request):
+        SHAPEFILE_PATH = 'your_shapefile.shp'
+        # Read the Shapefile using geopandas
+        gdf = gpd.read_file(SHAPEFILE_PATH)
+
+        # Convert the GeoDataFrame to GeoJSON
+        geojson_data = gdf.to_crs(epsg='4326').to_json()
+
+        # Serialize the GeoJSON data
+        serializer = UploadGeoJSONSerializer(
+            data={'geojson_data': geojson_data})
+        if serializer.is_valid():
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

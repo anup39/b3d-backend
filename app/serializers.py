@@ -486,3 +486,7 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
         geo_field = "geom"
         fields = ('id', 'property', 'category',
                   'perimeter', 'type_of_geometry', 'view_name', 'category_id')
+
+
+class UploadGeoJSONSerializer(serializers.Serializer):
+    geojson_data = serializers.JSONField()
