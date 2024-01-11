@@ -377,6 +377,7 @@ class StandardCategoryControlSerializer(serializers.ModelSerializer):
 class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
     property = serializers.SerializerMethodField('get_property')
     category = serializers.SerializerMethodField('get_category')
+    category_id = serializers.SerializerMethodField('get_category_id')
     area = serializers.SerializerMethodField('get_area')
     perimeter = serializers.SerializerMethodField('get_perimeter')
     # centroid = serializers.SerializerMethodField('get_centroid')
@@ -409,16 +410,20 @@ class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
     def get_view_name(self, obj):
         return obj.category.view_name
 
+    def get_category_id(self, obj):
+        return obj.category.id
+
     class Meta:
         model = PolygonData
         geo_field = "geom"
         fields = ('id', 'property', 'category',
-                  'area', 'perimeter', 'type_of_geometry', 'view_name')
+                  'area', 'perimeter', 'type_of_geometry', 'view_name', 'category_id')
 
 
 class PointDataGeojsonSerializer(GeoFeatureModelSerializer):
     property = serializers.SerializerMethodField('get_property')
     category = serializers.SerializerMethodField('get_category')
+    category_id = serializers.SerializerMethodField('get_category_id')
     type_of_geometry = serializers.SerializerMethodField(
         'get_type_of_geometry')
     view_name = serializers.SerializerMethodField(
@@ -436,16 +441,20 @@ class PointDataGeojsonSerializer(GeoFeatureModelSerializer):
     def get_view_name(self, obj):
         return obj.category.view_name
 
+    def get_category_id(self, obj):
+        return obj.category.id
+
     class Meta:
         model = PointData
         geo_field = "geom"
         fields = ('id', 'property', 'category',
-                  'type_of_geometry', 'view_name')
+                  'type_of_geometry', 'view_name', 'category_id')
 
 
 class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
     property = serializers.SerializerMethodField('get_property')
     category = serializers.SerializerMethodField('get_category')
+    category_id = serializers.SerializerMethodField('get_category_id')
     perimeter = serializers.SerializerMethodField('get_perimeter')
     type_of_geometry = serializers.SerializerMethodField(
         'get_type_of_geometry')
@@ -469,8 +478,11 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
     def get_view_name(self, obj):
         return obj.category.view_name
 
+    def get_category_id(self, obj):
+        return obj.category.id
+
     class Meta:
         model = LineStringData
         geo_field = "geom"
         fields = ('id', 'property', 'category',
-                  'perimeter', 'type_of_geometry', 'view_name')
+                  'perimeter', 'type_of_geometry', 'view_name', 'category_id')
