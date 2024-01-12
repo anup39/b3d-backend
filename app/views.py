@@ -377,21 +377,13 @@ class UploadGeoJSONAPIView(APIView):
     def post(self, request):
         file = request.data.get('file')
         type_of_file = request.data.get('type_of_file')
-
         filename = str(uuid.uuid4()) + '_' + file.name
         try:
-            # Save the file to the destination path
             destination_path = f"media/Uploads/UploadVector/{filename}"
             with open(destination_path, 'wb') as destination_file:
                 for chunk in file.chunks():
                     destination_file.write(chunk)
-
-            print(f"File saved at: {destination_path}")
-
-            # Add your additional processing here if needed
-
         except Exception as e:
-            print(f"Error saving file: {e}")
             return JsonResponse({'message': 'Error saving file'}, status=500)
 
         # Create a directory to extract the contents of the zip file
@@ -400,20 +392,13 @@ class UploadGeoJSONAPIView(APIView):
             filename_no_ext = ZIP_FILE_PATH.split("/")[-1].split(".")[0]
             EXTRACTED_PATH = f"media/Uploads/UploadVector/{filename_no_ext}/"
             os.makedirs(EXTRACTED_PATH, exist_ok=True)
-
-            # Extract the contents of the zip file
             with zipfile.ZipFile(ZIP_FILE_PATH, 'r') as zip_ref:
                 zip_ref.extractall(EXTRACTED_PATH)
-
-            # List all files in the extracted directory
             extracted_files = os.listdir(EXTRACTED_PATH)
-
-            # Check if there are any folders inside the extracted directory
             folder_paths = [f for f in extracted_files if os.path.isdir(
                 os.path.join(EXTRACTED_PATH, f))]
 
             if not folder_paths:
-                # No layers found in the zip file
                 return JsonResponse({'message': 'No layers found.'})
 
             SHAPEFILE_PATHS = []
@@ -433,19 +418,10 @@ class UploadGeoJSONAPIView(APIView):
             layers = []
 
             for shapefile_path in SHAPEFILE_PATHS:
-                # Read each Shapefile using geopandas
                 gdf = gpd.read_file(shapefile_path)
-
-                # Convert each GeoDataFrame to GeoJSON
                 geojson_data = gdf.to_crs(epsg='4326').to_json()
-
-                # Get the layer name from the Shapefile path
                 layer_name = shapefile_path.split("/")[-1].split(".")[0]
-
-                # Parse the GeoJSON string to a Python dictionary
                 geojson_dict = json.loads(geojson_data)
-
-                # Add GeoJSON data to the dictionary with the layer name
                 bounding_box_4326 = gdf.to_crs(epsg='4326').total_bounds
                 geojson_layers.append(
                     {"layername": layer_name, "extent": [
@@ -453,22 +429,18 @@ class UploadGeoJSONAPIView(APIView):
                 layers.append({"layername": layer_name, "extent": [
                     bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]]})
 
-            # Return the response as a JSON response
-            return Response({'layers': layers,  "result": geojson_layers})
+            return Response({"file": filename, 'layers': layers,  "result": geojson_layers})
         else:
             GEOJSON_PATH = destination_path
             if not GEOJSON_PATH:
-                # No layers found in the zip file
                 return JsonResponse({'message': 'No layers found.'})
             geojson_layers = []
             layers = []
             gdf = gpd.read_file(GEOJSON_PATH)
             geojson_data = gdf.to_crs(epsg='4326').to_json()
-            # Get the layer name from the Shapefile path
             layer_name = GEOJSON_PATH.split("/")[-1].split(".")[0]
             filename_parts = layer_name.split('_')
             layer_name = filename_parts[1]
-            # Parse the GeoJSON string to a Python dictionary
             geojson_dict = json.loads(geojson_data)
             bounding_box_4326 = gdf.to_crs(epsg='4326').total_bounds
             geojson_layers.append(
@@ -476,5 +448,4 @@ class UploadGeoJSONAPIView(APIView):
                     bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]], "geojson": geojson_dict})
             layers.append({"layername": layer_name, "extent": [
                 bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]]})
-            # Return the response as a JSON response
-            return Response({'layers': layers,  "result": geojson_layers})
+            return Response({"file": filename, 'layers': layers,  "result": geojson_layers})
