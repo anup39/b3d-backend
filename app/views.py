@@ -378,9 +378,10 @@ class UploadGeoJSONAPIView(APIView):
         file = request.data.get('file')
         type_of_file = request.data.get('type_of_file')
 
+        filename = str(uuid.uuid4()) + '_' + file.name
         try:
             # Save the file to the destination path
-            destination_path = f"media/Uploads/UploadVector/{str(uuid.uuid4()) + '_' + file.name}"
+            destination_path = f"media/Uploads/UploadVector/{filename}"
             with open(destination_path, 'wb') as destination_file:
                 for chunk in file.chunks():
                     destination_file.write(chunk)
@@ -395,8 +396,9 @@ class UploadGeoJSONAPIView(APIView):
 
         # Create a directory to extract the contents of the zip file
         if type_of_file == "Shapefile":
-            ZIP_FILE_PATH = 'media/Uploads/UploadVector/export.zip'
-            EXTRACTED_PATH = 'media/Uploads/UploadVector/extracted_data/'
+            ZIP_FILE_PATH = destination_path
+            filename_no_ext = ZIP_FILE_PATH.split("/")[-1].split(".")[0]
+            EXTRACTED_PATH = f"media/Uploads/UploadVector/{filename_no_ext}/"
             os.makedirs(EXTRACTED_PATH, exist_ok=True)
 
             # Extract the contents of the zip file
