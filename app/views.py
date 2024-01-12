@@ -464,7 +464,62 @@ class UploadCategoriesView(APIView):
                 return Response({'message': 'No layers found.'})
 
             gdf = gpd.read_file(GEOJSON_PATH)
-            bounding_box_4326 = gdf.to_crs(epsg='4326').total_bounds
-            return Response({'type of file': type_of_file, 'filename': filename, 'extent': [bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]]})
+            distinct_values = gdf['name'].unique()
+            # find the type of geometry for each of the distinct values
+            distinct_values_list = []
+            layers = []
+            for value in distinct_values:
+                distinct_values_dict = {}
+                distinct_values_dict['name'] = value
+                distinct_values_dict['type_of_geometry'] = gdf[gdf['name']
+                                                               == value].geometry.iloc[0].geom_type
+                distinct_values_dict['matched_category'] = None
+
+                distinct_values_list.append(distinct_values_dict)
+            layers.append({"layername": filename.split(".")[0],
+                           "distinct": distinct_values_list})
+            return Response({'type of file': type_of_file, 'filename': filename, "layers": layers})
         else:
-            return Response({'type of file': type_of_file, 'filename': filename})
+            ZIP_FILE_PATH = destination_path
+            filename_no_ext = ZIP_FILE_PATH.split(
+                "/")[-1].split(".")[0]
+            EXTRACTED_PATH = f"media/Uploads/UploadVector/{filename_no_ext}/"
+            extracted_files = os.listdir(EXTRACTED_PATH)
+            folder_paths = [f for f in extracted_files if os.path.isdir(
+                os.path.join(EXTRACTED_PATH, f))]
+
+            if not folder_paths:
+                return Response({'message': 'No layers found.'})
+
+            SHAPEFILE_PATHS = []
+
+            for folder_path in folder_paths:
+                # Check if .shp file exists in the folder
+                shp_file_path = os.path.join(
+                    EXTRACTED_PATH, folder_path, f"{folder_path}.shp")
+                if os.path.isfile(shp_file_path):
+                    SHAPEFILE_PATHS.append(shp_file_path)
+
+            if not SHAPEFILE_PATHS:
+                # No .shp files found in the folders
+                return Response({'message': 'No .shp files found.'})
+
+            layers = []
+            for shapefile_path in SHAPEFILE_PATHS:
+                gdf = gpd.read_file(shapefile_path)
+                # geojson_data = gdf.to_crs(epsg='4326').to_json()
+                layer_name = shapefile_path.split("/")[-1].split(".")[0]
+                distinct_values = gdf['undertype'].unique()
+                distinct_values_list = []
+                for value in distinct_values:
+                    distinct_values_dict = {}
+                    distinct_values_dict['name'] = value
+                    distinct_values_dict['type_of_geometry'] = gdf[gdf['undertype']
+                                                                   == value].geometry.iloc[0].geom_type
+                    distinct_values_dict['matched_category'] = None
+
+                    distinct_values_list.append(distinct_values_dict)
+                layers.append({"layername": layer_name,
+                              "distinct": distinct_values_list})
+
+            return Response({'type of file': type_of_file, 'filename': filename, "layers": layers})
