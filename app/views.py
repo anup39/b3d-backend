@@ -31,6 +31,9 @@ from django.conf import settings
 from .utils import handle_delete_request
 from django.db.models import Q
 import geopandas as gpd
+import json
+import zipfile
+from django.http import JsonResponse
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -371,17 +374,65 @@ class LineStringDataGeoJSONAPIView(generics.ListAPIView):
 
 class UploadGeoJSONAPIView(APIView):
     def get(self, request):
-        SHAPEFILE_PATH = 'your_shapefile.shp'
-        # Read the Shapefile using geopandas
-        gdf = gpd.read_file(SHAPEFILE_PATH)
+        ZIP_FILE_PATH = 'media/Uploads/UploadVector/export.zip'
+        EXTRACTED_PATH = 'media/Uploads/UploadVector/extracted_data/'
 
-        # Convert the GeoDataFrame to GeoJSON
-        geojson_data = gdf.to_crs(epsg='4326').to_json()
+        # Create a directory to extract the contents of the zip file
+        os.makedirs(EXTRACTED_PATH, exist_ok=True)
 
-        # Serialize the GeoJSON data
-        serializer = UploadGeoJSONSerializer(
-            data={'geojson_data': geojson_data})
-        if serializer.is_valid():
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # Extract the contents of the zip file
+        with zipfile.ZipFile(ZIP_FILE_PATH, 'r') as zip_ref:
+            zip_ref.extractall(EXTRACTED_PATH)
+
+        # List all files in the extracted directory
+        extracted_files = os.listdir(EXTRACTED_PATH)
+
+        # Check if there are any folders inside the extracted directory
+        folder_paths = [f for f in extracted_files if os.path.isdir(
+            os.path.join(EXTRACTED_PATH, f))]
+
+        if not folder_paths:
+            # No layers found in the zip file
+            return JsonResponse({'message': 'No layers found.'})
+
+        SHAPEFILE_PATHS = []
+
+        for folder_path in folder_paths:
+            # Check if .shp file exists in the folder
+            shp_file_path = os.path.join(
+                EXTRACTED_PATH, folder_path, f"{folder_path}.shp")
+            if os.path.isfile(shp_file_path):
+                SHAPEFILE_PATHS.append(shp_file_path)
+
+        if not SHAPEFILE_PATHS:
+            # No .shp files found in the folders
+            return JsonResponse({'message': 'No .shp files found.'})
+
+        geojson_layers = []
+        layers = []
+
+        for shapefile_path in SHAPEFILE_PATHS:
+            # Read each Shapefile using geopandas
+            gdf = gpd.read_file(shapefile_path)
+
+            # Convert each GeoDataFrame to GeoJSON
+            geojson_data = gdf.to_crs(epsg='4326').to_json()
+
+            # Get the layer name from the Shapefile path
+            layer_name = shapefile_path.split("/")[-1].split(".")[0]
+
+            # Parse the GeoJSON string to a Python dictionary
+            geojson_dict = json.loads(geojson_data)
+
+            # Add GeoJSON data to the dictionary with the layer name
+            geojson_layers.append(
+                {"layer": layer_name, "geojson": geojson_dict})
+            layers.append(layer_name)
+
+        # Return the response as a JSON response
+        return Response({'layers': layers,  "geojson": geojson_layers})
+
+        # if serializer.is_valid():
+        # return Response(geojson_data)
+        # else:
+        #     return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
