@@ -456,4 +456,15 @@ class UploadCategoriesView(APIView):
     def get(self, request):
         type_of_file = self.request.query_params.get('type_of_file', None)
         filename = self.request.query_params.get('filename', None)
-        return Response({'type of file': type_of_file, 'filename': filename})
+        destination_path = f"media/Uploads/UploadVector/{filename}"
+
+        if type_of_file == "Geojson":
+            GEOJSON_PATH = destination_path
+            if not os.path.isfile(GEOJSON_PATH):
+                return Response({'message': 'No layers found.'})
+
+            gdf = gpd.read_file(GEOJSON_PATH)
+            bounding_box_4326 = gdf.to_crs(epsg='4326').total_bounds
+            return Response({'type of file': type_of_file, 'filename': filename, 'extent': [bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]]})
+        else:
+            return Response({'type of file': type_of_file, 'filename': filename})
