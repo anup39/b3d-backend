@@ -1,4 +1,5 @@
 import os
+import uuid
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .tasks import handleExampleTask, handleCreateBandsNormal_
@@ -373,9 +374,24 @@ class LineStringDataGeoJSONAPIView(generics.ListAPIView):
 
 
 class UploadGeoJSONAPIView(APIView):
-    def get(self, request):
+    def post(self, request):
+        file = request.data.get('file')
+        type_of_file = request.data.get('type_of_file')
 
-        type_of_file = "Shapefile"
+        try:
+            # Save the file to the destination path
+            destination_path = f"media/Uploads/UploadVector/{str(uuid.uuid4()) + '_' + file.name}"
+            with open(destination_path, 'wb') as destination_file:
+                for chunk in file.chunks():
+                    destination_file.write(chunk)
+
+            print(f"File saved at: {destination_path}")
+
+            # Add your additional processing here if needed
+
+        except Exception as e:
+            print(f"Error saving file: {e}")
+            return JsonResponse({'message': 'Error saving file'}, status=500)
 
         # Create a directory to extract the contents of the zip file
         if type_of_file == "Shapefile":
@@ -438,15 +454,18 @@ class UploadGeoJSONAPIView(APIView):
             # Return the response as a JSON response
             return Response({'layers': layers,  "result": geojson_layers})
         else:
-
-            GEOJSON_PATH = 'media/Uploads/UploadVector/test.json'
-
+            GEOJSON_PATH = destination_path
+            if not GEOJSON_PATH:
+                # No layers found in the zip file
+                return JsonResponse({'message': 'No layers found.'})
             geojson_layers = []
             layers = []
             gdf = gpd.read_file(GEOJSON_PATH)
             geojson_data = gdf.to_crs(epsg='4326').to_json()
             # Get the layer name from the Shapefile path
-            layer_name = shapefile_path.split("/")[-1].split(".")[0]
+            layer_name = GEOJSON_PATH.split("/")[-1].split(".")[0]
+            filename_parts = layer_name.split('_')
+            layer_name = filename_parts[1]
             # Parse the GeoJSON string to a Python dictionary
             geojson_dict = json.loads(geojson_data)
             bounding_box_4326 = gdf.to_crs(epsg='4326').total_bounds
