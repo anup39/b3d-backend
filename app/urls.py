@@ -6,7 +6,7 @@ from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
 from .views import RoleViewSet, UserRoleViewSet, UserViewSet
-from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView
+from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView
 from django.urls import path, include, re_path
 # from .views import TaskStatusView
 # from .tiler import Metadata, Tiles
@@ -52,6 +52,9 @@ urlpatterns = [
     path('category-polygon-geojson/',  PolygonDataGeoJSONAPIView.as_view(),
          name='category-polygon-geojson'),
     path('upload-geojson/', UploadGeoJSONAPIView.as_view(), name='upload_geojson'),
+    path('upload-categories/', UploadCategoriesView.as_view(),
+         name='upload_categories'),
+
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
 ]

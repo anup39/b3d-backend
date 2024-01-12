@@ -449,3 +449,11 @@ class UploadGeoJSONAPIView(APIView):
             layers.append({"layername": layer_name, "extent": [
                 bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]]})
             return Response({"file": filename, 'layers': layers,  "result": geojson_layers})
+
+
+class UploadCategoriesView(APIView):
+
+    def get(self, request):
+        type_of_file = self.request.query_params.get('type_of_file', None)
+        filename = self.request.query_params.get('filename', None)
+        return Response({'type of file': type_of_file, 'filename': filename})
