@@ -468,17 +468,21 @@ class UploadCategoriesView(APIView):
             # find the type of geometry for each of the distinct values
             distinct_values_list = []
             layers = []
+            id = 1
             for value in distinct_values:
                 distinct_values_dict = {}
+                distinct_values_dict['filename'] = filename
+                distinct_values_dict['id'] = id
                 distinct_values_dict['name'] = value
                 distinct_values_dict['type_of_geometry'] = gdf[gdf['name']
                                                                == value].geometry.iloc[0].geom_type
                 distinct_values_dict['matched_category'] = None
+                distinct_values_dict['checked'] = False
 
                 distinct_values_list.append(distinct_values_dict)
-            layers.append({"layername": filename.split(".")[0],
-                           "distinct": distinct_values_list})
-            return Response({'type of file': type_of_file, 'filename': filename, "layers": layers})
+                id += 1
+
+            return Response({'type of file': type_of_file, "distinct": distinct_values_list})
         else:
             ZIP_FILE_PATH = destination_path
             filename_no_ext = ZIP_FILE_PATH.split(
@@ -510,16 +514,28 @@ class UploadCategoriesView(APIView):
                 # geojson_data = gdf.to_crs(epsg='4326').to_json()
                 layer_name = shapefile_path.split("/")[-1].split(".")[0]
                 distinct_values = gdf['undertype'].unique()
-                distinct_values_list = []
+                # distinct_values_list = []
+                id = 1
                 for value in distinct_values:
                     distinct_values_dict = {}
+                    distinct_values_dict['filename'] = filename
+                    distinct_values_dict['id'] = id
+                    distinct_values_dict['layername'] = layer_name
                     distinct_values_dict['name'] = value
                     distinct_values_dict['type_of_geometry'] = gdf[gdf['undertype']
                                                                    == value].geometry.iloc[0].geom_type
                     distinct_values_dict['matched_category'] = None
+                    distinct_values_dict['checked'] = False
+                    id += 1
 
-                    distinct_values_list.append(distinct_values_dict)
-                layers.append({"layername": layer_name,
-                              "distinct": distinct_values_list})
+                    # distinct_values_list.append(distinct_values_dict)
+                    layers.append(distinct_values_dict)
 
-            return Response({'type of file': type_of_file, 'filename': filename, "layers": layers})
+            return Response({'type of file': type_of_file, "distinct": layers})
+
+
+class UploadCategoriesSaveView(APIView):
+    # i will have payload like this
+    def post(self, request):
+
+        return Response({"message": "Successfully saved the categories"})
