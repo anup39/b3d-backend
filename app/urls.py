@@ -6,7 +6,7 @@ from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
 from .views import RoleViewSet, UserRoleViewSet, UserViewSet
-from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView
+from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView, MeasuringTableSummationView
 from django.urls import path, include, re_path
 # from .views import TaskStatusView
 # from .tiler import Metadata, Tiles
@@ -56,7 +56,7 @@ urlpatterns = [
          name='upload_categories'),
     path('save-upload/', UploadCategoriesSaveView.as_view(),
          name='save_upload'),
-
+    path('measuring-table-summation', MeasuringTableSummationView.as_view()),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
 ]

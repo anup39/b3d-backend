@@ -751,3 +751,11 @@ class UploadCategoriesSaveView(APIView):
                             'user_id'), project_id=request.data.get('project_id'), dataframe=filtered_gdf)
 
             return Response({'message': "Sucessfully saved the data"})
+
+
+class MeasuringTableSummationView(APIView):
+    def get(self, request):
+        project_id = request.query_params.get('project_id')
+        client_id = request.query_params.get('client_id')
+
+        return Response({'message': "Sccess", 'project_id': project_id, 'client_id': client_id})
