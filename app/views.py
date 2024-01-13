@@ -573,7 +573,7 @@ def handleDataframeSave(client_id, user_id, project_id, dataframe):
 
         category = Category.objects.get(id=matched_category)
 
-        if geom.geom_type == "MultiPolygon":
+        if geom.geom_type == "MultiPolygon" and category.type_of_geometry == "Polygon":
             for polygon in geom:
                 PolygonData.objects.create(
                     client=client,
@@ -587,7 +587,7 @@ def handleDataframeSave(client_id, user_id, project_id, dataframe):
                     geom=polygon,
                     created_by=user
                 )
-        elif geom.geom_type == "Polygon":
+        elif geom.geom_type == "Polygon" and category.type_of_geometry == "Polygon":
             PolygonData.objects.create(
                 client=client,
                 project=project,
@@ -601,7 +601,7 @@ def handleDataframeSave(client_id, user_id, project_id, dataframe):
                 created_by=user
             )
 
-        elif geom.geom_type == "MultiLineString":
+        elif geom.geom_type == "MultiLineString" and category.type_of_geometry == "LineString:
             for line in geom:
                 LineStringData.objects.create(
                     client=client,
@@ -615,7 +615,7 @@ def handleDataframeSave(client_id, user_id, project_id, dataframe):
                     geom=line,
                     created_by=user
                 )
-        elif geom.geom_type == "LineString":
+        elif geom.geom_type == "LineString" and category.type_of_geometry == "LineString":
             LineStringData.objects.create(
                 client=client,
                 project=project,
@@ -628,7 +628,7 @@ def handleDataframeSave(client_id, user_id, project_id, dataframe):
                 geom=geom,
                 created_by=user
             )
-        elif geom.geom_type == "MultiPoint":
+        elif geom.geom_type == "MultiPoint" and category.type_of_geometry == "Point":
             for point in geom:
                 PointData.objects.create(
                     client=client,
@@ -642,7 +642,7 @@ def handleDataframeSave(client_id, user_id, project_id, dataframe):
                     geom=point,
                     created_by=user
                 )
-        else:
+        elif geom.geom_type == "Point" and category.type_of_geometry == "Point":
             PointData.objects.create(
                 client=client,
                 project=project,
