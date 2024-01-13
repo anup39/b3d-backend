@@ -37,6 +37,7 @@ import geopandas as gpd
 import json
 import zipfile
 from django.http import JsonResponse
+import pandas as pd
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -562,8 +563,9 @@ def checkUploadFileValidationGlobal(shape_file):
 
 
 def handleDataframeSave(client_id, user_id, project_id, dataframe):
+    # print("herer in upload")
     gdf = dataframe
-    gdf.to_crs(epsg=4326)
+    gdf = gdf.to_crs(epsg=4326)
     user = User.objects.get(id=user_id)
     client = Client.objects.get(id=client_id)
     project = Project.objects.get(id=project_id)
@@ -601,7 +603,7 @@ def handleDataframeSave(client_id, user_id, project_id, dataframe):
                 created_by=user
             )
 
-        elif geom.geom_type == "MultiLineString" and category.type_of_geometry == "LineString:
+        elif geom.geom_type == "MultiLineString" and category.type_of_geometry == "LineString":
             for line in geom:
                 LineStringData.objects.create(
                     client=client,
@@ -686,7 +688,7 @@ class UploadCategoriesSaveView(APIView):
             gdf = gpd.read_file(GEOJSON_PATH)
             gdf.to_crs(epsg='4326')
             names = [i['name'] for i in result]
-            print(names, 'names')
+            # print(names, 'names')
             filtered_gdf = gdf[gdf['name'].isin(names)]
             filtered_gdf['matched_category'] = filtered_gdf['name'].map(
                 lambda x: next((item for item in result if item["name"] == x), None)['matched_category'])
@@ -721,9 +723,31 @@ class UploadCategoriesSaveView(APIView):
                 return Response({'message': 'No .shp files found.'})
 
             layers = []
-            for shapefile_path in SHAPEFILE_PATHS:
-                # gdf = gpd.read_file(shapefile_path)
-                # geojson_data = gdf.to_crs(epsg='4326').to_json()
-                layer_name = shapefile_path.split("/")[-1].split(".")[0]
+            result = request.data.get('result')
+            result = json.loads(result)
+            new_list = []
+            layer_names = set(item['layername'] for item in result)
 
-            return Response({'type of file': type_of_file})
+            for layer_name in layer_names:
+                filtered_items = [
+                    item for item in result if item['layername'] == layer_name]
+                new_list.append(filtered_items)
+
+            # print(new_list, 'new_list')
+            for shapefile_path in SHAPEFILE_PATHS:
+                # print(shapefile_path, 'shapefile_path')
+                for result_ in new_list:
+                    layer_name = shapefile_path.split("/")[-1].split(".")[0]
+                    if (result_[0].get('layername') == layer_name):
+                        gdf = gpd.read_file(shapefile_path)
+                        gdf.to_crs(epsg='4326')
+                        names = [i['name'] for i in result_]
+                        # print(names, 'names')
+                        filtered_gdf = gdf[gdf['undertype'].isin(names)]
+                        filtered_gdf['matched_category'] = filtered_gdf['undertype'].map(
+                            lambda x: next((item for item in result_ if item["name"] == x), None)['matched_category'])
+
+                        handleDataframeSave(client_id=request.data.get('client_id'), user_id=request.data.get(
+                            'user_id'), project_id=request.data.get('project_id'), dataframe=filtered_gdf)
+
+            return Response({'message': "Sucessfully saved the data"})
