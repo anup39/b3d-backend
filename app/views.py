@@ -26,6 +26,8 @@ from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, 
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
 from .filters import RasterDataFilter
 from .filters import UserRoleFilter
+from django.contrib.gis.geos import (
+    GEOSGeometry)
 # from .create_bands import handleCreateBandsNormal
 from django.conf import settings
 # from celery.result import AsyncResult
@@ -534,27 +536,130 @@ class UploadCategoriesView(APIView):
             return Response({'type of file': type_of_file, "distinct": layers})
 
 
-class UploadCategoriesSaveView(APIView):
-    # i will have payload like this
-    # for geojson: [
-    #     {
-    #         "filename": "754c19a9-6ddb-4580-92f2-d71cb8bd82b1_cateogrytestjson.json",
-    #         "id": 1,
-    #         "name": " Græs",
-    #         "type_of_geometry": "LineString",
-    #         "matched_category": 26,
-    #         "checked": true
-    #     },
-    #     {
-    #         "filename": "754c19a9-6ddb-4580-92f2-d71cb8bd82b1_cateogrytestjson.json",
-    #         "id": 2,
-    #         "name": "Asfalt ",
-    #         "type_of_geometry": "Polygon",
-    #         "matched_category": 27,
-    #         "checked": true
-    #     }
-    # ]
+def checkUploadFileValidationGlobal(shape_file):
 
+    if not shape_file.name.endswith('.zip'):
+        raise ValidationError('The file must be a ZIP archive.')
+    if shape_file.name.endswith('.zip'):
+        # Open the zip file
+        with zipfile.ZipFile(shape_file, 'r') as zip_file:
+
+            # Check if a file with a .shp extension exists in the zip file
+            file_list = zip_file.namelist()
+            shp_file = None
+            for file_name in file_list:
+                if file_name.endswith('.shp'):
+                    shp_file = file_name
+                    break
+
+            # If a .shp file exists, open it
+            if shp_file:
+                with zip_file.open(shp_file) as file:
+                    pass
+            else:
+                raise ValueError(
+                    f"No .shp file found in {shape_file}")
+
+
+def handleDataframeSave(client_id, user_id, project_id, dataframe):
+    gdf = dataframe
+    gdf.to_crs(epsg=4326)
+    user = User.objects.get(id=user_id)
+    client = Client.objects.get(id=client_id)
+    project = Project.objects.get(id=project_id)
+    for index, row in gdf.iterrows():
+        geom = GEOSGeometry(str(row["geometry"]))
+        matched_category = row['matched_category']
+
+        category = Category.objects.get(id=matched_category)
+
+        if geom.geom_type == "MultiPolygon":
+            for polygon in geom:
+                PolygonData.objects.create(
+                    client=client,
+                    project=project,
+                    standard_category=category.standard_category,
+                    sub_category=category.sub_category,
+                    category=category,
+                    standard_category_name=category.standard_category.name,
+                    sub_category_name=category.sub_category.name,
+                    category_name=category.name,
+                    geom=polygon,
+                    created_by=user
+                )
+        elif geom.geom_type == "Polygon":
+            PolygonData.objects.create(
+                client=client,
+                project=project,
+                standard_category=category.standard_category,
+                sub_category=category.sub_category,
+                category=category,
+                standard_category_name=category.standard_category.name,
+                sub_category_name=category.sub_category.name,
+                category_name=category.name,
+                geom=geom,
+                created_by=user
+            )
+
+        elif geom.geom_type == "MultiLineString":
+            for line in geom:
+                LineStringData.objects.create(
+                    client=client,
+                    project=project,
+                    standard_category=category.standard_category,
+                    sub_category=category.sub_category,
+                    category=category,
+                    standard_category_name=category.standard_category.name,
+                    sub_category_name=category.sub_category.name,
+                    category_name=category.name,
+                    geom=line,
+                    created_by=user
+                )
+        elif geom.geom_type == "LineString":
+            LineStringData.objects.create(
+                client=client,
+                project=project,
+                standard_category=category.standard_category,
+                sub_category=category.sub_category,
+                category=category,
+                standard_category_name=category.standard_category.name,
+                sub_category_name=category.sub_category.name,
+                category_name=category.name,
+                geom=geom,
+                created_by=user
+            )
+        elif geom.geom_type == "MultiPoint":
+            for point in geom:
+                PointData.objects.create(
+                    client=client,
+                    project=project,
+                    standard_category=category.standard_category,
+                    sub_category=category.sub_category,
+                    category=category,
+                    standard_category_name=category.standard_category.name,
+                    sub_category_name=category.sub_category.name,
+                    category_name=category.name,
+                    geom=point,
+                    created_by=user
+                )
+        else:
+            PointData.objects.create(
+                client=client,
+                project=project,
+                standard_category=category.standard_category,
+                sub_category=category.sub_category,
+                category=category,
+                standard_category_name=category.standard_category.name,
+                sub_category_name=category.sub_category.name,
+                category_name=category.name,
+                geom=geom,
+                created_by=user
+            )
+
+    return True
+
+
+class UploadCategoriesSaveView(APIView):
     # for shapefile[
     #     {
     #         "filename": "bd604947-ef4f-451f-8c68-e5078b379fc1_export.zip",
@@ -586,7 +691,10 @@ class UploadCategoriesSaveView(APIView):
             filtered_gdf['matched_category'] = filtered_gdf['name'].map(
                 lambda x: next((item for item in result if item["name"] == x), None)['matched_category'])
 
-            return Response({'type of file': type_of_file})
+            handleDataframeSave(client_id=request.data.get('client_id'), user_id=request.data.get(
+                'user_id'), project_id=request.data.get('project_id'), dataframe=filtered_gdf)
+
+            return Response({'message': "Sucessfully saved the data"})
         else:
             ZIP_FILE_PATH = destination_path
             filename_no_ext = ZIP_FILE_PATH.split(

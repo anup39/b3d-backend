@@ -204,7 +204,6 @@ class RasterData(models.Model):
         verbose_name_plural = 'Property'
 
 
-
 class OBJData(models.Model):
     id = models.AutoField(primary_key=True)
     obj_file = models.FileField(upload_to="Uploads/OBJData")
@@ -218,7 +217,6 @@ class OBJData(models.Model):
 
     class Meta:
         verbose_name_plural = 'OBJData'
-
 
 
 class StandardCategory(models.Model):
@@ -426,7 +424,7 @@ class PolygonData(models.Model):
         verbose_name_plural = 'PolygonData'
 
     def __str__(self):
-        return str(self.id)
+        return str(self.project.name)
 
 
 class LineStringData(models.Model):
