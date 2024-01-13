@@ -536,6 +536,86 @@ class UploadCategoriesView(APIView):
 
 class UploadCategoriesSaveView(APIView):
     # i will have payload like this
-    def post(self, request):
+    # for geojson: [
+    #     {
+    #         "filename": "754c19a9-6ddb-4580-92f2-d71cb8bd82b1_cateogrytestjson.json",
+    #         "id": 1,
+    #         "name": " Græs",
+    #         "type_of_geometry": "LineString",
+    #         "matched_category": 26,
+    #         "checked": true
+    #     },
+    #     {
+    #         "filename": "754c19a9-6ddb-4580-92f2-d71cb8bd82b1_cateogrytestjson.json",
+    #         "id": 2,
+    #         "name": "Asfalt ",
+    #         "type_of_geometry": "Polygon",
+    #         "matched_category": 27,
+    #         "checked": true
+    #     }
+    # ]
 
-        return Response({"message": "Successfully saved the categories"})
+    # for shapefile[
+    #     {
+    #         "filename": "bd604947-ef4f-451f-8c68-e5078b379fc1_export.zip",
+    #         "id": 1,
+    #         "layername": "Udstyr punkt",
+    #         "name": "Afløbsrist",
+    #         "type_of_geometry": "Point",
+    #         "matched_category": 27,
+    #         "checked": true
+    #     }
+    # ]
+
+    def post(self, request):
+        type_of_file = request.data.get('type_of_file')
+        filename = request.data.get('filename')
+        destination_path = f"media/Uploads/UploadVector/{filename}"
+
+        if type_of_file == "Geojson":
+            GEOJSON_PATH = destination_path
+            if not os.path.isfile(GEOJSON_PATH):
+                return Response({'message': 'No layers found.'})
+            result = request.data.get('result')
+            result = json.loads(result)
+            gdf = gpd.read_file(GEOJSON_PATH)
+            gdf.to_crs(epsg='4326')
+            names = [i['name'] for i in result]
+            print(names, 'names')
+            filtered_gdf = gdf[gdf['name'].isin(names)]
+            filtered_gdf['matched_category'] = filtered_gdf['name'].map(
+                lambda x: next((item for item in result if item["name"] == x), None)['matched_category'])
+
+            return Response({'type of file': type_of_file})
+        else:
+            ZIP_FILE_PATH = destination_path
+            filename_no_ext = ZIP_FILE_PATH.split(
+                "/")[-1].split(".")[0]
+            EXTRACTED_PATH = f"media/Uploads/UploadVector/{filename_no_ext}/"
+            extracted_files = os.listdir(EXTRACTED_PATH)
+            folder_paths = [f for f in extracted_files if os.path.isdir(
+                os.path.join(EXTRACTED_PATH, f))]
+
+            if not folder_paths:
+                return Response({'message': 'No layers found.'})
+
+            SHAPEFILE_PATHS = []
+
+            for folder_path in folder_paths:
+                # Check if .shp file exists in the folder
+                shp_file_path = os.path.join(
+                    EXTRACTED_PATH, folder_path, f"{folder_path}.shp")
+                if os.path.isfile(shp_file_path):
+                    SHAPEFILE_PATHS.append(shp_file_path)
+
+            if not SHAPEFILE_PATHS:
+                # No .shp files found in the folders
+                return Response({'message': 'No .shp files found.'})
+
+            layers = []
+            for shapefile_path in SHAPEFILE_PATHS:
+                # gdf = gpd.read_file(shapefile_path)
+                # geojson_data = gdf.to_crs(epsg='4326').to_json()
+                layer_name = shapefile_path.split("/")[-1].split(".")[0]
+
+            return Response({'type of file': type_of_file})
