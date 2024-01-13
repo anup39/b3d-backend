@@ -755,7 +755,91 @@ class UploadCategoriesSaveView(APIView):
 
 class MeasuringTableSummationView(APIView):
     def get(self, request):
-        project_id = request.query_params.get('project_id')
-        client_id = request.query_params.get('client_id')
+        project_id = request.query_params.get('project')
+        client_id = request.query_params.get('client')
 
-        return Response({'message': "Sccess", 'project_id': project_id, 'client_id': client_id})
+        width = 250
+        table_columns = [
+            {
+                "field": "id",
+                "headerName": "id",
+                "width": width,
+                "type": "string",
+                "editable": False,
+
+            },
+            {
+                "field": "standard_category",
+                "headerName": "standard_category",
+                "width": width,
+                "type": "string",
+                "editable": False,
+
+            },
+            {
+                "field": "sub_category",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "sub_category",
+            },
+
+            {
+                "field": "category",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "category",
+            },
+            {
+                "field": "type_of_geometry",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "type_of_geometry",
+            },
+            {
+                "field": "mill_country",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "mill_country",
+            },
+            {
+                "field": "description",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "description",
+            },
+            {
+                "field": "area",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "area",
+            },
+            {
+                "field": "length",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "length",
+            },
+            {
+                "field": "mill_type",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "mill_type",
+            },
+            {
+                "field": "symbol",
+                "type": "string",
+                "width": width,
+                "editable": False,
+                "headerName": "mill_lat",
+            },
+        ]
+
+        return Response({"columns": table_columns, "rows": []})
