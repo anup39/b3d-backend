@@ -38,6 +38,7 @@ import json
 import zipfile
 from django.http import JsonResponse
 import pandas as pd
+import numpy as np
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -662,18 +663,6 @@ def handleDataframeSave(client_id, user_id, project_id, dataframe):
 
 
 class UploadCategoriesSaveView(APIView):
-    # for shapefile[
-    #     {
-    #         "filename": "bd604947-ef4f-451f-8c68-e5078b379fc1_export.zip",
-    #         "id": 1,
-    #         "layername": "Udstyr punkt",
-    #         "name": "Afløbsrist",
-    #         "type_of_geometry": "Point",
-    #         "matched_category": 27,
-    #         "checked": true
-    #     }
-    # ]
-
     def post(self, request):
         type_of_file = request.data.get('type_of_file')
         filename = request.data.get('filename')
@@ -758,88 +747,58 @@ class MeasuringTableSummationView(APIView):
         project_id = request.query_params.get('project')
         client_id = request.query_params.get('client')
 
-        width = 250
-        table_columns = [
-            {
-                "field": "id",
-                "headerName": "id",
-                "width": width,
-                "type": "string",
-                "editable": False,
+        project = Project.objects.get(id=project_id)
+        client = Client.objects.get(id=client_id)
 
-            },
-            {
-                "field": "standard_category",
-                "headerName": "standard_category",
-                "width": width,
-                "type": "string",
-                "editable": False,
+        line_string_data = LineStringData.objects.filter(
+            project_id=project_id, client_id=client_id
+        )
+        point_data = PointData.objects.filter(
+            project_id=project_id, client_id=client_id)
+        polygon_data = PolygonData.objects.filter(
+            project_id=project_id, client_id=client_id)
 
-            },
-            {
-                "field": "sub_category",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "sub_category",
-            },
+        categories = Category.objects.filter(
+            client=client
+        ).values('id', 'type_of_geometry', 'view_name', 'description')
 
-            {
-                "field": "category",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "category",
-            },
-            {
-                "field": "type_of_geometry",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "type_of_geometry",
-            },
-            {
-                "field": "mill_country",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "mill_country",
-            },
-            {
-                "field": "description",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "description",
-            },
-            {
-                "field": "area",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "area",
-            },
-            {
-                "field": "length",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "length",
-            },
-            {
-                "field": "mill_type",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "mill_type",
-            },
-            {
-                "field": "symbol",
-                "type": "string",
-                "width": width,
-                "editable": False,
-                "headerName": "mill_lat",
-            },
-        ]
+        for category in categories:
+            style = CategoryStyle.objects.get(category=category['id'])
+            if category['type_of_geometry'] == "LineString":
+                category['name'] = category['view_name']
+                category['length'] = np.random.randint(100, 1000)
+                category['area'] = 0
+                category['count'] = line_string_data.filter(
+                    category=category['id']).count()
+                category['value'] = line_string_data.filter(
+                    category=category['id']).count()
+                category['symbol'] = {"color": style.fill,
+                                      "type_of_geometry": "LineString"}
+                category['color'] = style.fill
 
-        return Response({"columns": table_columns, "rows": []})
+            if category['type_of_geometry'] == "Point":
+                category['name'] = category['view_name']
+                category['length'] = 0
+                category['area'] = 0
+                category['count'] = point_data.filter(
+                    category=category['id']).count()
+                category['value'] = point_data.filter(
+                    category=category['id']).count()
+
+                category['symbol'] = {"color": style.fill,
+                                      "type_of_geometry": "Point"}
+                category['color'] = style.fill
+
+            if category['type_of_geometry'] == "Polygon":
+                category['name'] = category['view_name']
+                category['length'] = 0
+                category['area'] = np.random.randint(100, 1000)
+                category['count'] = polygon_data.filter(
+                    category=category['id']).count()
+                category['value'] = polygon_data.filter(
+                    category=category['id']).count()
+                category['symbol'] = {"color": style.fill,
+                                      "type_of_geometry": "Polygon"}
+                category['color'] = style.fill
+
+        return Response({"rows": categories})
