@@ -7,6 +7,7 @@ from rest_framework.authtoken.views import ObtainAuthToken, APIView
 from rest_framework.authtoken.models import Token
 from rest_framework import status, generics
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from django.contrib.auth.models import User
 from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
@@ -39,6 +40,7 @@ import zipfile
 from django.http import JsonResponse
 import pandas as pd
 import numpy as np
+import django_filters
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -190,8 +192,9 @@ class ClientViewSet(viewsets.ModelViewSet):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = ProjectSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = ProjectFilter
+    search_fields = ['name', 'description']
 
     def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
