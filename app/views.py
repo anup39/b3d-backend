@@ -334,13 +334,19 @@ class PolygonDataGeoJSONAPIView(generics.ListAPIView):
     serializer_class = PolygonDataGeojsonSerializer
 
     def get_queryset(self):
+        client = self.request.query_params.get('client', None)
         project = self.request.query_params.get('project', None)
         category = self.request.query_params.get('category', None)
 
         queryset = PolygonData.objects.filter(is_display=True)
+        if client:
+            print(client, 'client')
+            queryset = queryset.filter(client=client)
         if project:
+            print(project, 'project')
             queryset = queryset.filter(project=project)
         if category:
+            print(category, 'category')
             queryset = queryset.filter(category=category)
 
         return queryset
