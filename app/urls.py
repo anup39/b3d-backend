@@ -9,6 +9,7 @@ from .views import RoleViewSet, UserRoleViewSet, UserViewSet
 from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView, MeasuringTableSummationView
 from django.urls import path, include, re_path
 from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionViewSet
+from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPhotoGeometryViewSet
 # from .views import TaskStatusView
 # from .tiler import Metadata, Tiles
 
@@ -41,6 +42,10 @@ router.register('user-role', UserRoleViewSet)
 router.register('standard-inspection', StandardInspectionViewSet)
 router.register('sub-inspection', SubInspectionViewSet)
 router.register('inspection', InspectionViewSet)
+
+router.register('inspection-report', InspectionReportViewSet)
+router.register('inspection-photo', InspectionPhotoViewSet)
+router.register('inspection-photo-geometry', InpsectionPhotoGeometryViewSet)
 
 
 urlpatterns = [
