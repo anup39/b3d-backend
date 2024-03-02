@@ -8,6 +8,7 @@ from .models import RasterData
 from .models import Role, UserRole
 from .models import OBJData
 from .models import StandardInspection, SubInspection, Inspection
+from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 
 # Register your models here.
 admin.site.register(Client)
@@ -35,3 +36,7 @@ admin.site.register(OBJData)
 admin.site.register(StandardInspection)
 admin.site.register(SubInspection)
 admin.site.register(Inspection)
+
+admin.site.register(InspectionReport)
+admin.site.register(InspectionPhoto)
+admin.site.register(InpsectionPhotoGeometry)

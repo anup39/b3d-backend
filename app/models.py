@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from colorfield.fields import ColorField
 from django.contrib.gis.db import models
 from django.db.models import Manager as GeoManager
+from django.contrib.gis.geos import Point
 
 
 class Role(models.Model):
@@ -607,3 +608,103 @@ class Inspection(models.Model):
 
     def __str__(self):
         return self.sub_inspection.standard_inspection.name + "|" + "|" + self.sub_inspection.name+"|" + self.name
+
+
+# Model for  inspection report
+
+class InspectionReport(models.Model):
+    name = models.CharField(max_length=255, help_text=_(
+        "Inspection Report Name"), verbose_name=_("Name"))
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Project related to this inspection"), verbose_name=_("Project"))
+    date_of_inspection = models.DateTimeField(default=timezone.now, help_text=_(
+        "Date of Inspection"), verbose_name=_("Date of Inspection"))
+    description = models.TextField(default="",  help_text=_(
+        "Description"), verbose_name=_("Description"), blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "The person who created"), verbose_name=_("Created by"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.project.name + "|" + self.name
+
+
+class InspectionPhoto(models.Model):
+    inspection_report = models.ForeignKey(InspectionReport, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Inspection Report related to this photo"), verbose_name=_("Inspection Report"))
+    photo = models.ImageField(upload_to='Uploads/InspectionPhotos')
+    latitude = models.FloatField(help_text=_(
+        "Latitude of the point"), verbose_name=_("Latitude"), null=True, blank=True)
+    longitude = models.FloatField(help_text=_(
+        "Longitude of the point"), verbose_name=_("Longitude"), null=True, blank=True)
+    point = models.PointField(srid=4326, dim=2, null=True, blank=True)
+    description = models.TextField(default="",  help_text=_(
+        "Description"), verbose_name=_("Description"), blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "The person who created"), verbose_name=_("Created by"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    objects = GeoManager()
+
+    def save(self, *args, **kwargs):
+        if self.latitude and self.longitude:
+            self.point = Point(self.longitude, self.latitude)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.inspection_report.name
+
+
+class InpsectionPhotoGeometry(models.Model):
+    inspection_photo = models.ForeignKey(InspectionPhoto, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Inspection Photo related to this detail"), verbose_name=_("Inspection Photo"))
+    description = models.TextField(default="",  help_text=_(
+        "Description"), verbose_name=_("Description"), blank=True, null=True)
+    caption = models.CharField(max_length=255, help_text=_(
+        "Caption for the point"), verbose_name=_("Caption"), null=True, blank=True)
+    x = models.FloatField(help_text=_(
+        "X coordinate of the point"), verbose_name=_("X"), null=True, blank=True)
+    y = models.FloatField(help_text=_(
+        "Y coordinate of the point"), verbose_name=_("Y"), null=True, blank=True)
+    height = models.FloatField(help_text=_(
+        "Height of the point"), verbose_name=_("Height"), null=True, blank=True)
+    width = models.FloatField(help_text=_(
+        "Width of the point"), verbose_name=_("Width"), null=True, blank=True)
+    fill_color = ColorField(default='#2c3e50', help_text=_(
+        "Fill color for the polygon"), verbose_name=_("Fill Color"))
+    fill_opacity = models.DecimalField(
+        decimal_places=2, max_digits=3, default=0.5)
+    stroke_color = ColorField(default='#ffffff', help_text=_(
+        "Stroke color for the polygon"), verbose_name=_("Stroke Color"))
+    stroke_opacity = models.DecimalField(
+        decimal_places=2, max_digits=3, default=0.5)
+    rotation = models.FloatField(help_text=_(
+        "Rotation of the point"), verbose_name=_("Rotation"), null=True, blank=True)
+    standard_inspection = models.ForeignKey(StandardInspection, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Standard Inspection related to this geometry"), verbose_name=_("Standard Inspection"))
+    sub_inspection = models.ForeignKey(SubInspection, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Sub Inspection related to this geometry"), verbose_name=_("Sub Inspection"))
+    inspection = models.ForeignKey(Inspection, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Inspection related to this geometry"), verbose_name=_("Inspection"))
+    severity = models.CharField(max_length=255, help_text=_(
+        "Severity of the point"), verbose_name=_("Severity"), null=True, blank=True)
+    cost = models.FloatField(help_text=_(
+        "Cost of the point"), verbose_name=_("Cost"), null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "The person who created"), verbose_name=_("Created by"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.inspection_photo.inspection_report.name
