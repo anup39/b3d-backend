@@ -553,6 +553,20 @@ class InspectionSerializer(serializers.ModelSerializer):
 # For inspection reporting
 
 class InspectionReportSerializer(serializers.ModelSerializer):
+    total_photos = serializers.SerializerMethodField('get_total_photos')
+    inspected_photos = serializers.SerializerMethodField(
+        'get_inspected_photos')
+
+    def get_total_photos(self, obj):
+        total_photos = InspectionPhoto.objects.filter(
+            inspection_report=obj.id).count()
+        return total_photos
+
+    def get_inspected_photos(self, obj):
+        inspected_photos = InspectionPhoto.objects.filter(
+            inspection_report=obj.id, is_inspected=True).count()
+        return inspected_photos
+
     class Meta:
         model = InspectionReport
         fields = "__all__"
