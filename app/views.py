@@ -44,6 +44,8 @@ import django_filters
 
 from .serializers import StandardInspectionSerializer, SubInspectionSerializer, InspectionSerializer
 from .models import StandardInspection, SubInspection, Inspection
+from .serializers import InspectionReportSerializer, InspectionPhotoSerializer, InpsectionPhotoGeometrySerializer
+from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -839,4 +841,26 @@ class InspectionViewSet(viewsets.ModelViewSet):
     serializer_class = InspectionSerializer
     filter_backends = [DjangoFilterBackend,]
     # filterset_class = GlobalCategoryFilter
+    pagination_class = None
+
+
+# For inspection reporting
+class InspectionReportViewSet(viewsets.ModelViewSet):
+    queryset = InspectionReport.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = InspectionReportSerializer
+    pagination_class = None
+
+
+class InspectionPhotoViewSet(viewsets.ModelViewSet):
+    queryset = InspectionPhoto.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = InspectionPhotoSerializer
+    pagination_class = None
+
+
+class InpsectionPhotoGeometryViewSet(viewsets.ModelViewSet):
+    queryset = InpsectionPhotoGeometry.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = InpsectionPhotoGeometrySerializer
     pagination_class = None
