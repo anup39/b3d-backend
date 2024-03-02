@@ -622,9 +622,11 @@ class Inspection(models.Model):
 class InspectionReport(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "Inspection Report Name"), verbose_name=_("Name"))
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Client related to this inspection"), verbose_name=_("Client"))
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
         "Project related to this inspection"), verbose_name=_("Project"))
-    date_of_inspection = models.DateTimeField(default=timezone.now, help_text=_(
+    date_of_inspection = models.CharField(max_length=500, help_text=_(
         "Date of Inspection"), verbose_name=_("Date of Inspection"))
     description = models.TextField(default="",  help_text=_(
         "Description"), verbose_name=_("Description"), blank=True, null=True)
