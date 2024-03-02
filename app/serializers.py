@@ -8,6 +8,7 @@ from .models import RasterData
 from .models import Role, UserRole
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .models import StandardInspection, SubInspection, Inspection
+from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -546,4 +547,24 @@ class InspectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Inspection
+        fields = "__all__"
+
+
+# For inspection reporting
+
+class InspectionReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InspectionReport
+        fields = "__all__"
+
+
+class InspectionPhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InspectionPhoto
+        fields = "__all__"
+
+
+class InpsectionPhotoGeometrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InpsectionPhotoGeometry
         fields = "__all__"
