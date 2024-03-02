@@ -7,6 +7,7 @@ from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
 from .models import Role, UserRole
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from .models import StandardInspection, SubInspection, Inspection
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -490,3 +491,59 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
 
 class UploadGeoJSONSerializer(serializers.Serializer):
     geojson_data = serializers.JSONField()
+
+
+# For Inspection types
+class StandardInpsectionSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name = obj.name
+        return full_name
+
+    class Meta:
+        model = StandardInspection
+        fields = "__all__"
+
+
+class SubInspectionSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+    standard_inspection_name = serializers.SerializerMethodField(
+        'get_standard_inspection_name')
+
+    def get_full_name(self, obj):
+        full_name = obj.standard_inspection.name + " | " + obj.name
+        return full_name
+
+    def get_standard_inspection_name(self, obj):
+        standard_inspection_name = obj.standard_inspection.name
+        return standard_inspection_name
+
+    class Meta:
+        model = SubInspection
+        fields = "__all__"
+
+
+class InspectionSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+    standard_inspection_name = serializers.SerializerMethodField(
+        'get_standard_inspection_name')
+    sub_inspection_name = serializers.SerializerMethodField(
+        'get_sub_inspection_name')
+
+    def get_full_name(self, obj):
+        full_name = obj.sub_inspection.standard_inspection.name + \
+            " | " + obj.sub_inspection.name + " | " + obj.name
+        return full_name
+
+    def get_standard_inspection_name(self, obj):
+        standard_inspection_name = obj.sub_inspection.standard_inspection.name
+        return standard_inspection_name
+
+    def get_sub_inspection_name(self, obj):
+        sub_inspection_name = obj.standard_inspection.name + " | " + obj.sub_inspection.name
+        return sub_inspection_name
+
+    class Meta:
+        model = Inspection
+        fields = "__all__"
