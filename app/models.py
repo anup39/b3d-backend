@@ -598,6 +598,13 @@ class Inspection(models.Model):
         "Sub Inspection related to this inspection"), verbose_name=_("Sub Inspection"))
     description = models.TextField(default="",  help_text=_(
         "Description"), verbose_name=_("Description"))
+    fill_color = ColorField(default='#2c3e50', help_text=_(
+        "Fill color for the polygon"), verbose_name=_("Fill Color"))
+    fill_opacity = models.DecimalField(
+        decimal_places=2, max_digits=3, default=0.5)
+    stroke_color = ColorField(default='#ffffff', help_text=_(
+        "Stroke coloe for the polygon"), verbose_name=_("Stroke Color"))
+    stroke_width = models.PositiveIntegerField(default=1)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
@@ -684,8 +691,7 @@ class InpsectionPhotoGeometry(models.Model):
         decimal_places=2, max_digits=3, default=0.5)
     stroke_color = ColorField(default='#ffffff', help_text=_(
         "Stroke color for the polygon"), verbose_name=_("Stroke Color"))
-    stroke_opacity = models.DecimalField(
-        decimal_places=2, max_digits=3, default=0.5)
+    stroke_width = models.PositiveIntegerField(default=1)
     rotation = models.FloatField(help_text=_(
         "Rotation of the point"), verbose_name=_("Rotation"), null=True, blank=True)
     standard_inspection = models.ForeignKey(StandardInspection, on_delete=models.SET_NULL, null=True, help_text=_(
