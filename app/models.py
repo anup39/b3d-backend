@@ -657,6 +657,7 @@ class InspectionPhoto(models.Model):
         "The person who created"), verbose_name=_("Created by"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
+    is_inspected = models.BooleanField(default=False)
     is_display = models.BooleanField(default=True)
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
