@@ -42,6 +42,9 @@ import pandas as pd
 import numpy as np
 import django_filters
 
+from .serializers import StandardInspectionSerializer, SubInspectionSerializer, InspectionSerializer
+from .models import StandardInspection, SubInspection, Inspection
+
 
 class ExampleViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -811,3 +814,29 @@ class MeasuringTableSummationView(APIView):
                 category['color'] = style.fill
 
         return Response({"rows": categories})
+
+
+# For Inspection Types
+class StandardInspectionViewSet(viewsets.ModelViewSet):
+    queryset = StandardInspection.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = StandardInspectionSerializer
+    pagination_class = None
+
+
+class SubInspectionViewSet(viewsets.ModelViewSet):
+    queryset = SubInspection.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = SubInspectionSerializer
+    filter_backends = [DjangoFilterBackend,]
+    # filterset_class = GlobalSubCategoryFilter
+    pagination_class = None
+
+
+class InspectionViewSet(viewsets.ModelViewSet):
+    queryset = Inspection.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = InspectionSerializer
+    filter_backends = [DjangoFilterBackend,]
+    # filterset_class = GlobalCategoryFilter
+    pagination_class = None

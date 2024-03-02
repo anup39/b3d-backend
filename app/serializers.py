@@ -494,7 +494,7 @@ class UploadGeoJSONSerializer(serializers.Serializer):
 
 
 # For Inspection types
-class StandardInpsectionSerializer(serializers.ModelSerializer):
+class StandardInspectionSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
 
     def get_full_name(self, obj):
