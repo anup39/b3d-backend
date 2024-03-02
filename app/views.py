@@ -849,6 +849,8 @@ class InspectionReportViewSet(viewsets.ModelViewSet):
     queryset = InspectionReport.objects.filter(
         is_deleted=False).order_by('-created_at')
     serializer_class = InspectionReportSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = ['project']
     pagination_class = None
 
 
@@ -856,6 +858,8 @@ class InspectionPhotoViewSet(viewsets.ModelViewSet):
     queryset = InspectionPhoto.objects.filter(
         is_deleted=False).order_by('-created_at')
     serializer_class = InspectionPhotoSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = ['inspection_report']
     pagination_class = None
 
 
@@ -863,4 +867,6 @@ class InpsectionPhotoGeometryViewSet(viewsets.ModelViewSet):
     queryset = InpsectionPhotoGeometry.objects.filter(
         is_deleted=False).order_by('-created_at')
     serializer_class = InpsectionPhotoGeometrySerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = ['inspection_photo']
     pagination_class = None
