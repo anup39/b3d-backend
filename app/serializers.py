@@ -573,6 +573,11 @@ class InspectionReportSerializer(serializers.ModelSerializer):
 
 
 class InspectionPhotoSerializer(serializers.ModelSerializer):
+    selected = serializers.SerializerMethodField('get_selected')
+
+    def get_selected(self, obj):
+        return False
+
     class Meta:
         model = InspectionPhoto
         fields = "__all__"
