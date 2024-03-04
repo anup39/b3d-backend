@@ -830,8 +830,8 @@ class SubInspectionViewSet(viewsets.ModelViewSet):
     queryset = SubInspection.objects.filter(
         is_deleted=False).order_by('-created_at')
     serializer_class = SubInspectionSerializer
-    filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['standard_inspection']
+    # filter_backends = [DjangoFilterBackend,]
+    # filterset_fields = ['standard_inspection']
     pagination_class = None
 
 
@@ -839,8 +839,8 @@ class InspectionViewSet(viewsets.ModelViewSet):
     queryset = Inspection.objects.filter(
         is_deleted=False).order_by('-created_at')
     serializer_class = InspectionSerializer
-    filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['sub_inspection']
+    # filter_backends = [DjangoFilterBackend,]
+    # filterset_fields = ['sub_inspection']
     pagination_class = None
 
 

@@ -566,7 +566,7 @@ class StandardInspection(models.Model):
 class SubInspection(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "Sub Inspection Name"), verbose_name=_("Name"))
-    standard_inspection = models.ForeignKey(StandardInspection, on_delete=models.SET_NULL, null=True, help_text=_(
+    standard_inspection = models.ForeignKey(StandardInspection, on_delete=models.SET_NULL, blank=True,  null=True, help_text=_(
         "Standard Inspection related to this sub inspection"), verbose_name=_("Standard Inspection"))
     description = models.TextField(default="",  help_text=_(
         "Description"), verbose_name=_("Description"))
@@ -578,23 +578,23 @@ class SubInspection(models.Model):
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = (("standard_inspection", "name"),)
+    # class Meta:
+    #     unique_together = (("standard_inspection", "name"),)
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.standard_inspection.name)+"|"+str(self.name)
+        return str(self.name)
 
 
 class Inspection(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "Inspection Name"), verbose_name=_("Name"))
-    standard_inspection = models.ForeignKey(StandardInspection, on_delete=models.SET_NULL, null=True, help_text=_(
+    standard_inspection = models.ForeignKey(StandardInspection, on_delete=models.SET_NULL, blank=True, null=True, help_text=_(
         "Standard Inspection related to this inspection"), verbose_name=_("Standard Inspection"))
-    sub_inspection = models.ForeignKey(SubInspection, on_delete=models.SET_NULL, null=True, help_text=_(
+    sub_inspection = models.ForeignKey(SubInspection, on_delete=models.SET_NULL, blank=True, null=True, help_text=_(
         "Sub Inspection related to this inspection"), verbose_name=_("Sub Inspection"))
     description = models.TextField(default="",  help_text=_(
         "Description"), verbose_name=_("Description"))
@@ -614,7 +614,7 @@ class Inspection(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.sub_inspection.standard_inspection.name + "|" + "|" + self.sub_inspection.name+"|" + self.name
+        return self.name
 
 
 # Model for  inspection report

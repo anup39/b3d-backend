@@ -509,16 +509,16 @@ class StandardInspectionSerializer(serializers.ModelSerializer):
 
 class SubInspectionSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
-    standard_inspection_name = serializers.SerializerMethodField(
-        'get_standard_inspection_name')
+    # standard_inspection_name = serializers.SerializerMethodField(
+    #     'get_standard_inspection_name')
 
     def get_full_name(self, obj):
-        full_name = obj.standard_inspection.name + " | " + obj.name
-        return full_name
 
-    def get_standard_inspection_name(self, obj):
-        standard_inspection_name = obj.standard_inspection.name
-        return standard_inspection_name
+        return obj.name
+
+    # def get_standard_inspection_name(self, obj):
+    #     standard_inspection_name = obj.standard_inspection.name
+    #     return standard_inspection_name
 
     class Meta:
         model = SubInspection
@@ -527,23 +527,22 @@ class SubInspectionSerializer(serializers.ModelSerializer):
 
 class InspectionSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
-    standard_inspection_name = serializers.SerializerMethodField(
-        'get_standard_inspection_name')
-    sub_inspection_name = serializers.SerializerMethodField(
-        'get_sub_inspection_name')
+    # standard_inspection_name = serializers.SerializerMethodField(
+    #     'get_standard_inspection_name')
+    # sub_inspection_name = serializers.SerializerMethodField(
+    #     'get_sub_inspection_name')
 
     def get_full_name(self, obj):
-        full_name = obj.sub_inspection.standard_inspection.name + \
-            " | " + obj.sub_inspection.name + " | " + obj.name
-        return full_name
 
-    def get_standard_inspection_name(self, obj):
-        standard_inspection_name = obj.sub_inspection.standard_inspection.name
-        return standard_inspection_name
+        return obj.name
 
-    def get_sub_inspection_name(self, obj):
-        sub_inspection_name = obj.standard_inspection.name + " | " + obj.sub_inspection.name
-        return sub_inspection_name
+    # def get_standard_inspection_name(self, obj):
+    #     standard_inspection_name = obj.sub_inspection.standard_inspection.name
+    #     return standard_inspection_name
+
+    # def get_sub_inspection_name(self, obj):
+    #     sub_inspection_name = obj.standard_inspection.name + " | " + obj.sub_inspection.name
+    #     return sub_inspection_name
 
     class Meta:
         model = Inspection
