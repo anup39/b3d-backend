@@ -831,7 +831,7 @@ class SubInspectionViewSet(viewsets.ModelViewSet):
         is_deleted=False).order_by('-created_at')
     serializer_class = SubInspectionSerializer
     filter_backends = [DjangoFilterBackend,]
-    # filterset_class = GlobalSubCategoryFilter
+    filterset_fields = ['standard_inspection']
     pagination_class = None
 
 
@@ -840,7 +840,7 @@ class InspectionViewSet(viewsets.ModelViewSet):
         is_deleted=False).order_by('-created_at')
     serializer_class = InspectionSerializer
     filter_backends = [DjangoFilterBackend,]
-    # filterset_class = GlobalCategoryFilter
+    filterset_fields = ['sub_inspection']
     pagination_class = None
 
 
