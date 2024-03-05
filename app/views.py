@@ -859,7 +859,7 @@ class InspectionPhotoViewSet(viewsets.ModelViewSet):
         is_deleted=False).order_by('-created_at')
     serializer_class = InspectionPhotoSerializer
     filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['inspection_report']
+    filterset_fields = ['inspection_report', 'is_inspected']
     pagination_class = None
 
 
