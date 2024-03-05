@@ -865,8 +865,9 @@ class InspectionPhotoViewSet(viewsets.ModelViewSet):
 
 class InpsectionPhotoGeometryViewSet(viewsets.ModelViewSet):
     queryset = InpsectionPhotoGeometry.objects.filter(
-        is_deleted=False).order_by('-created_at')
+        is_deleted=False).order_by('created_at')
     serializer_class = InpsectionPhotoGeometrySerializer
     filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['inspection_photo']
+    filterset_fields = ['inspection_photo',
+                        'standard_inspection', 'sub_inspection', 'inspection']
     pagination_class = None

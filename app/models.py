@@ -688,6 +688,8 @@ class InpsectionPhotoGeometry(models.Model):
         "Height of the point"), verbose_name=_("Height"), null=True, blank=True)
     width = models.FloatField(help_text=_(
         "Width of the point"), verbose_name=_("Width"), null=True, blank=True)
+    name = models.CharField(max_length=255, help_text=_(
+        "Name of the geometry"), verbose_name=_("Name"), null=True, blank=True)
     fill_color = ColorField(default='#2c3e50', help_text=_(
         "Fill color for the polygon"), verbose_name=_("Fill Color"))
     fill_opacity = models.DecimalField(
@@ -695,6 +697,7 @@ class InpsectionPhotoGeometry(models.Model):
     stroke_color = ColorField(default='#ffffff', help_text=_(
         "Stroke color for the polygon"), verbose_name=_("Stroke Color"))
     stroke_width = models.PositiveIntegerField(default=1)
+    created = models.BooleanField(default=False)
     rotation = models.FloatField(help_text=_(
         "Rotation of the point"), verbose_name=_("Rotation"), null=True, blank=True)
     standard_inspection = models.ForeignKey(StandardInspection, on_delete=models.SET_NULL, null=True, help_text=_(
@@ -715,5 +718,5 @@ class InpsectionPhotoGeometry(models.Model):
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.inspection_photo.inspection_report.name
+    # def __str__(self):
+    #     return self.inspection_photo.inspection_report.name
