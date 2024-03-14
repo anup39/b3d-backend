@@ -1,5 +1,5 @@
 import django_filters
-from .models import Project
+from .models import Project, ProjectPolygon
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
 from .models import RasterData
@@ -16,6 +16,15 @@ class ProjectFilter(django_filters.FilterSet):
         fields = ['id', 'client']
 
 # Global Categories filter
+
+
+class ProjectPolygonFilter(django_filters.FilterSet):
+    client = django_filters.CharFilter(field_name='client__id')
+    project = django_filters.CharFilter(field_name='project__id')
+
+    class Meta:
+        model = ProjectPolygon
+        fields = ['project', 'client']
 
 
 class GlobalSubCategoryFilter(django_filters.FilterSet):

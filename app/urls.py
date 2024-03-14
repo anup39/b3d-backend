@@ -1,5 +1,5 @@
 from rest_framework import routers
-from .views import ExampleViewSet, CustomAuthToken, ClientViewSet, ProjectViewSet
+from .views import ExampleViewSet, CustomAuthToken, ClientViewSet, ProjectViewSet, ProjectPolygonGeoJSONAPIView
 from .views import GlobalStandardCategoryViewSet, GlobalSubCategoryViewSet, GlobalCategoryViewSet, GlobalCategoryStyleViewSet
 from .views import StandardCategoryViewSet, SubCategoryViewSet, CategoryViewSet, CategoryStyleViewSet
 from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
@@ -26,6 +26,7 @@ router.register('global-category-style', GlobalCategoryStyleViewSet)
 
 router.register('clients', ClientViewSet)
 router.register('projects', ProjectViewSet)
+router.register('project-polygon', ProjectPolygonGeoJSONAPIView)
 router.register('raster-data', RasterDataViewSet)
 
 router.register('standard-category', StandardCategoryViewSet)
@@ -66,6 +67,8 @@ urlpatterns = [
     path('save-upload/', UploadCategoriesSaveView.as_view(),
          name='save_upload'),
     path('measuring-table-summation/', MeasuringTableSummationView.as_view()),
+    #     path('project-polygon/', ProjectPolygonGeoJSONAPIView.as_view(),
+    #          name='project-polygon'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
 ]

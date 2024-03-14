@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.gis.db.models import Extent
 from django.contrib.auth.models import User
-from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
+from .models import Client, Project, ProjectPolygon, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
@@ -49,6 +49,13 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
+        fields = "__all__"
+
+
+class ProjectPolygonGeojsonSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = ProjectPolygon
+        geo_field = "geom"
         fields = "__all__"
 
 

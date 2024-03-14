@@ -165,6 +165,8 @@ class Project(models.Model):
 
 
 class ProjectPolygon(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Client Associated with this polygon"), verbose_name=_("Client"))
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
         "Project Associated with this polygon"), verbose_name=_("Project"))
     geom = models.PolygonField(srid=4326, dim=2, null=True, blank=True)

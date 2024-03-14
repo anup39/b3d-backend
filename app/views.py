@@ -9,12 +9,12 @@ from rest_framework import status, generics
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from django.contrib.auth.models import User
-from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
+from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle, ProjectPolygon
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
 from .models import Role, UserRole
-from .serializers import ClientSerializer, ProjectSerializer
+from .serializers import ClientSerializer, ProjectSerializer, ProjectPolygonGeojsonSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
 from .serializers import PolygonDataSerializer, LineStringDataSerializer, PointDataSerializer
@@ -22,7 +22,7 @@ from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 from .serializers import StandardCategoryControlSerializer
 from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer, UploadGeoJSONSerializer
-from .filters import ProjectFilter
+from .filters import ProjectFilter, ProjectPolygonFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
 from .filters import RasterDataFilter
@@ -212,6 +212,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     return self.update(request, *args, **kwargs)
                 return Response({'message': "Error in Deleting the project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return self.update(request, *args, **kwargs)
+
+
+class ProjectPolygonGeoJSONAPIView(viewsets.ModelViewSet):
+    serializer_class = ProjectPolygonGeojsonSerializer
+    queryset = ProjectPolygon.objects.filter(is_display=True)
+    filter_backends = [DjangoFilterBackend,]
+    # filterset_fields = ['project', 'client']
+    filterset_class = ProjectPolygonFilter
+
 
 # For RasterData
 

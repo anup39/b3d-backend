@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Client
 from .models import Project
+from .models import ProjectPolygon
 from .models import GlobalStandardCategory, GlobalCategory, GlobalSubCategory, GlobalCategoryStyle
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData, LineStringData, PointData
@@ -13,6 +14,7 @@ from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 # Register your models here.
 admin.site.register(Client)
 admin.site.register(Project)
+admin.site.register(ProjectPolygon)
 admin.site.register(GlobalStandardCategory)
 admin.site.register(GlobalCategory)
 admin.site.register(GlobalSubCategory)
