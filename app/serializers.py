@@ -583,16 +583,16 @@ class InspectionPhotoSerializer(serializers.ModelSerializer):
 
 
 class InpsectionPhotoGeometrySerializer(serializers.ModelSerializer):
-    standard_inspetion_name = serializers.SerializerMethodField(
-        'get_standard_inspetion_name')
-    sub_inspetion_name = serializers.SerializerMethodField(
-        'get_sub_inspetion_name')
+    standard_inspection_name = serializers.SerializerMethodField(
+        'get_standard_inspection_name')
+    sub_inspection_name = serializers.SerializerMethodField(
+        'get_sub_inspection_name')
     inspection_name = serializers.SerializerMethodField('get_inspection_name')
 
-    def get_standard_inspetion_name(self, obj):
+    def get_standard_inspection_name(self, obj):
         return obj.standard_inspection.name
 
-    def get_sub_inspetion_name(self, obj):
+    def get_sub_inspection_name(self, obj):
         return obj.sub_inspection.name
 
     def get_inspection_name(self, obj):

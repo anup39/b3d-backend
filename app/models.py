@@ -164,6 +164,27 @@ class Project(models.Model):
         verbose_name_plural = _("Projects")
 
 
+class ProjectPolygon(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Project Associated with this polygon"), verbose_name=_("Project"))
+    geom = models.PolygonField(srid=4326, dim=2, null=True, blank=True)
+    attributes = models.JSONField(default=dict,  null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "The person who created the polygon"), verbose_name=_("Created by"))
+    created_at = models.DateTimeField(default=timezone.now)
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    objects = GeoManager()
+
+    def __str__(self):
+        return self.project.name
+
+    class Meta:
+        verbose_name_plural = 'ProjectPolygon'
+
+
 def validate_png(value):
     if not value.name.endswith('.png'):
         raise ValidationError("Only PNG files are allowed.")
