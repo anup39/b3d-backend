@@ -9,6 +9,7 @@ from .models import Role, UserRole
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .models import StandardInspection, SubInspection, Inspection
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
+import json
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,13 +64,17 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class ProjectPolygonGeojsonSerializer(GeoFeatureModelSerializer):
     component = serializers.SerializerMethodField('get_component')
-    project_id = serializers.SerializerMethodField('get_project_id')
+    project_polygon_id = serializers.SerializerMethodField('get_project_id')
+    view_name = serializers.SerializerMethodField('get_view_name')
 
     def get_component(self, obj):
         return "project"
 
     def get_project_id(self, obj):
-        return obj.project.id
+        return obj.id
+
+    def get_view_name(self, obj):
+        return json.loads(obj.attributes).get('name')
 
     class Meta:
         model = ProjectPolygon
