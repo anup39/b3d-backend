@@ -63,9 +63,13 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class ProjectPolygonGeojsonSerializer(GeoFeatureModelSerializer):
     component = serializers.SerializerMethodField('get_component')
+    project_id = serializers.SerializerMethodField('get_project_id')
 
     def get_component(self, obj):
         return "project"
+
+    def get_project_id(self, obj):
+        return obj.project.id
 
     class Meta:
         model = ProjectPolygon
