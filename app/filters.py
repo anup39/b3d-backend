@@ -118,10 +118,12 @@ class CategoryFilter(django_filters.FilterSet):
     sub_category = django_filters.CharFilter(field_name='sub_category__id')
     view_name = django_filters.CharFilter(field_name='view_name')
     client = django_filters.CharFilter(field_name='client__id')
+    type_of_geometry = django_filters.CharFilter(field_name='type_of_geometry')
 
     class Meta:
         model = Category
-        fields = ['project', 'sub_category', 'view_name', 'client']
+        fields = ['project', 'sub_category',
+                  'view_name', 'client', 'type_of_geometry']
 
 
 class CategoryStyleFilter(django_filters.FilterSet):
