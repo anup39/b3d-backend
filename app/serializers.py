@@ -221,7 +221,7 @@ class CategorySerializer(serializers.ModelSerializer):
         return standard_category_name
 
     def get_sub_category_name(self, obj):
-        sub_category_name = obj.standard_category.name + " | " + obj.sub_category.name
+        sub_category_name = obj.sub_category.name
         return sub_category_name
 
     class Meta:
