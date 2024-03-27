@@ -5,7 +5,6 @@ import os
 from django.conf import settings
 
 
-
 @receiver(pre_delete, sender=RasterData)
 def delete_raster_data_files(sender, instance, **kwargs):
     # Delete the associated file from the media storage
@@ -18,18 +17,19 @@ def delete_raster_data_files(sender, instance, **kwargs):
     if instance.screenshot_image:
         if os.path.isfile(instance.screenshot_image.path):
             print(instance.screenshot_image.path)
-            if not (instance.screenshot_image.path == f"{settings.BASE_DIR}/media/Uploads/RasterImage/raster_sample.png"):     
+            if not (instance.screenshot_image.path == f"{settings.BASE_DIR}/media/Uploads/RasterImage/raster_sample.png"):
                 os.remove(instance.screenshot_image.path)
-       
 
     # Delete the optimized files
     id_str = str(instance.id)
-    optimized_folder = f'{settings.BASE_DIR}/optimized/'  # Replace with the actual path to the 'optimized' folder
-    optimized_filenames = [f'{id_str}_red.tif', f'{id_str}_green.tif', f'{id_str}_blue.tif']
+    # Replace with the actual path to the 'optimized' folder
+    optimized_folder = f'{settings.BASE_DIR}/optimized/'
+    optimized_filenames = [f'{id_str}_red.tif',
+                           f'{id_str}_green.tif', f'{id_str}_blue.tif']
 
     for filename in optimized_filenames:
         file_path = os.path.join(optimized_folder, filename)
         if os.path.isfile(file_path):
-            print(file_path,'file path')
+            print(file_path, 'file path')
             os.remove(file_path)
         pass
