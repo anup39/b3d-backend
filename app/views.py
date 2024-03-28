@@ -223,8 +223,6 @@ class ProjectPolygonGeoJSONAPIView(viewsets.ModelViewSet):
 
 
 # For RasterData
-
-
 class RasterDataViewSet(viewsets.ModelViewSet):
     queryset = RasterData.objects.filter(
         is_deleted=False).order_by('created_at')
