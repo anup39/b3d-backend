@@ -22,11 +22,31 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ('client',)
 
 
+class StandardCategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'name', 'view_name')
+    list_filter = ('client', 'project')
+
+
+class SubCategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'name', 'view_name')
+    list_filter = ('client', 'project')
+
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'name', 'view_name')
+    list_filter = ('client', 'project')
+
+
+class CategoryStyleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'category')
+    list_filter = ('client', 'project')
+
+
 models = [
     UserRole,
     ProjectPolygon,
     RasterData,
-    StandardCategory, SubCategory, Category, CategoryStyle,
+    # StandardCategory, SubCategory, Category, CategoryStyle,
     PolygonData, LineStringData, PointData,
     InspectionReport,
 ]
@@ -37,6 +57,12 @@ for model in models:
         admin.site.register(model, ModelAdmin)
     except admin.sites.AlreadyRegistered:
         pass
+
+
+admin.site.register(StandardCategory, StandardCategoryAdmin)
+admin.site.register(SubCategory, SubCategoryAdmin)
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(CategoryStyle, CategoryStyleAdmin)
 
 
 admin.site.register(Client)
