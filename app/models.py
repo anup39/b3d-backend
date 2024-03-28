@@ -335,14 +335,20 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        global_category_style = GlobalCategoryStyle.objects.get(
+            category=self.global_category)
+        fill = global_category_style.fill,
+        stroke = global_category_style.stroke,
         try:
-            category_style = CategoryStyle.objects.get(category=self)
+            category_style = CategoryStyle.objects.get(
+                client=self.client,
+                created_by=self.created_by,
+                project=self.project,
+                category=self,
+                global_category=self.global_category,
+            )
         except CategoryStyle.DoesNotExist:
-            global_category_style = GlobalCategoryStyle.objects.get(
-                category=self.global_category)
-            fill = global_category_style.fill,
-            stroke = global_category_style.stroke,
-            category_style = CategoryStyle(
+            category_style = CategoryStyle.objects.create(
                 client=self.client,
                 created_by=self.created_by,
                 project=self.project,
@@ -351,8 +357,6 @@ class Category(models.Model):
                 fill=fill[0],
                 stroke=stroke[0],
             )
-
-        category_style.save()
 
     def delete(self, *args, **kwargs):
         try:
@@ -380,7 +384,7 @@ class CategoryStyle(models.Model):
         "Category Style related to this property"), verbose_name=_("Property"))
     category = models.OneToOneField(Category, on_delete=models.SET_NULL, help_text=_(
         "Geometry related to this Category"), verbose_name=_("Category"), null=True)
-    global_category = models.OneToOneField(GlobalCategory, on_delete=models.SET_NULL, help_text=_(
+    global_category = models.ForeignKey(GlobalCategory, on_delete=models.SET_NULL, help_text=_(
         "Geometry related to this Category"), verbose_name=_("Global Category"), null=True)
 
     fill = ColorField(default='#2c3e50', help_text=_(
