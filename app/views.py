@@ -227,7 +227,7 @@ class ProjectPolygonGeoJSONAPIView(viewsets.ModelViewSet):
 
 class RasterDataViewSet(viewsets.ModelViewSet):
     queryset = RasterData.objects.filter(
-        is_deleted=False).order_by('-created_at')
+        is_deleted=False).order_by('created_at')
     serializer_class = RasterDataSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = RasterDataFilter
