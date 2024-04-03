@@ -46,6 +46,10 @@ from .serializers import StandardInspectionSerializer, SubInspectionSerializer, 
 from .models import StandardInspection, SubInspection, Inspection
 from .serializers import InspectionReportSerializer, InspectionPhotoSerializer, InpsectionPhotoGeometrySerializer
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
+from django.contrib.gis.db.models.functions import Area
+from django.contrib.gis.db.models import Sum, Transform
+from django.db.models import FloatField, ExpressionWrapper
+from shapely import wkt
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -765,6 +769,7 @@ class UploadCategoriesSaveView(APIView):
 
 class MeasuringTableSummationView(APIView):
     def get(self, request):
+
         project_id = request.query_params.get('project')
         client_id = request.query_params.get('client')
 
@@ -781,43 +786,42 @@ class MeasuringTableSummationView(APIView):
 
         categories = Category.objects.filter(
             client=client
-        ).values('id', 'type_of_geometry', 'view_name', 'description')
+        ).values('id', 'type_of_geometry', 'view_name', 'description', 'name')
 
         for category in categories:
             style = CategoryStyle.objects.get(category=category['id'])
-            if category['type_of_geometry'] == "LineString":
-                category['name'] = category['view_name']
-                category['length'] = np.random.randint(100, 1000)
-                category['area'] = 0
-                category['count'] = line_string_data.filter(
-                    category=category['id']).count()
-                category['value'] = line_string_data.filter(
-                    category=category['id']).count()
-                category['symbol'] = {"color": style.fill,
-                                      "type_of_geometry": "LineString"}
-                category['color'] = style.fill
 
-            if category['type_of_geometry'] == "Point":
-                category['name'] = category['view_name']
-                category['length'] = 0
-                category['area'] = 0
-                category['count'] = point_data.filter(
-                    category=category['id']).count()
-                category['value'] = point_data.filter(
-                    category=category['id']).count()
+            # if category['type_of_geometry'] == "LineString":
+            #     category['label'] = category['name']
+            #     category['name'] = category['view_name']
+            #     category['length'] = np.random.randint(100, 1000)
+            #     category['area'] = 0
+            #     category['count'] = line_string_data.filter(
+            #         category=category['id']).count()
+            #     category['value'] = line_string_data.filter(
+            #         category=category['id']).count()
+            #     category['symbol'] = {"color": style.fill,
+            #                           "type_of_geometry": "LineString"}
+            #     category['color'] = style.fill
 
-                category['symbol'] = {"color": style.fill,
-                                      "type_of_geometry": "Point"}
-                category['color'] = style.fill
+            # if category['type_of_geometry'] == "Point":
+            #     category['label'] = category['name']
+            #     category['name'] = category['view_name']
+            #     category['length'] = 0
+            #     category['area'] = 0
+            #     category['count'] = point_data.filter(
+            #         category=category['id']).count()
+            #     category['value'] = point_data.filter(
+            #         category=category['id']).count()
 
+            #     category['symbol'] = {"color": style.fill,
+            #                           "type_of_geometry": "Point"}
+            #     category['color'] = style.fill
+
+            # Pie Chart only for polygon
             if category['type_of_geometry'] == "Polygon":
-                category['name'] = category['view_name']
-                category['length'] = 0
-                category['area'] = np.random.randint(100, 1000)
-                category['count'] = polygon_data.filter(
-                    category=category['id']).count()
-                category['value'] = polygon_data.filter(
-                    category=category['id']).count()
+                category['label'] = category['name']
+                category['value'] = 0
                 category['symbol'] = {"color": style.fill,
                                       "type_of_geometry": "Polygon"}
                 category['color'] = style.fill
@@ -878,3 +882,9 @@ class InpsectionPhotoGeometryViewSet(viewsets.ModelViewSet):
     filterset_fields = ['inspection_photo',
                         'standard_inspection', 'sub_inspection', 'inspection']
     pagination_class = None
+
+
+class CategoryBoundingBoxViewSet(APIView):
+    def get(self, request):
+
+        return Response("Testing the API")

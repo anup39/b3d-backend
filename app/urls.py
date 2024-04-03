@@ -10,6 +10,7 @@ from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, Poin
 from django.urls import path, include, re_path
 from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionViewSet
 from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPhotoGeometryViewSet
+from .views import CategoryBoundingBoxViewSet
 # from .views import TaskStatusView
 # from .tiler import Metadata, Tiles
 
@@ -67,6 +68,7 @@ urlpatterns = [
     path('save-upload/', UploadCategoriesSaveView.as_view(),
          name='save_upload'),
     path('measuring-table-summation/', MeasuringTableSummationView.as_view()),
+    path('category-bounding-box/',  CategoryBoundingBoxViewSet.as_view()),
     #     path('project-polygon/', ProjectPolygonGeoJSONAPIView.as_view(),
     #          name='project-polygon'),
     # path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),

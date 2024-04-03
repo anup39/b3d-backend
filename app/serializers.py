@@ -43,18 +43,13 @@ class ClientSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     client_name = serializers.SerializerMethodField('get_client_name')
-    show_area = serializers.SerializerMethodField('get_show_area')
-    show_area_disabled = serializers.SerializerMethodField(
-        'get_show_area_disabled')
+    show_eye_button = serializers.SerializerMethodField('get_show_area')
 
     def get_client_name(self, obj):
         client_name = obj.client.name
         return client_name
 
     def get_show_area(self, obj):
-        return True
-
-    def get_show_area_disabled(self, obj):
         return True
 
     class Meta:
