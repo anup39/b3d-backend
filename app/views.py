@@ -529,8 +529,8 @@ class UploadCategoriesView(APIView):
             with open(GEOJSON_PATH, 'r') as file:
                 data = json.load(file)
             gdf = gpd.read_file(GEOJSON_PATH)
-            print(gdf.drop(['marker-color'],
-                  axis=1).head(20), 'data frame original')
+            # print(gdf.drop(['marker-color'],
+            #       axis=1).head(20), 'data frame original')
             distinct_values = gdf['name'].unique()
             print(distinct_values, 'distinct_values original')
             cleaned_distinct_values = [
@@ -552,9 +552,6 @@ class UploadCategoriesView(APIView):
             print("************Completed cleaning ************")
 
             gdf_cleaned = gpd.read_file(json.dumps(data), driver='GeoJSON')
-
-            print(gdf_cleaned.drop(['marker-color'], axis=1).head(
-                20), 'data frame cleaned')
 
             print(gdf_cleaned['cleaned_name'].unique(),
                   'distinct_values cleaned')
@@ -580,8 +577,6 @@ class UploadCategoriesView(APIView):
             gdf_standard = gpd.read_file(
                 f'{destination_path}_standardized.geojson')
 
-            print(gdf_standard.drop(['marker-color'], axis=1).head(
-                20), 'data frame standardized')
             distinct_values = gdf_standard['matched_category'].unique()
             print(distinct_values, 'distinct_values standardized')
 
@@ -599,12 +594,23 @@ class UploadCategoriesView(APIView):
                 type_of_geometry = None
                 if not filtered_df.empty:
                     type_of_geometry = filtered_df.iloc[0].geometry.geom_type
+                    if type_of_geometry == "MultiPolygon":
+                        type_of_geometry = "Polygon"
+                    if type_of_geometry == "MultiLineString":
+                        type_of_geometry = "LineString"
+                    if type_of_geometry == "MultiPoint":
+                        type_of_geometry = "Point"
                 distinct_values_dict['type_of_geometry'] = type_of_geometry
+                best_match, score = process.extractOne(
+                    name, categories)
+                if score >= 90:
+                    matched_category = best_match
+                else:
+                    matched_category = None
+                distinct_values_dict['matched_category'] = matched_category
 
-                # matched_category = gdf_standard[gdf_standard['matched_category']
-                #                                 == name].matched_category.iloc[0]
-                # distinct_values_dict['matched_category'] = matched_category
-
+                distinct_values_dict['category_id'] = Category.objects.get(
+                    name=matched_category).id if matched_category else None
                 distinct_values_dict['checked'] = False
 
                 final_values_list.append(distinct_values_dict)
