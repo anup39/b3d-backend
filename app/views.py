@@ -52,6 +52,7 @@ from django.db.models import FloatField, ExpressionWrapper
 from shapely import wkt
 from fuzzywuzzy import process
 import re
+import math
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -522,11 +523,13 @@ class UploadCategoriesView(APIView):
             with open(GEOJSON_PATH, 'r') as file:
                 data = json.load(file)
             gdf = gpd.read_file(GEOJSON_PATH)
-            print(gdf.head(15), 'data frame original')
+            print(gdf.drop(['marker-color'],
+                  axis=1).head(20), 'data frame original')
             distinct_values = gdf['name'].unique()
             print(distinct_values, 'distinct_values original')
             cleaned_distinct_values = [
                 re.sub(r'\d+', '', name.lower()).strip() for name in distinct_values]
+            print(cleaned_distinct_values, 'cleaned_distinct_values original')
             unique_cleaned_distinct_values = list(set(cleaned_distinct_values))
             print(unique_cleaned_distinct_values,
                   "unique_cleaned_distinct_values")
@@ -535,7 +538,7 @@ class UploadCategoriesView(APIView):
             for feature in data['features']:
                 name = feature['properties']['name'].lower().strip()
                 best_match, score = process.extractOne(
-                    name, )
+                    name, unique_cleaned_distinct_values)
                 if score >= 90:  # Only replace the name if the match score is above 90
                     feature['properties']['cleaned_name'] = best_match
                 else:
@@ -544,7 +547,9 @@ class UploadCategoriesView(APIView):
 
             gdf_cleaned = gpd.read_file(json.dumps(data), driver='GeoJSON')
 
-            print(gdf_cleaned.head(15), 'data frame cleaned')
+            print(gdf_cleaned.drop(['marker-color'], axis=1).head(
+                20), 'data frame cleaned')
+
             print(gdf_cleaned['cleaned_name'].unique(),
                   'distinct_values cleaned')
 
@@ -561,36 +566,45 @@ class UploadCategoriesView(APIView):
                 if score >= 90:  # Only replace the name if the match score is above 90
                     feature['properties']['matched_category'] = best_match
                 else:
-                    feature['properties']['matched_category'] = name
+                    feature['properties']['matched_category'] = None
             print("************Completed Matching ************")
 
             with open(f'{destination_path}_standardized.geojson', 'w') as f:
                 json.dump(data, f)
             gdf_standard = gpd.read_file(
                 f'{destination_path}_standardized.geojson')
-            print(gdf_standard.head(15), 'data frame standardized')
+
+            print(gdf_standard.drop(['marker-color'], axis=1).head(
+                20), 'data frame standardized')
             distinct_values = gdf_standard['matched_category'].unique()
             print(distinct_values, 'distinct_values standardized')
 
             print(len(gdf), 'length')
             print(len(gdf_standard), 'length_standard')
-            distinct_values_list = []
-            layers = []
-            id = 1
-            # for value in distinct_values:
-            #     distinct_values_dict = {}
-            #     distinct_values_dict['filename'] = filename
-            #     distinct_values_dict['id'] = id
-            #     distinct_values_dict['name'] = value
-            #     distinct_values_dict['type_of_geometry'] = gdf[gdf['name']
-            #                                                    == value].geometry.iloc[0].geom_type
-            #     distinct_values_dict['matched_category'] = None
-            #     distinct_values_dict['checked'] = False
+            final_values_list = []
 
-            #     distinct_values_list.append(distinct_values_dict)
-            #     id += 1
+            for name in gdf_cleaned['cleaned_name'].unique():
+                print(name, 'name')
+                distinct_values_dict = {}
+                distinct_values_dict['cleaned_name'] = name
 
-            return Response({'type of file': type_of_file, "distinct": distinct_values_list})
+                filtered_df = gdf_standard[gdf_standard['cleaned_name'] == name]
+
+                type_of_geometry = None
+                if not filtered_df.empty:
+                    type_of_geometry = filtered_df.iloc[0].geometry.geom_type
+                distinct_values_dict['type_of_geometry'] = type_of_geometry
+
+                # matched_category = gdf_standard[gdf_standard['matched_category']
+                #                                 == name].matched_category.iloc[0]
+                # distinct_values_dict['matched_category'] = matched_category
+
+                distinct_values_dict['checked'] = False
+
+                final_values_list.append(distinct_values_dict)
+
+            return Response({'type of file': type_of_file, "distinct": final_values_list})
+
         else:
             ZIP_FILE_PATH = destination_path
             filename_no_ext = ZIP_FILE_PATH.split(
