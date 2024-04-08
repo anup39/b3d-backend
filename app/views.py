@@ -515,6 +515,13 @@ class UploadCategoriesView(APIView):
             if not os.path.isfile(GEOJSON_PATH):
                 return Response({'message': 'No layers found.'})
 
+            with open(GEOJSON_PATH, 'r') as file:
+                data = json.load(file)
+
+            categories = Category.objects.filter(
+                client_id=request.query_params.get('client_id', None))
+            print(categories, 'categories')
+            standard_names = categories
             gdf = gpd.read_file(GEOJSON_PATH)
             distinct_values = gdf['name'].unique()
             # find the type of geometry for each of the distinct values
