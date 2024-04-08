@@ -480,6 +480,23 @@ class UploadGeoJSONAPIView(APIView):
             return Response({"file": filename, 'layers': layers,  "result": geojson_layers})
 
 
+def delete_geojson_file(filename):
+    destination_path = f"media/Uploads/UploadVector/{filename}"
+    if os.path.isfile(destination_path):
+        os.remove(destination_path)
+        return True
+    return False
+
+
+class DeleteUploadGeoJSONAPIView(APIView):
+    def post(self, request):
+        filename = request.data.get('filename')
+        deleted = delete_geojson_file(filename):
+        if (deleted):
+            return JsonResponse({'message': 'File deleted successfully.'})
+        return JsonResponse({'message': 'File not found.'}, status=404)
+
+
 class UploadCategoriesView(APIView):
 
     def get(self, request):

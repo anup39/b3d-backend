@@ -6,7 +6,7 @@ from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
 from .views import RoleViewSet, UserRoleViewSet, UserViewSet
-from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView, MeasuringTableSummationView
+from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView, MeasuringTableSummationView, DeleteUploadGeoJSONAPIView
 from django.urls import path, include, re_path
 from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionViewSet
 from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPhotoGeometryViewSet
@@ -63,6 +63,8 @@ urlpatterns = [
     path('category-polygon-geojson/',  PolygonDataGeoJSONAPIView.as_view(),
          name='category-polygon-geojson'),
     path('upload-geojson/', UploadGeoJSONAPIView.as_view(), name='upload_geojson'),
+    path('delete-geojson/', DeleteUploadGeoJSONAPIView.as_view(),
+         name='delete_geojson'),
     path('upload-categories/', UploadCategoriesView.as_view(),
          name='upload_categories'),
     path('save-upload/', UploadCategoriesSaveView.as_view(),
