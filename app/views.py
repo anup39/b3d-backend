@@ -465,7 +465,13 @@ class UploadGeoJSONAPIView(APIView):
                 return JsonResponse({'message': 'No layers found.'})
             geojson_layers = []
             layers = []
-            gdf = gpd.read_file(GEOJSON_PATH)
+            print("here before gdf")
+            try:
+                gdf = gpd.read_file(GEOJSON_PATH)
+            except:
+                delete_geojson_file(filename)
+                return JsonResponse({'message': 'Error reading the file.'}, status=500)
+            print("here after gdf")
             geojson_data = gdf.to_crs(epsg='4326').to_json()
             layer_name = GEOJSON_PATH.split("/")[-1].split(".")[0]
             filename_parts = layer_name.split('_')
@@ -491,7 +497,7 @@ def delete_geojson_file(filename):
 class DeleteUploadGeoJSONAPIView(APIView):
     def post(self, request):
         filename = request.data.get('filename')
-        deleted = delete_geojson_file(filename):
+        deleted = delete_geojson_file(filename)
         if (deleted):
             return JsonResponse({'message': 'File deleted successfully.'})
         return JsonResponse({'message': 'File not found.'}, status=404)
