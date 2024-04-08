@@ -491,6 +491,12 @@ class UploadGeoJSONAPIView(APIView):
 
 def delete_geojson_file(filename):
     destination_path = f"media/Uploads/UploadVector/{filename}"
+    try:
+        standard_path = f"media/Uploads/UploadVector/{filename}_standardized.geojson"
+        if os.path.isfile(standard_path):
+            os.remove(standard_path)
+    except:
+        pass
     if os.path.isfile(destination_path):
         os.remove(destination_path)
         return True
