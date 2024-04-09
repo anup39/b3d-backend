@@ -469,26 +469,23 @@ class UploadGeoJSONAPIView(APIView):
                 return JsonResponse({'message': 'No layers found.'})
             geojson_layers = []
             layers = []
-            print("here before gdf")
             try:
                 start_time = time.time()
                 gdf = gpd.read_file(GEOJSON_PATH)
-                for column in gdf.columns:
-                    if gdf[column].dtype == 'datetime64[ns]':
-                        gdf[column] = gdf[column].astype(str)
+                gdf = gdf.apply(lambda col: col.astype(
+                    str) if col.dtype == 'datetime64[ns]' else col)
                 end_time = time.time()
                 execution_time = end_time - start_time
                 print(
                     f'Time taken to execute the code: {execution_time} seconds')
-
-            except:
+            except Exception as e:
                 delete_geojson_file(filename)
-                return JsonResponse({'message': 'Error reading the file.'}, status=500)
-            print("here after gdf")
+                return JsonResponse({'message': f'Error reading the file. {str(e)}'}, status=500)
             geojson_data = gdf.to_crs(epsg='4326').to_json()
             layer_name = GEOJSON_PATH.split("/")[-1].split(".")[0]
             filename_parts = layer_name.split('_')
-            layer_name = filename_parts[1]
+            layer_name = filename_parts[1] if len(
+                filename_parts) > 1 else layer_name
             geojson_dict = json.loads(geojson_data)
             bounding_box_4326 = gdf.to_crs(epsg='4326').total_bounds
             geojson_layers.append(
@@ -527,10 +524,25 @@ class DeleteUploadGeoJSONAPIView(APIView):
 # Cleaning and matiching data
 
 
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r'\S*@\S*\s?', '', text)
+    text = re.sub(r'[^\w\s]', '', text)
+    text = re.sub(r'\d+', '', text)
+    text = text.strip()
+    return text
+
+
+def clean_name(name, unique_cleaned_distinct_values, component):
+    name = re.sub(r'\d+', '', name.lower()).strip()
+    best_match, score = process.extractOne(
+        name, unique_cleaned_distinct_values)
+    return best_match if score >= 90 else (name if component == "clean" else None)
+
+
 class UploadCategoriesView(APIView):
 
     def get(self, request):
-        import time
         type_of_file = self.request.query_params.get('type_of_file', None)
         filename = self.request.query_params.get('filename', None)
         destination_path = f"media/Uploads/UploadVector/{filename}"
@@ -540,148 +552,104 @@ class UploadCategoriesView(APIView):
             if not os.path.isfile(GEOJSON_PATH):
                 return Response({'message': 'No layers found.'})
 
-            with open(GEOJSON_PATH, 'r') as file:
-                data = json.load(file)
             gdf = gpd.read_file(GEOJSON_PATH)
-            print(len(gdf), 'length')
-            start_time = time.time()
-            exploded = gdf.explode(ignore_index=True)
-            print(len(exploded), 'length of exploded')
-            end_time = time.time()
-            print(f"Time taken to explode: {end_time - start_time}")
-            exploded.to_file(f'{destination_path}_exploded.geojson',
-                             driver='GeoJSON')
+            column_name = 'name' if 'name' in gdf.columns else 'undertype'
+            distinct_values = gdf[column_name]
 
-            # print(gdf.drop(['marker-color'],
-            #       axis=1).head(20), 'data frame original')
-            try:
-                distinct_values = gdf['name'].unique()
-            except KeyError:
-                distinct_values = gdf['undertype'].unique()
-            print(distinct_values, 'distinct_values original')
-            cleaned_distinct_values = [
-                re.sub(r'\d+', '', name.lower()).strip() for name in distinct_values]
-            print(cleaned_distinct_values, 'cleaned_distinct_values original')
-            unique_cleaned_distinct_values = list(set(cleaned_distinct_values))
+            unique_cleaned_distinct_values = distinct_values.apply(
+                clean_text).unique()
             print(unique_cleaned_distinct_values,
                   "unique_cleaned_distinct_values")
-
             print("************Starting Cleaning************")
-            for feature in data['features']:
-                try:
-                    name = feature['properties']['name'].lower().strip()
-                except KeyError:
-                    name = feature['properties']['undertype'].lower().strip()
-
-                best_match, score = process.extractOne(
-                    name, unique_cleaned_distinct_values)
-                if score >= 90:  # Only replace the name if the match score is above 90
-                    feature['properties']['cleaned_name'] = best_match
-                else:
-                    feature['properties']['cleaned_name'] = name
+            unique_values = distinct_values.unique()
+            cleaned_names = {name: clean_name(
+                name, unique_cleaned_distinct_values, "clean") for name in unique_values}
+            gdf['cleaned_name'] = distinct_values.map(cleaned_names)
             print("************Completed cleaning ************")
 
-            gdf_cleaned = gpd.read_file(json.dumps(data), driver='GeoJSON')
+            categories_polygon = dict(Category.objects.filter(
+                client_id=request.query_params.get('client_id', None), type_of_geometry="Polygon").values_list('name', 'id'))
+            categories_linestring = dict(Category.objects.filter(
+                client_id=request.query_params.get('client_id', None), type_of_geometry="LineString").values_list('name', 'id'))
+            categories_point = dict(Category.objects.filter(
+                client_id=request.query_params.get('client_id', None), type_of_geometry="Point").values_list('name', 'id'))
 
-            print(gdf_cleaned['cleaned_name'].unique(),
-                  'distinct_values cleaned')
+            print(categories_polygon, 'categories_polygon')
+            print(categories_linestring, 'categories_linestring')
+            print(categories_point, 'categories_point')
 
-            categories = list(Category.objects.filter(
-                client_id=request.query_params.get('client_id', None)).values_list('name', flat=True))
-            # Here loop start
-
-            print(categories, 'categories from system')
-            print("************Starting Matching************")
-            for feature in data['features']:
-                name = feature['properties']['cleaned_name'].lower().strip()
-                best_match, score = process.extractOne(
-                    name, categories)
-                if score >= 90:  # Only replace the name if the match score is above 90
-                    feature['properties']['matched_category'] = best_match
+            def match_category(name, geometry):
+                geometry = geometry.type
+                if geometry == "Polygon" or geometry == "MultiPolygon":
+                    match = process.extractOne(
+                        name.lower().strip(), categories_polygon.keys())
+                    if match is None:
+                        return None
+                    best_match, score = match
+                    return categories_polygon[best_match] if score >= 90 else None
+                elif geometry == "LineString" or geometry == "MultiLineString":
+                    match = process.extractOne(
+                        name.lower().strip(), categories_linestring.keys())
+                    if match is None:
+                        return None
+                    best_match, score = match
+                    return categories_linestring[best_match] if score >= 90 else None
                 else:
-                    feature['properties']['matched_category'] = None
+                    match = process.extractOne(
+                        name.lower().strip(), categories_point.keys())
+                    if match is None:
+                        return None
+                    best_match, score = match
+                    return categories_point[best_match] if score >= 90 else None
 
-                feature['properties']['client'] = request.query_params.get(
-                    "client_id")
-                feature['properties']['project'] = request.query_params.get(
-                    "project_id")
-                feature['created_by'] = request.query_params.get('user_id')
-                category = Category.objects.get(
-                    name=best_match, client=request.query_params.get("client_id")) if best_match else None
-                if (category):
-                    feature['properties']['category'] = category.id
-                    feature['properties']['standard_category'] = category.standard_category.id
-                    feature['properties']['sub_category'] = category.sub_category.id
-                    feature['properties']['standard_category_name'] = category.standard_category.name
-                    feature['properties']['sub_category_name'] = category.sub_category.name
-                    feature['properties']['category_name'] = category.name
-                    feature['properties']['created_by'] = request.query_params.get(
-                        'user_id')
+            gdf['matched_category'] = gdf.apply(lambda row: match_category(
+                row['cleaned_name'], row['geometry']), axis=1)
+            gdf['matched_category'] = gdf['matched_category'].astype('Int64')
 
-                else:
-                    feature['properties']['category'] = None
-                    feature['properties']['standard_category'] = None
-                    feature['properties']['sub_category'] = None
-                    feature['properties']['standard_category_name'] = None
-                    feature['properties']['sub_category_name'] = None
-                    feature['properties']['category_name'] = None
-                    feature['properties']['created_by'] = request.query_params.get(
-                        'user_id')
+            distinct_values_final = []
+
+            gdf_polygon = gdf.loc[gdf.geometry.type.isin(
+                ["MultiPolygon", "Polygon"])]
+            print(len(gdf), 'length of multipolygon or polygon')
+            gdf_polygon = gdf_polygon.drop_duplicates(subset='cleaned_name')
+            distinct_values_final.append(
+                gdf_polygon[[
+                    'cleaned_name', 'matched_category']].to_dict('records')
+            )
+
+            gdf_linestring = gdf.loc[gdf.geometry.type.isin(
+                ["MultiLineString", "LineString"])]
+            print(len(gdf_linestring), 'length of multiline or linestring')
+            gdf_linestring = gdf_linestring.drop_duplicates(
+                subset='cleaned_name')
+            distinct_values_final.append(
+                gdf_linestring[[
+                    'cleaned_name', 'matched_category']].to_dict('records')
+            )
+
+            gdf_point = gdf.loc[gdf.geometry.type.isin(
+                ["MultiPoint", "Point"])]
+            print(len(gdf_point), 'length of multipolygon or polygon')
+            gdf_point = gdf_point.drop_duplicates(subset='cleaned_name')
+            distinct_values_final.append(
+                gdf_point[[
+                    'cleaned_name', 'matched_category']].to_dict('records')
+            )
+
+            # Iterate over all columns in the GeoDataFrame
+            for col in gdf.columns:
+                # If the column data type is 'Timestamp', convert it to string
+                if gdf[col].dtype == 'datetime64[ns]':
+                    gdf[col] = gdf[col].astype(str)
+
+            # Now you can write to a JSON file
+            with open(f'{destination_path}_standardized.geojson', 'w') as f:
+                f.write(gdf.to_json())
+
+            print(distinct_values_final, 'distinct_values_final')
 
             print("************Completed Matching ************")
-
-            with open(f'{destination_path}_standardized.geojson', 'w') as f:
-                json.dump(data, f)
-            gdf_standard = gpd.read_file(
-                f'{destination_path}_standardized.geojson')
-
-            distinct_values = gdf_standard['matched_category'].unique()
-            print(distinct_values, 'distinct_values standardized')
-
-            print(len(gdf), 'length')
-            print(len(gdf_standard), 'length_standard')
-            final_values_list = []
-
-            id = 1
-            for name in gdf_cleaned['cleaned_name'].unique():
-                print(name, 'name')
-                distinct_values_dict = {}
-                distinct_values_dict['cleaned_name'] = name
-
-                filtered_df = gdf_standard[gdf_standard['cleaned_name'] == name]
-
-                type_of_geometry = None
-                if not filtered_df.empty:
-                    type_of_geometry = filtered_df.iloc[0].geometry.geom_type
-                    if type_of_geometry == "MultiPolygon":
-                        type_of_geometry = "Polygon"
-                    if type_of_geometry == "MultiLineString":
-                        type_of_geometry = "LineString"
-                    if type_of_geometry == "MultiPoint":
-                        type_of_geometry = "Point"
-                distinct_values_dict['type_of_geometry'] = type_of_geometry
-                best_match, score = process.extractOne(
-                    name, categories)
-                if score >= 90:
-                    matched_category = best_match
-                else:
-                    matched_category = None
-                distinct_values_dict['matched_category'] = matched_category
-
-                distinct_values_dict['category_id'] = Category.objects.get(
-                    name=matched_category, client=request.query_params.get("client_id")).id if matched_category else None
-
-                if matched_category:
-                    distinct_values_dict['checked'] = True
-                else:
-                    distinct_values_dict['checked'] = False
-
-                distinct_values_dict['id'] = id
-                id += 1
-
-                final_values_list.append(distinct_values_dict)
-
-            return Response({'type of file': type_of_file, "distinct": final_values_list})
+            return Response({'type_of_file': type_of_file, "distinct": distinct_values_final})
 
         else:
             ZIP_FILE_PATH = destination_path
@@ -731,7 +699,7 @@ class UploadCategoriesView(APIView):
                     # distinct_values_list.append(distinct_values_dict)
                     layers.append(distinct_values_dict)
 
-            return Response({'type of file': type_of_file, "distinct": layers})
+            return Response({'type_of_file': type_of_file, "distinct": layers})
 
 
 def checkUploadFileValidationGlobal(shape_file):
