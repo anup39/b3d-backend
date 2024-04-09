@@ -407,6 +407,7 @@ class LineStringDataGeoJSONAPIView(generics.ListAPIView):
 
 class UploadGeoJSONAPIView(APIView):
     def post(self, request):
+        import time
         file = request.data.get('file')
         type_of_file = request.data.get('type_of_file')
         filename = str(uuid.uuid4()) + '_' + file.name
@@ -470,7 +471,16 @@ class UploadGeoJSONAPIView(APIView):
             layers = []
             print("here before gdf")
             try:
+                start_time = time.time()
                 gdf = gpd.read_file(GEOJSON_PATH)
+                for column in gdf.columns:
+                    if gdf[column].dtype == 'datetime64[ns]':
+                        gdf[column] = gdf[column].astype(str)
+                end_time = time.time()
+                execution_time = end_time - start_time
+                print(
+                    f'Time taken to execute the code: {execution_time} seconds')
+
             except:
                 delete_geojson_file(filename)
                 return JsonResponse({'message': 'Error reading the file.'}, status=500)
@@ -493,8 +503,11 @@ def delete_geojson_file(filename):
     destination_path = f"media/Uploads/UploadVector/{filename}"
     try:
         standard_path = f"media/Uploads/UploadVector/{filename}_standardized.geojson"
+        exploded_path = f"media/Uploads/UploadVector/{filename}_exploded.geojson"
         if os.path.isfile(standard_path):
             os.remove(standard_path)
+        if os.path.isfile(exploded_path):
+            os.remove(exploded_path)
     except:
         pass
     if os.path.isfile(destination_path):
@@ -517,6 +530,7 @@ class DeleteUploadGeoJSONAPIView(APIView):
 class UploadCategoriesView(APIView):
 
     def get(self, request):
+        import time
         type_of_file = self.request.query_params.get('type_of_file', None)
         filename = self.request.query_params.get('filename', None)
         destination_path = f"media/Uploads/UploadVector/{filename}"
@@ -529,9 +543,21 @@ class UploadCategoriesView(APIView):
             with open(GEOJSON_PATH, 'r') as file:
                 data = json.load(file)
             gdf = gpd.read_file(GEOJSON_PATH)
+            print(len(gdf), 'length')
+            start_time = time.time()
+            exploded = gdf.explode(ignore_index=True)
+            print(len(exploded), 'length of exploded')
+            end_time = time.time()
+            print(f"Time taken to explode: {end_time - start_time}")
+            exploded.to_file(f'{destination_path}_exploded.geojson',
+                             driver='GeoJSON')
+
             # print(gdf.drop(['marker-color'],
             #       axis=1).head(20), 'data frame original')
-            distinct_values = gdf['name'].unique()
+            try:
+                distinct_values = gdf['name'].unique()
+            except KeyError:
+                distinct_values = gdf['undertype'].unique()
             print(distinct_values, 'distinct_values original')
             cleaned_distinct_values = [
                 re.sub(r'\d+', '', name.lower()).strip() for name in distinct_values]
@@ -542,7 +568,11 @@ class UploadCategoriesView(APIView):
 
             print("************Starting Cleaning************")
             for feature in data['features']:
-                name = feature['properties']['name'].lower().strip()
+                try:
+                    name = feature['properties']['name'].lower().strip()
+                except KeyError:
+                    name = feature['properties']['undertype'].lower().strip()
+
                 best_match, score = process.extractOne(
                     name, unique_cleaned_distinct_values)
                 if score >= 90:  # Only replace the name if the match score is above 90
@@ -570,6 +600,34 @@ class UploadCategoriesView(APIView):
                     feature['properties']['matched_category'] = best_match
                 else:
                     feature['properties']['matched_category'] = None
+
+                feature['properties']['client'] = request.query_params.get(
+                    "client_id")
+                feature['properties']['project'] = request.query_params.get(
+                    "project_id")
+                feature['created_by'] = request.query_params.get('user_id')
+                category = Category.objects.get(
+                    name=best_match, client=request.query_params.get("client_id")) if best_match else None
+                if (category):
+                    feature['properties']['category'] = category.id
+                    feature['properties']['standard_category'] = category.standard_category.id
+                    feature['properties']['sub_category'] = category.sub_category.id
+                    feature['properties']['standard_category_name'] = category.standard_category.name
+                    feature['properties']['sub_category_name'] = category.sub_category.name
+                    feature['properties']['category_name'] = category.name
+                    feature['properties']['created_by'] = request.query_params.get(
+                        'user_id')
+
+                else:
+                    feature['properties']['category'] = None
+                    feature['properties']['standard_category'] = None
+                    feature['properties']['sub_category'] = None
+                    feature['properties']['standard_category_name'] = None
+                    feature['properties']['sub_category_name'] = None
+                    feature['properties']['category_name'] = None
+                    feature['properties']['created_by'] = request.query_params.get(
+                        'user_id')
+
             print("************Completed Matching ************")
 
             with open(f'{destination_path}_standardized.geojson', 'w') as f:
@@ -584,6 +642,7 @@ class UploadCategoriesView(APIView):
             print(len(gdf_standard), 'length_standard')
             final_values_list = []
 
+            id = 1
             for name in gdf_cleaned['cleaned_name'].unique():
                 print(name, 'name')
                 distinct_values_dict = {}
@@ -610,8 +669,15 @@ class UploadCategoriesView(APIView):
                 distinct_values_dict['matched_category'] = matched_category
 
                 distinct_values_dict['category_id'] = Category.objects.get(
-                    name=matched_category).id if matched_category else None
-                distinct_values_dict['checked'] = False
+                    name=matched_category, client=request.query_params.get("client_id")).id if matched_category else None
+
+                if matched_category:
+                    distinct_values_dict['checked'] = True
+                else:
+                    distinct_values_dict['checked'] = False
+
+                distinct_values_dict['id'] = id
+                id += 1
 
                 final_values_list.append(distinct_values_dict)
 
@@ -693,18 +759,21 @@ def checkUploadFileValidationGlobal(shape_file):
                     f"No .shp file found in {shape_file}")
 
 
-def handleDataframeSave(client_id, user_id, project_id, dataframe):
+def handleDataframeSave(client_id, user_id, project_id, dataframe, result):
     # print("herer in upload")
     gdf = dataframe
-    gdf = gdf.to_crs(epsg=4326)
     user = User.objects.get(id=user_id)
     client = Client.objects.get(id=client_id)
     project = Project.objects.get(id=project_id)
     for index, row in gdf.iterrows():
         geom = GEOSGeometry(str(row["geometry"]))
-        matched_category = row['matched_category']
+        cleaned_name = row['cleaned_name']
+        category_ids = [item['category_id']
+                        for item in result if item['cleaned_name'] == cleaned_name]
+        print(category_ids)
+        # category_id = row['category_id']
 
-        category = Category.objects.get(id=matched_category)
+        category = Category.objects.get(id=category_ids[0])
 
         if geom.geom_type == "MultiPolygon" and category.type_of_geometry == "Polygon":
             for polygon in geom:
@@ -796,24 +865,29 @@ class UploadCategoriesSaveView(APIView):
     def post(self, request):
         type_of_file = request.data.get('type_of_file')
         filename = request.data.get('filename')
-        destination_path = f"media/Uploads/UploadVector/{filename}"
+        destination_path = f"media/Uploads/UploadVector/{filename}_standardized.geojson"
 
         if type_of_file == "Geojson":
             GEOJSON_PATH = destination_path
+            print(GEOJSON_PATH, 'GEOJSON_PATH')
             if not os.path.isfile(GEOJSON_PATH):
                 return Response({'message': 'No layers found.'})
             result = request.data.get('result')
             result = json.loads(result)
+            print(result, 'result')
             gdf = gpd.read_file(GEOJSON_PATH)
             gdf.to_crs(epsg='4326')
-            names = [i['name'] for i in result]
-            # print(names, 'names')
-            filtered_gdf = gdf[gdf['name'].isin(names)]
-            filtered_gdf['matched_category'] = filtered_gdf['name'].map(
-                lambda x: next((item for item in result if item["name"] == x), None)['matched_category'])
+            names = [i['cleaned_name'] for i in result]
+            print(names, 'names')
+            filtered_gdf = gdf[gdf['cleaned_name'].isin(names)]
+
+            print(filtered_gdf, 'filtered_gdf')
+
+            # filtered_gdf['category'].map(
+            #     lambda x: next((item for item in result if item["cleaned_name"] == x), {'category_id': None})['category_id'])
 
             handleDataframeSave(client_id=request.data.get('client_id'), user_id=request.data.get(
-                'user_id'), project_id=request.data.get('project_id'), dataframe=filtered_gdf)
+                'user_id'), project_id=request.data.get('project_id'), dataframe=filtered_gdf, result=result)
 
             return Response({'message': "Sucessfully saved the data"})
         else:
