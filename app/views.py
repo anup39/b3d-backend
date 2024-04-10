@@ -496,23 +496,6 @@ class UploadGeoJSONAPIView(APIView):
             return Response({"file": filename, 'layers': layers,  "result": geojson_layers})
 
 
-def delete_geojson_file(filename):
-    destination_path = f"media/Uploads/UploadVector/{filename}"
-    try:
-        standard_path = f"media/Uploads/UploadVector/{filename}_standardized.geojson"
-        exploded_path = f"media/Uploads/UploadVector/{filename}_exploded.geojson"
-        if os.path.isfile(standard_path):
-            os.remove(standard_path)
-        if os.path.isfile(exploded_path):
-            os.remove(exploded_path)
-    except:
-        pass
-    if os.path.isfile(destination_path):
-        os.remove(destination_path)
-        return True
-    return False
-
-
 class DeleteUploadGeoJSONAPIView(APIView):
     def post(self, request):
         filename = request.data.get('filename')
@@ -842,20 +825,35 @@ class UploadCategoriesSaveView(APIView):
                 return Response({'message': 'No layers found.'})
             result = request.data.get('result')
             result = json.loads(result)
-            print(result, 'result')
+            filtered_result = []
+            for item in result:
+                inner_result = []
+                for i in item:
+                    if i.get('checked') and i.get('matched_category'):
+                        inner_result.append(i)
+                filtered_result.append(inner_result)
+
+            print(filtered_result, 'filtered_result')
             gdf = gpd.read_file(GEOJSON_PATH)
             gdf.to_crs(epsg='4326')
-            names = [i['cleaned_name'] for i in result]
-            print(names, 'names')
-            filtered_gdf = gdf[gdf['cleaned_name'].isin(names)]
+            print(gdf, 'result')
 
-            print(filtered_gdf, 'filtered_gdf')
+            for item in result:
+                category = Category.objects.get(id=item['matched_category'])
+                gdf.loc[gdf['cleaned_name'] == item['cleaned_name'],
+                        'category'] = category.name
+
+            # names = [i['cleaned_name'] for i in result]
+            # print(names, 'names')
+            # filtered_gdf = gdf[gdf['cleaned_name'].isin(names)]
+
+            # print(filtered_gdf, 'filtered_gdf')
 
             # filtered_gdf['category'].map(
             #     lambda x: next((item for item in result if item["cleaned_name"] == x), {'category_id': None})['category_id'])
 
-            handleDataframeSave(client_id=request.data.get('client_id'), user_id=request.data.get(
-                'user_id'), project_id=request.data.get('project_id'), dataframe=filtered_gdf, result=result)
+            # handleDataframeSave(client_id=request.data.get('client_id'), user_id=request.data.get(
+            #     'user_id'), project_id=request.data.get('project_id'), dataframe=filtered_gdf, result=result)
 
             return Response({'message': "Sucessfully saved the data"})
         else:
