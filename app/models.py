@@ -747,3 +747,34 @@ class InpsectionPhotoGeometry(models.Model):
 
     def __str__(self):
         return self.inspection_photo.inspection_report.name
+
+
+class MeasuringFileUpload(models.Model):
+    id = models.AutoField(primary_key=True)
+    task_id = models.UUIDField(null=True)
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Client Associated with this"), verbose_name=_("Client"))
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Point related to the project"), verbose_name=_("Project"))
+    name = models.CharField(max_length=255, help_text=_(
+        "Name for the rater data"), verbose_name=_("Name"))
+    file_name = models.CharField(max_length=255, help_text=_(
+        "Name for the rater file"), verbose_name=_("File Name"), default="")
+    progress = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=255, help_text=_(
+        "Status for the task"), verbose_name=_("Status"), default="Uploaded")
+    file_size = models.PositiveBigIntegerField(default=0)
+    projection = models.CharField(max_length=255, help_text=_(
+        "Projection of the "), verbose_name=_("Projection"), default="Not Defined")
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "The person who created"), verbose_name=_("Created by"))
+    created_at = models.DateTimeField(default=timezone.now)
+    is_display = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    is_edited = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'MeasuringFileUpload'

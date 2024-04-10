@@ -11,6 +11,7 @@ from django.urls import path, include, re_path
 from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionViewSet
 from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPhotoGeometryViewSet
 from .views import CategoryBoundingBoxViewSet
+from .views import MeasuringFileUploadViewSet
 # from .views import TaskStatusView
 # from .tiler import Metadata, Tiles
 
@@ -48,6 +49,8 @@ router.register('inspection', InspectionViewSet)
 router.register('inspection-report', InspectionReportViewSet)
 router.register('inspection-photo', InspectionPhotoViewSet)
 router.register('inspection-photo-geometry', InpsectionPhotoGeometryViewSet)
+
+router.register('measuring-file-upload', MeasuringFileUploadViewSet)
 
 
 urlpatterns = [

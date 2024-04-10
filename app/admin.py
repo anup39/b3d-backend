@@ -10,6 +10,7 @@ from .models import Role, UserRole
 from .models import OBJData
 from .models import StandardInspection, SubInspection, Inspection
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
+from .models import MeasuringFileUpload
 
 
 class BaseAdmin(admin.ModelAdmin):
@@ -82,3 +83,5 @@ admin.site.register(Inspection)
 
 admin.site.register(InspectionPhoto)
 admin.site.register(InpsectionPhotoGeometry)
+
+admin.site.register(MeasuringFileUpload)

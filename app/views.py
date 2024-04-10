@@ -14,6 +14,7 @@ from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
 from .models import Role, UserRole
+from .models import MeasuringFileUpload
 from .serializers import ClientSerializer, ProjectSerializer, ProjectPolygonGeojsonSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
@@ -22,6 +23,7 @@ from .serializers import RasterDataSerializer
 from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
 from .serializers import StandardCategoryControlSerializer
 from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer, UploadGeoJSONSerializer
+from .serializers import MeasuringFileUploadSerializer
 from .filters import ProjectFilter, ProjectPolygonFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
@@ -265,7 +267,17 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# For Measuring File Uploads
+class MeasuringFileUploadViewSet(viewsets.ModelViewSet):
+    queryset = MeasuringFileUpload.objects.filter(
+        is_deleted=False).order_by('-created_at')
+    serializer_class = MeasuringFileUploadSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['client', 'project', 'task_id']
+
 # For project categories
+
+
 class StandardCategoryViewSet(viewsets.ModelViewSet):
     queryset = StandardCategory.objects.filter(
         is_deleted=False).order_by('-created_at')

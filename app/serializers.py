@@ -9,6 +9,7 @@ from .models import Role, UserRole
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .models import StandardInspection, SubInspection, Inspection
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
+from .models import MeasuringFileUpload
 import json
 
 
@@ -649,4 +650,26 @@ class InpsectionPhotoGeometrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InpsectionPhotoGeometry
+        fields = "__all__"
+
+
+# Its show the status of the file upload
+class MeasuringFileUploadSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField('get_status')
+    client_name = serializers.SerializerMethodField('get_client_name')
+    project_name = serializers.SerializerMethodField('get_project_name')
+
+    def get_client_name(self, obj):
+        client_name = obj.client.name
+        return client_name
+
+    def get_project_name(self, obj):
+        project_name = obj.project.name
+        return project_name
+
+    def get_status(self, obj):
+        return obj.get_status_display()
+
+    class Meta:
+        model = MeasuringFileUpload
         fields = "__all__"
