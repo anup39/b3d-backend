@@ -833,15 +833,16 @@ class UploadCategoriesSaveView(APIView):
                         inner_result.append(i)
                 filtered_result.append(inner_result)
 
-            print(filtered_result, 'filtered_result')
             gdf = gpd.read_file(GEOJSON_PATH)
             gdf.to_crs(epsg='4326')
-            print(gdf, 'result')
+            print(gdf, 'gdf')
 
-            for item in result:
-                category = Category.objects.get(id=item['matched_category'])
-                gdf.loc[gdf['cleaned_name'] == item['cleaned_name'],
-                        'category'] = category.name
+            for item in filtered_result:
+                names_to_filter = [i.get('cleaned_name') for i in item]
+                gdf = gdf[gdf['cleaned_name'].isin(names_to_filter)]
+
+            print(gdf, 'gdf')
+            print(len(gdf), 'length of gdf')
 
             # names = [i['cleaned_name'] for i in result]
             # print(names, 'names')
