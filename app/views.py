@@ -876,22 +876,14 @@ class UploadCategoriesSaveView(APIView):
             client = Client.objects.get(id=request.data.get('client_id'))
             project = Project.objects.get(id=request.data.get('project_id'))
             user = User.objects.get(id=request.data.get('user_id'))
-            categories = {
-                category.id: category for category in Category.objects.all()}
-            standard_categories = {
-                standard_category.id: standard_category for standard_category in StandardCategory.objects.all()}
-            sub_categories = {
-                sub_category.id: sub_category for sub_category in SubCategory.objects.all()}
 
             projection = df.crs.to_string() if df.crs else None
             uuid_sample = str(uuid.uuid4())
             measuring = MeasuringFileUpload.objects.create(
                 client=client,
                 project=project,
-                user=user,
                 task_id=uuid_sample,
                 file_name=filename,
-                type_of_file=type_of_file,
                 name=filename.split("_")[1],
                 file_size=os.path.getsize(GEOJSON_PATH),
                 total_features=0,
@@ -903,15 +895,11 @@ class UploadCategoriesSaveView(APIView):
             )
 
             result = process_all_geodata_.delay(
-                client=client,
-                project=project,
-                user=user,
-                df=df,
-                categories=categories,
-                standard_categories=standard_categories,
-                sub_categories=sub_categories,
+                client_id=client.id,
+                project_id=project.id,
+                user_id=user.id,
+                file_path=GEOJSON_PATH,
                 filtered_result=filtered_result,
-                request=request,
                 id=measuring.id
             )
 
