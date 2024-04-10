@@ -429,6 +429,7 @@ class PolygonData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.PolygonField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
     created_at = models.DateTimeField(default=timezone.now)
@@ -474,6 +475,7 @@ class LineStringData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.LineStringField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
     created_at = models.DateTimeField(default=timezone.now)
@@ -519,6 +521,7 @@ class PointData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.PointField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
     created_at = models.DateTimeField(default=timezone.now)

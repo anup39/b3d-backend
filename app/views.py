@@ -56,6 +56,7 @@ from fuzzywuzzy import process
 import re
 import math
 import time
+from .process_geodata import process_geodata
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -872,8 +873,6 @@ class UploadCategoriesSaveView(APIView):
             df = gpd.read_file(GEOJSON_PATH)
             df.to_crs(epsg='4326', inplace=True)
 
-            print(df, 'dataframe')
-
             client = Client.objects.get(id=request.data.get('client_id'))
             project = Project.objects.get(id=request.data.get('project_id'))
             user = User.objects.get(id=request.data.get('user_id'))
@@ -884,224 +883,13 @@ class UploadCategoriesSaveView(APIView):
             sub_categories = {
                 sub_category.id: sub_category for sub_category in SubCategory.objects.all()}
 
-            # For Polygon
-            names_to_filter_polygon = []
-            for item in filtered_result[0]:
-                print(item, 'item ')
-                names_to_filter_polygon.append(
-                    item.get('cleaned_name'))
-            print(names_to_filter_polygon, 'names_to_filter_polygon')
-            gdf_polygon = df[df['cleaned_name'].isin(names_to_filter_polygon)]
-            print(gdf_polygon, 'gdf_polygon')
-            gdf_polygon = gdf_polygon.copy()  # Create a copy to avoid SettingWithCopyWarning
-            gdf_polygon.loc[:, 'project'] = request.data.get('project_id')
-            gdf_polygon.loc[:, 'client'] = request.data.get('client_id')
-            gdf_polygon.loc[:, 'client'] = gdf_polygon['client'].astype(
-                'Int64')
-            gdf_polygon.loc[:, 'project'] = gdf_polygon['project'].astype(
-                'Int64')
-            gdf_polygon = gdf_polygon.loc[gdf_polygon.geometry.type.isin(
-                ["MultiPolygon", "Polygon"])]
-
-            def create_category_polygon(name):
-                for i in filtered_result[0]:
-                    if i.get('cleaned_name') == name:
-                        return i.get('matched_category')
-
-            gdf_polygon.loc[:, 'category'] = gdf_polygon.apply(lambda row: create_category_polygon(
-                row['cleaned_name']), axis=1)
-            gdf_polygon.loc[:, 'category'] = gdf_polygon['category'].astype(
-                'Int64')
-            gdf_polygon.loc[:, 'standard_category'] = gdf_polygon['category'].map(
-                lambda x: Category.objects.get(id=x).standard_category.id)
-            gdf_polygon.loc[:, 'standard_category'] = gdf_polygon['standard_category'].astype(
-                'Int64')
-            gdf_polygon.loc[:, 'sub_category'] = gdf_polygon['category'].map(
-                lambda x: Category.objects.get(id=x).sub_category.id)
-            gdf_polygon.loc[:, 'sub_category'] = gdf_polygon['sub_category'].astype(
-                'Int64')
-            gdf_polygon.loc[:, 'standard_category_name'] = gdf_polygon['category'].map(
-                lambda x: Category.objects.get(id=x).standard_category.name)
-            gdf_polygon.loc[:, 'sub_category_name'] = gdf_polygon['category'].map(
-                lambda x: Category.objects.get(id=x).sub_category.name)
-            gdf_polygon.loc[:, 'category_name'] = gdf_polygon['category'].map(
-                lambda x: Category.objects.get(id=x).name)
-            gdf_polygon.loc[:, 'created_by'] = request.data.get('user_id')
-            gdf_polygon.loc[:, 'is_display'] = True
-
-            print(gdf_polygon[[
-                  'project', 'client', 'standard_category', 'sub_category', 'category', 'standard_category_name', 'sub_category_name', 'category_name', 'created_by', 'is_display']].head(15))
-            print(len(gdf_polygon), 'length of gdf_polygon')
-            gdf_polygon = gdf_polygon.explode(ignore_index=True)
-            print(len(gdf_polygon), 'length of gdf_polygon after explode')
-
-            start_time = time.time()
-            polygon_data_list = [
-                PolygonData(
-                    client=client,
-                    project=project,
-                    standard_category=standard_categories[row['standard_category']],
-                    sub_category=sub_categories[row['sub_category']],
-                    category=categories[row['category']],
-                    standard_category_name=standard_categories[row['standard_category']].name,
-                    sub_category_name=sub_categories[row['sub_category']].name,
-                    category_name=categories[row['category']].name,
-                    geom=GEOSGeometry(row['geometry'].wkt),
-                    created_by=user,
-                    is_display=row['is_display'],
-                )
-                for _, row in gdf_polygon.iterrows()
-            ]
-
-            # PolygonData.objects.bulk_create(polygon_data_list)
-            end_time = time.time()
-            execution_time = end_time - start_time
-            print(
-                f'Time taken to upload Polygon {len(gdf_polygon)} the code: {execution_time} seconds')
-
-            # For LinesTring
-            names_to_filter_linestring = []
-            for item in filtered_result[1]:
-                names_to_filter_linestring.append(
-                    item.get('cleaned_name'))
-
-            gdf_linestring = df[df['cleaned_name'].isin(
-                names_to_filter_linestring)]
-            gdf_linestring = gdf_linestring.copy()
-            gdf_linestring['project'] = request.data.get('project_id')
-            gdf_linestring['client'] = request.data.get('client_id')
-            gdf_linestring['client'] = gdf_linestring['client'].astype('Int64')
-            gdf_linestring['project'] = gdf_linestring['project'].astype(
-                'Int64')
-            gdf_linestring = gdf_linestring.loc[gdf_linestring.geometry.type.isin(
-                ["MultiLineString", "LineString"])]
-
-            def create_category_linestring(name):
-                for i in filtered_result[1]:
-                    if i.get('cleaned_name') == name:
-                        return i.get('matched_category')
-            gdf_linestring['category'] = gdf_linestring.apply(lambda row: create_category_linestring(
-                row['cleaned_name']), axis=1)
-            gdf_linestring['category'] = gdf_linestring['category'].astype(
-                'Int64')
-            gdf_linestring['standard_category'] = gdf_linestring['category'].map(
-                lambda x: Category.objects.get(id=x).standard_category.id)
-            gdf_linestring['standard_category'] = gdf_linestring['standard_category'].astype(
-                'Int64')
-            gdf_linestring['sub_category'] = gdf_linestring['category'].map(
-                lambda x: Category.objects.get(id=x).sub_category.id)
-            gdf_linestring['sub_category'] = gdf_linestring['sub_category'].astype(
-                'Int64')
-            gdf_linestring['standard_category_name'] = gdf_linestring['category'].map(
-                lambda x: Category.objects.get(id=x).standard_category.name)
-            gdf_linestring['sub_category_name'] = gdf_linestring['category'].map(
-                lambda x: Category.objects.get(id=x).sub_category.name)
-            gdf_linestring['category_name'] = gdf_linestring['category'].map(
-                lambda x: Category.objects.get(id=x).name)
-            gdf_linestring['created_by'] = request.data.get('user_id')
-            gdf_linestring['is_display'] = True
-
-            print(gdf_linestring[[
-                'project', 'client', 'standard_category', 'sub_category', 'category', 'standard_category_name', 'sub_category_name', 'category_name', 'created_by', 'is_display']].head(15))
-            print(len(gdf_linestring), 'length of gdf_linestring')
-            gdf_linestring = gdf_linestring.explode(ignore_index=True)
-            print(len(gdf_linestring), 'length of gdf_linestring after explode')
-
-            start_time = time.time()
-            linestring_data_list = [
-                LineStringData(
-                    client=client,
-                    project=project,
-                    standard_category=standard_categories[row['standard_category']],
-                    sub_category=sub_categories[row['sub_category']],
-                    category=categories[row['category']],
-                    standard_category_name=standard_categories[row['standard_category']].name,
-                    sub_category_name=sub_categories[row['sub_category']].name,
-                    category_name=categories[row['category']].name,
-                    geom=GEOSGeometry(row['geometry'].wkt),
-                    created_by=user,
-                    is_display=row['is_display'],
-                )
-
-                for _, row in gdf_linestring.iterrows()
-            ]
-
-            # LineStringData.objects.bulk_create(linestring_data_list)
-            end_time = time.time()
-            execution_time = end_time - start_time
-            print(
-                f'Time taken to upload LineString {len(gdf_linestring)} the code: {execution_time} seconds')
-
-            # For Point
-            names_to_filter_point = []
-            for item in filtered_result[2]:
-                names_to_filter_point.append(
-                    item.get('cleaned_name'))
-
-            gdf_point = df[df['cleaned_name'].isin(names_to_filter_point)]
-            gdf_point = gdf_point.copy()
-            gdf_point['project'] = request.data.get('project_id')
-            gdf_point['client'] = request.data.get('client_id')
-            gdf_point['client'] = gdf_point['client'].astype('Int64')
-            gdf_point['project'] = gdf_point['project'].astype('Int64')
-            gdf_point = gdf_point.loc[gdf_point.geometry.type.isin(
-                ["MultiPoint", "Point"])]
-
-            def create_category_point(name):
-                for i in filtered_result[2]:
-                    if i.get('cleaned_name') == name:
-                        return i.get('matched_category')
-
-            gdf_point['category'] = gdf_point.apply(lambda row: create_category_point(
-                row['cleaned_name']), axis=1)
-            gdf_point['category'] = gdf_point['category'].astype('Int64')
-            gdf_point['standard_category'] = gdf_point['category'].map(
-                lambda x: Category.objects.get(id=x).standard_category.id)
-            gdf_point['standard_category'] = gdf_point['standard_category'].astype(
-                'Int64')
-            gdf_point['sub_category'] = gdf_point['category'].map(
-                lambda x: Category.objects.get(id=x).sub_category.id)
-            gdf_point['sub_category'] = gdf_point['sub_category'].astype(
-                'Int64')
-            gdf_point['standard_category_name'] = gdf_point['category'].map(
-                lambda x: Category.objects.get(id=x).standard_category.name)
-            gdf_point['sub_category_name'] = gdf_point['category'].map(
-                lambda x: Category.objects.get(id=x).sub_category.name)
-            gdf_point['category_name'] = gdf_point['category'].map(
-                lambda x: Category.objects.get(id=x).name)
-            gdf_point['created_by'] = request.data.get('user_id')
-            gdf_point['is_display'] = True
-
-            print(gdf_point[[
-                'project', 'client', 'standard_category', 'sub_category', 'category', 'standard_category_name', 'sub_category_name', 'category_name', 'created_by', 'is_display']].head(15))
-            print(len(gdf_point), 'length of gdf_point')
-            gdf_point = gdf_point.explode(ignore_index=True)
-            print(len(gdf_point), 'length of gdf_point after explode')
-
-            start_time = time.time()
-            point_data_list = [
-                PointData(
-                    client=client,
-                    project=project,
-                    standard_category=standard_categories[row['standard_category']],
-                    sub_category=sub_categories[row['sub_category']],
-                    category=categories[row['category']],
-                    standard_category_name=standard_categories[row['standard_category']].name,
-                    sub_category_name=sub_categories[row['sub_category']].name,
-                    category_name=categories[row['category']].name,
-                    geom=GEOSGeometry(row['geometry'].wkt),
-                    created_by=user,
-                    is_display=row['is_display'],
-                )
-
-                for _, row in gdf_point.iterrows()
-            ]
-
-            # PointData.objects.bulk_create(point_data_list)
-            end_time = time.time()
-            execution_time = end_time - start_time
-            print(
-                f'Time taken to upload Point {len(gdf_point)} the code: {execution_time} seconds')
+            # Call the function for each geometry type
+            process_geodata(df, filtered_result[0], ["MultiPolygon", "Polygon"], PolygonData,
+                            request, standard_categories, sub_categories, categories, client, project, user)
+            process_geodata(df, filtered_result[1], ["MultiLineString", "LineString"], LineStringData,
+                            request, standard_categories, sub_categories, categories, client, project, user)
+            process_geodata(df, filtered_result[2], ["MultiPoint", "Point"], PointData, request,
+                            standard_categories, sub_categories, categories, client, project, user)
 
             return Response({'message': "Sucessfully saved the data"})
         else:
