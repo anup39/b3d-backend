@@ -53,6 +53,7 @@ from shapely import wkt
 from fuzzywuzzy import process
 import re
 import math
+import time
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -817,6 +818,7 @@ class UploadCategoriesSaveView(APIView):
         type_of_file = request.data.get('type_of_file')
         filename = request.data.get('filename')
         destination_path = f"media/Uploads/UploadVector/{filename}_standardized.geojson"
+        client = request.data.get('client_id')
 
         if type_of_file == "Geojson":
             GEOJSON_PATH = destination_path
@@ -843,6 +845,80 @@ class UploadCategoriesSaveView(APIView):
 
             print(gdf, 'gdf')
             print(len(gdf), 'length of gdf')
+
+            gdf['project'] = request.data.get('project_id')
+            gdf['client'] = request.data.get('client_id')
+            gdf['client'] = gdf['client'].astype('Int64')
+            gdf['project'] = gdf['project'].astype('Int64')
+
+            # For polygon
+            gdf_polygon = gdf.loc[gdf.geometry.type.isin(
+                ["MultiPolygon", "Polygon"])]
+
+            def create_category(name):
+                for i in filtered_result[0]:
+                    if i.get('cleaned_name') == name:
+                        return i.get('matched_category')
+
+            gdf_polygon['category'] = gdf_polygon.apply(lambda row: create_category(
+                row['cleaned_name']), axis=1)
+            gdf_polygon['category'] = gdf_polygon['category'].astype('Int64')
+            gdf_polygon['standard_category'] = gdf_polygon['category'].map(
+                lambda x: Category.objects.get(id=x).standard_category.id)
+            gdf_polygon['standard_category'] = gdf_polygon['standard_category'].astype(
+                'Int64')
+            gdf_polygon['sub_category'] = gdf_polygon['category'].map(
+                lambda x: Category.objects.get(id=x).sub_category.id)
+            gdf_polygon['sub_category'] = gdf_polygon['sub_category'].astype(
+                'Int64')
+            gdf_polygon['standard_category_name'] = gdf_polygon['category'].map(
+                lambda x: Category.objects.get(id=x).standard_category.name)
+            gdf_polygon['sub_category_name'] = gdf_polygon['category'].map(
+                lambda x: Category.objects.get(id=x).sub_category.name)
+            gdf_polygon['category_name'] = gdf_polygon['category'].map(
+                lambda x: Category.objects.get(id=x).name)
+            gdf_polygon['created_by'] = request.data.get('user_id')
+            gdf_polygon['is_display'] = True
+
+            print(gdf_polygon[[
+                  'project', 'client', 'standard_category', 'sub_category', 'category', 'standard_category_name', 'sub_category_name', 'category_name', 'created_by', 'is_display']].head(15))
+            print(len(gdf_polygon), 'length of gdf_polygon')
+            gdf_polygon = gdf_polygon.explode(ignore_index=True)
+            print(len(gdf_polygon), 'length of gdf_polygon after explode')
+
+            client = Client.objects.get(id=request.data.get('client_id'))
+            project = Project.objects.get(id=request.data.get('project_id'))
+            user = User.objects.get(id=request.data.get('user_id'))
+            categories = {
+                category.id: category for category in Category.objects.all()}
+            standard_categories = {
+                standard_category.id: standard_category for standard_category in StandardCategory.objects.all()}
+            sub_categories = {
+                sub_category.id: sub_category for sub_category in SubCategory.objects.all()}
+
+            start_time = time.time()
+            polygon_data_list = [
+                PolygonData(
+                    client=client,
+                    project=project,
+                    standard_category=standard_categories[row['standard_category']],
+                    sub_category=sub_categories[row['sub_category']],
+                    category=categories[row['category']],
+                    standard_category_name=standard_categories[row['standard_category']].name,
+                    sub_category_name=sub_categories[row['sub_category']].name,
+                    category_name=categories[row['category']].name,
+                    geom=GEOSGeometry(row['geometry'].wkt),
+                    created_by=user,
+                    is_display=row['is_display'],
+                )
+                for _, row in gdf_polygon.iterrows()
+            ]
+
+            PolygonData.objects.bulk_create(polygon_data_list)
+            end_time = time.time()
+            execution_time = end_time - start_time
+            print(
+                f'Time taken to upload {len(gdf_polygon)} the code: {execution_time} seconds')
 
             # names = [i['cleaned_name'] for i in result]
             # print(names, 'names')
