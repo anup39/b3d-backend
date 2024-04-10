@@ -760,6 +760,7 @@ class MeasuringFileUpload(models.Model):
         "Name for the rater data"), verbose_name=_("Name"))
     file_name = models.CharField(max_length=255, help_text=_(
         "Name for the rater file"), verbose_name=_("File Name"), default="")
+    total_features = models.PositiveIntegerField(default=0)
     progress = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=255, help_text=_(
         "Status for the task"), verbose_name=_("Status"), default="Uploaded")

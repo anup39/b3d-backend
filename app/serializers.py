@@ -655,7 +655,6 @@ class InpsectionPhotoGeometrySerializer(serializers.ModelSerializer):
 
 # Its show the status of the file upload
 class MeasuringFileUploadSerializer(serializers.ModelSerializer):
-    status = serializers.SerializerMethodField('get_status')
     client_name = serializers.SerializerMethodField('get_client_name')
     project_name = serializers.SerializerMethodField('get_project_name')
 
@@ -666,9 +665,6 @@ class MeasuringFileUploadSerializer(serializers.ModelSerializer):
     def get_project_name(self, obj):
         project_name = obj.project.name
         return project_name
-
-    def get_status(self, obj):
-        return obj.get_status_display()
 
     class Meta:
         model = MeasuringFileUpload

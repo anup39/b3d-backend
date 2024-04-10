@@ -953,7 +953,7 @@ class UploadCategoriesSaveView(APIView):
                 for _, row in gdf_polygon.iterrows()
             ]
 
-            PolygonData.objects.bulk_create(polygon_data_list)
+            # PolygonData.objects.bulk_create(polygon_data_list)
             end_time = time.time()
             execution_time = end_time - start_time
             print(
@@ -1026,7 +1026,7 @@ class UploadCategoriesSaveView(APIView):
                 for _, row in gdf_linestring.iterrows()
             ]
 
-            LineStringData.objects.bulk_create(linestring_data_list)
+            # LineStringData.objects.bulk_create(linestring_data_list)
             end_time = time.time()
             execution_time = end_time - start_time
             print(
@@ -1097,7 +1097,7 @@ class UploadCategoriesSaveView(APIView):
                 for _, row in gdf_point.iterrows()
             ]
 
-            PointData.objects.bulk_create(point_data_list)
+            # PointData.objects.bulk_create(point_data_list)
             end_time = time.time()
             execution_time = end_time - start_time
             print(
