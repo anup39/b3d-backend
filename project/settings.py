@@ -167,6 +167,8 @@ CELERY_TIMEZONE = 'Asia/Kathmandu'
 CELERY_TASK_ROUTES = {
     'app.tasks.handleExampleTask': {'queue': 'default'},
     'app.tasks.handleCreateBandsNormal_': {'queue': 'default'},
+    'app.tasks.process_all_geodata_': {'queue': 'default'},
+
 
 }
 

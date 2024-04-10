@@ -2,7 +2,7 @@ import os
 import uuid
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .tasks import handleExampleTask, handleCreateBandsNormal_
+from .tasks import handleExampleTask, handleCreateBandsNormal_, process_all_geodata_
 from rest_framework.authtoken.views import ObtainAuthToken, APIView
 from rest_framework.authtoken.models import Token
 from rest_framework import status, generics
@@ -56,7 +56,7 @@ from fuzzywuzzy import process
 import re
 import math
 import time
-from .process_geodata import process_geodata
+from .process_all_geodata import process_all_geodata
 
 
 class ExampleViewSet(viewsets.ViewSet):
@@ -883,13 +883,37 @@ class UploadCategoriesSaveView(APIView):
             sub_categories = {
                 sub_category.id: sub_category for sub_category in SubCategory.objects.all()}
 
-            # Call the function for each geometry type
-            process_geodata(df, filtered_result[0], ["MultiPolygon", "Polygon"], PolygonData,
-                            request, standard_categories, sub_categories, categories, client, project, user)
-            process_geodata(df, filtered_result[1], ["MultiLineString", "LineString"], LineStringData,
-                            request, standard_categories, sub_categories, categories, client, project, user)
-            process_geodata(df, filtered_result[2], ["MultiPoint", "Point"], PointData, request,
-                            standard_categories, sub_categories, categories, client, project, user)
+            projection = df.crs.to_string() if df.crs else None
+            uuid_sample = str(uuid.uuid4())
+            measuring = MeasuringFileUpload.objects.create(
+                client=client,
+                project=project,
+                user=user,
+                task_id=uuid_sample,
+                file_name=filename,
+                type_of_file=type_of_file,
+                name=filename.split("_")[1],
+                file_size=os.path.getsize(GEOJSON_PATH),
+                total_features=0,
+                progress=0,
+                status="Uploading",
+                projection=projection,
+                created_by=user,
+                is_display=True
+            )
+
+            result = process_all_geodata_.delay(
+                client=client,
+                project=project,
+                user=user,
+                df=df,
+                categories=categories,
+                standard_categories=standard_categories,
+                sub_categories=sub_categories,
+                filtered_result=filtered_result,
+                request=request,
+                id=measuring.id
+            )
 
             return Response({'message': "Sucessfully saved the data"})
         else:

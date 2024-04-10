@@ -3,7 +3,9 @@ from django.contrib.gis.geos import GEOSGeometry
 from .models import Category, PolygonData, LineStringData, PointData
 
 
-def process_geodata(df, filtered_result, geom_type, DataModel, request, standard_categories, sub_categories, categories, client, project, user):
+def process_geodata(df, filtered_result, geom_type, DataModel, request, standard_categories, sub_categories, categories, client, project, user, id, task_id):
+    print(id, 'id')
+    print(task_id, 'task_id')
     names_to_filter = [item.get('cleaned_name') for item in filtered_result]
     gdf = df[df['cleaned_name'].isin(names_to_filter)].copy()
     if len(gdf) > 0:
@@ -59,6 +61,7 @@ def process_geodata(df, filtered_result, geom_type, DataModel, request, standard
                 geom=GEOSGeometry(row['geometry'].wkt),
                 created_by=user,
                 is_display=row['is_display'],
+                task_id=task_id,
             )
             for _, row in gdf.iterrows()
         ]
