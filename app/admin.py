@@ -6,7 +6,7 @@ from .models import GlobalStandardCategory, GlobalCategory, GlobalSubCategory, G
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
-from .models import Role, UserRole
+from .models import Role
 from .models import OBJData
 from .models import StandardInspection, SubInspection, Inspection
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
@@ -44,7 +44,6 @@ class CategoryStyleAdmin(admin.ModelAdmin):
 
 
 models = [
-    UserRole,
     ProjectPolygon,
     RasterData,
     # StandardCategory, SubCategory, Category, CategoryStyle,

@@ -1,8 +1,10 @@
+import re
+from rest_framework.permissions import IsAuthenticated
 import os
 import uuid
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .tasks import handleExampleTask, handleCreateBandsNormal_, process_all_geodata_
+from .tasks import handleCreateBandsNormal_, process_all_geodata_
 from rest_framework.authtoken.views import ObtainAuthToken, APIView
 from rest_framework.authtoken.models import Token
 from rest_framework import status, generics
@@ -13,24 +15,21 @@ from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, 
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
-from .models import Role, UserRole
+from .models import Role
 from .models import MeasuringFileUpload
 from .serializers import ClientSerializer, ProjectSerializer, ProjectPolygonGeojsonSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
 from .serializers import PolygonDataSerializer, LineStringDataSerializer, PointDataSerializer
 from .serializers import RasterDataSerializer
-from .serializers import RoleSerializer, UserRoleSerializer, UserSerializer
+from .serializers import RoleSerializer, UserSerializer
 from .serializers import StandardCategoryControlSerializer
-from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer, UploadGeoJSONSerializer
+from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer
 from .serializers import MeasuringFileUploadSerializer
 from .filters import ProjectFilter, ProjectPolygonFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
 from .filters import RasterDataFilter
-from .filters import UserRoleFilter
-from django.contrib.gis.geos import (
-    GEOSGeometry)
 # from .create_bands import handleCreateBandsNormal
 from django.conf import settings
 # from celery.result import AsyncResult
@@ -40,39 +39,17 @@ import geopandas as gpd
 import json
 import zipfile
 from django.http import JsonResponse
-import pandas as pd
-import numpy as np
-import django_filters
-
 from .serializers import StandardInspectionSerializer, SubInspectionSerializer, InspectionSerializer
 from .models import StandardInspection, SubInspection, Inspection
 from .serializers import InspectionReportSerializer, InspectionPhotoSerializer, InpsectionPhotoGeometrySerializer
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
-from django.contrib.gis.db.models.functions import Area
-from django.contrib.gis.db.models import Sum, Transform
-from django.db.models import FloatField, ExpressionWrapper
-from shapely import wkt
 from fuzzywuzzy import process
-import re
-import math
-import time
-from .process_all_geodata import process_all_geodata
-
-
-class ExampleViewSet(viewsets.ViewSet):
-    def list(self, request):
-        # Your logic for processing the API request
-        data = {
-            'message': 'Hello, API!',
-            'status': 'success'
-        }
-        # This is to be on to check the task and celery status
-        handleExampleTask.delay()
-
-        return Response(data)
+from rest_framework.authentication import TokenAuthentication
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializer
 
@@ -137,31 +114,6 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = ClientSerializer
 
-    # def list(self, request, *args, **kwargs):
-    #     queryset = self.get_queryset()
-    #     try:
-    #         user = request.user
-    #         if user is not None:
-    #             role = UserRole.objects.get(user=user)
-    #             if str(role) == "admin":
-    #                 pass
-    #             else:
-    #                 # user_projects = UserProject.objects.filter(user=user)
-    #                 project_ids = user_projects.values_list(
-    #                     'project_id', flat=True)
-    #                 queryset = queryset.filter(id__in=project_ids)
-    #     except:
-    #         # Continue with your existing code
-    #         queryset = self.filter_queryset(queryset)
-
-    #     page = self.paginate_queryset(queryset)
-    #     if page is not None:
-    #         serializer = self.get_serializer(page, many=True)
-    #         return self.get_paginated_response(serializer.data)
-
-    #     serializer = self.get_serializer(queryset, many=True)
-    #     return Response(serializer.data)
-
     def create(self, request, *args, **kwargs):
         username = request.data.get('username')
         email = request.data.get('email')
@@ -191,17 +143,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def partial_update(self, request, *args, **kwargs):
-        kwargs['partial'] = True
-        payload = request.data
-        if 'is_deleted' in payload:
-            if payload.get('is_deleted') is True:
-                result = handle_delete_request(
-                    id=kwargs.get('pk'), fk='client')
-                if result:
-                    return self.update(request, *args, **kwargs)
-                return Response({'message': "Error in Deleting the client"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return self.update(request, *args, **kwargs)
+   
 
 
 # TODO When project created create the userproject also
@@ -212,17 +154,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     filterset_class = ProjectFilter
     search_fields = ['name', 'description']
 
-    def partial_update(self, request, *args, **kwargs):
-        kwargs['partial'] = True
-        payload = request.data
-        if 'is_deleted' in payload:
-            if payload.get('is_deleted') is True:
-                result = handle_delete_request(
-                    id=kwargs.get('pk'), fk='project')
-                if result:
-                    return self.update(request, *args, **kwargs)
-                return Response({'message': "Error in Deleting the project"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return self.update(request, *args, **kwargs)
 
 
 class ProjectPolygonGeoJSONAPIView(viewsets.ModelViewSet):
@@ -332,14 +263,6 @@ class PointDataViewSet(viewsets.ModelViewSet):
     queryset = PointData.objects.filter(
         is_deleted=False).order_by('-created_at')
     serializer_class = PointDataSerializer
-
-
-class UserRoleViewSet(viewsets.ModelViewSet):
-    queryset = UserRole.objects.filter(
-        is_deleted=False).order_by('-created_at')
-    serializer_class = UserRoleSerializer
-    filter_backends = [DjangoFilterBackend,]
-    filterset_class = UserRoleFilter
 
 
 class MapMeasuringsViewSets(APIView):
@@ -477,21 +400,6 @@ class UploadGeoJSONAPIView(APIView):
             if not SHAPEFILE_PATHS:
                 # No .shp files found in the folders
                 return JsonResponse({'message': 'No .shp files found.'})
-
-            geojson_layers = []
-            layers = []
-
-            for shapefile_path in SHAPEFILE_PATHS:
-                gdf = gpd.read_file(shapefile_path)
-                geojson_data = gdf.to_crs(epsg='4326').to_json()
-                layer_name = shapefile_path.split("/")[-1].split(".")[0]
-                geojson_dict = json.loads(geojson_data)
-                bounding_box_4326 = gdf.to_crs(epsg='4326').total_bounds
-                geojson_layers.append(
-                    {"layername": layer_name, "extent": [
-                        bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]], "geojson": geojson_dict})
-                layers.append({"layername": layer_name, "extent": [
-                    bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]]})
 
             return Response({"file": filename, 'layers': layers,  "result": geojson_layers})
         else:
@@ -690,157 +598,7 @@ class UploadCategoriesView(APIView):
                 # No .shp files found in the folders
                 return Response({'message': 'No .shp files found.'})
 
-            layers = []
-            for shapefile_path in SHAPEFILE_PATHS:
-                gdf = gpd.read_file(shapefile_path)
-                # geojson_data = gdf.to_crs(epsg='4326').to_json()
-                layer_name = shapefile_path.split("/")[-1].split(".")[0]
-                distinct_values = gdf['undertype'].unique()
-                # distinct_values_list = []
-                id = 1
-                for value in distinct_values:
-                    distinct_values_dict = {}
-                    distinct_values_dict['filename'] = filename
-                    distinct_values_dict['id'] = id
-                    distinct_values_dict['layername'] = layer_name
-                    distinct_values_dict['name'] = value
-                    distinct_values_dict['type_of_geometry'] = gdf[gdf['undertype']
-                                                                   == value].geometry.iloc[0].geom_type
-                    distinct_values_dict['matched_category'] = None
-                    distinct_values_dict['checked'] = False
-                    id += 1
-
-                    # distinct_values_list.append(distinct_values_dict)
-                    layers.append(distinct_values_dict)
-
             return Response({'type_of_file': type_of_file, "distinct": layers})
-
-
-def checkUploadFileValidationGlobal(shape_file):
-
-    if not shape_file.name.endswith('.zip'):
-        raise ValidationError('The file must be a ZIP archive.')
-    if shape_file.name.endswith('.zip'):
-        # Open the zip file
-        with zipfile.ZipFile(shape_file, 'r') as zip_file:
-
-            # Check if a file with a .shp extension exists in the zip file
-            file_list = zip_file.namelist()
-            shp_file = None
-            for file_name in file_list:
-                if file_name.endswith('.shp'):
-                    shp_file = file_name
-                    break
-
-            # If a .shp file exists, open it
-            if shp_file:
-                with zip_file.open(shp_file) as file:
-                    pass
-            else:
-                raise ValueError(
-                    f"No .shp file found in {shape_file}")
-
-
-def handleDataframeSave(client_id, user_id, project_id, dataframe, result):
-    # print("herer in upload")
-    gdf = dataframe
-    user = User.objects.get(id=user_id)
-    client = Client.objects.get(id=client_id)
-    project = Project.objects.get(id=project_id)
-    for index, row in gdf.iterrows():
-        geom = GEOSGeometry(str(row["geometry"]))
-        cleaned_name = row['cleaned_name']
-        category_ids = [item['category_id']
-                        for item in result if item['cleaned_name'] == cleaned_name]
-        print(category_ids)
-        # category_id = row['category_id']
-
-        category = Category.objects.get(id=category_ids[0])
-
-        if geom.geom_type == "MultiPolygon" and category.type_of_geometry == "Polygon":
-            for polygon in geom:
-                PolygonData.objects.create(
-                    client=client,
-                    project=project,
-                    standard_category=category.standard_category,
-                    sub_category=category.sub_category,
-                    category=category,
-                    standard_category_name=category.standard_category.name,
-                    sub_category_name=category.sub_category.name,
-                    category_name=category.name,
-                    geom=polygon,
-                    created_by=user
-                )
-        elif geom.geom_type == "Polygon" and category.type_of_geometry == "Polygon":
-            PolygonData.objects.create(
-                client=client,
-                project=project,
-                standard_category=category.standard_category,
-                sub_category=category.sub_category,
-                category=category,
-                standard_category_name=category.standard_category.name,
-                sub_category_name=category.sub_category.name,
-                category_name=category.name,
-                geom=geom,
-                created_by=user
-            )
-
-        elif geom.geom_type == "MultiLineString" and category.type_of_geometry == "LineString":
-            for line in geom:
-                LineStringData.objects.create(
-                    client=client,
-                    project=project,
-                    standard_category=category.standard_category,
-                    sub_category=category.sub_category,
-                    category=category,
-                    standard_category_name=category.standard_category.name,
-                    sub_category_name=category.sub_category.name,
-                    category_name=category.name,
-                    geom=line,
-                    created_by=user
-                )
-        elif geom.geom_type == "LineString" and category.type_of_geometry == "LineString":
-            LineStringData.objects.create(
-                client=client,
-                project=project,
-                standard_category=category.standard_category,
-                sub_category=category.sub_category,
-                category=category,
-                standard_category_name=category.standard_category.name,
-                sub_category_name=category.sub_category.name,
-                category_name=category.name,
-                geom=geom,
-                created_by=user
-            )
-        elif geom.geom_type == "MultiPoint" and category.type_of_geometry == "Point":
-            for point in geom:
-                PointData.objects.create(
-                    client=client,
-                    project=project,
-                    standard_category=category.standard_category,
-                    sub_category=category.sub_category,
-                    category=category,
-                    standard_category_name=category.standard_category.name,
-                    sub_category_name=category.sub_category.name,
-                    category_name=category.name,
-                    geom=point,
-                    created_by=user
-                )
-        elif geom.geom_type == "Point" and category.type_of_geometry == "Point":
-            PointData.objects.create(
-                client=client,
-                project=project,
-                standard_category=category.standard_category,
-                sub_category=category.sub_category,
-                category=category,
-                standard_category_name=category.standard_category.name,
-                sub_category_name=category.sub_category.name,
-                category_name=category.name,
-                geom=geom,
-                created_by=user
-            )
-
-    return True
 
 
 class UploadCategoriesSaveView(APIView):
@@ -851,9 +609,6 @@ class UploadCategoriesSaveView(APIView):
         print(destination_path, 'destination_path')
 
         df = None
-        gdf_polygon = None
-        gdf_linestring = None
-        gdf_point = None
 
         if type_of_file == "Geojson":
             GEOJSON_PATH = destination_path
@@ -918,98 +673,19 @@ class UploadCategoriesSaveView(APIView):
 
             SHAPEFILE_PATHS = []
 
-            for folder_path in folder_paths:
-                # Check if .shp file exists in the folder
-                shp_file_path = os.path.join(
-                    EXTRACTED_PATH, folder_path, f"{folder_path}.shp")
-                if os.path.isfile(shp_file_path):
-                    SHAPEFILE_PATHS.append(shp_file_path)
-
-            if not SHAPEFILE_PATHS:
-                # No .shp files found in the folders
-                return Response({'message': 'No .shp files found.'})
-
-            layers = []
-            result = request.data.get('result')
-            result = json.loads(result)
-            new_list = []
-            layer_names = set(item['layername'] for item in result)
-
-            for layer_name in layer_names:
-                filtered_items = [
-                    item for item in result if item['layername'] == layer_name]
-                new_list.append(filtered_items)
-
-            # print(new_list, 'new_list')
-            for shapefile_path in SHAPEFILE_PATHS:
-                # print(shapefile_path, 'shapefile_path')
-                for result_ in new_list:
-                    layer_name = shapefile_path.split("/")[-1].split(".")[0]
-                    if (result_[0].get('layername') == layer_name):
-                        gdf = gpd.read_file(shapefile_path)
-                        gdf.to_crs(epsg='4326')
-                        names = [i['name'] for i in result_]
-                        # print(names, 'names')
-                        filtered_gdf = gdf[gdf['undertype'].isin(names)]
-                        filtered_gdf['matched_category'] = filtered_gdf['undertype'].map(
-                            lambda x: next((item for item in result_ if item["name"] == x), None)['matched_category'])
-
-                        handleDataframeSave(client_id=request.data.get('client_id'), user_id=request.data.get(
-                            'user_id'), project_id=request.data.get('project_id'), dataframe=filtered_gdf)
-
             return Response({'message': "Sucessfully saved the data"})
 
 
 class MeasuringTableSummationView(APIView):
     def get(self, request):
-
-        project_id = request.query_params.get('project')
         client_id = request.query_params.get('client')
-
-        project = Project.objects.get(id=project_id)
         client = Client.objects.get(id=client_id)
-
-        line_string_data = LineStringData.objects.filter(
-            project_id=project_id, client_id=client_id
-        )
-        point_data = PointData.objects.filter(
-            project_id=project_id, client_id=client_id)
-        polygon_data = PolygonData.objects.filter(
-            project_id=project_id, client_id=client_id)
-
         categories = Category.objects.filter(
             client=client
         ).values('id', 'type_of_geometry', 'view_name', 'description', 'name')
 
         for category in categories:
             style = CategoryStyle.objects.get(category=category['id'])
-
-            # if category['type_of_geometry'] == "LineString":
-            #     category['label'] = category['name']
-            #     category['name'] = category['view_name']
-            #     category['length'] = np.random.randint(100, 1000)
-            #     category['area'] = 0
-            #     category['count'] = line_string_data.filter(
-            #         category=category['id']).count()
-            #     category['value'] = line_string_data.filter(
-            #         category=category['id']).count()
-            #     category['symbol'] = {"color": style.fill,
-            #                           "type_of_geometry": "LineString"}
-            #     category['color'] = style.fill
-
-            # if category['type_of_geometry'] == "Point":
-            #     category['label'] = category['name']
-            #     category['name'] = category['view_name']
-            #     category['length'] = 0
-            #     category['area'] = 0
-            #     category['count'] = point_data.filter(
-            #         category=category['id']).count()
-            #     category['value'] = point_data.filter(
-            #         category=category['id']).count()
-
-            #     category['symbol'] = {"color": style.fill,
-            #                           "type_of_geometry": "Point"}
-            #     category['color'] = style.fill
 
             # Pie Chart only for polygon
             if category['type_of_geometry'] == "Polygon":
@@ -1075,9 +751,3 @@ class InpsectionPhotoGeometryViewSet(viewsets.ModelViewSet):
     filterset_fields = ['inspection_photo',
                         'standard_inspection', 'sub_inspection', 'inspection']
     pagination_class = None
-
-
-class CategoryBoundingBoxViewSet(APIView):
-    def get(self, request):
-
-        return Response("Testing the API")

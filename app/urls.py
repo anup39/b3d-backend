@@ -1,19 +1,16 @@
 from rest_framework import routers
-from .views import ExampleViewSet, CustomAuthToken, ClientViewSet, ProjectViewSet, ProjectPolygonGeoJSONAPIView
+from .views import CustomAuthToken, ClientViewSet, ProjectViewSet, ProjectPolygonGeoJSONAPIView
 from .views import GlobalStandardCategoryViewSet, GlobalSubCategoryViewSet, GlobalCategoryViewSet, GlobalCategoryStyleViewSet
 from .views import StandardCategoryViewSet, SubCategoryViewSet, CategoryViewSet, CategoryStyleViewSet
 from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
-from .views import RoleViewSet, UserRoleViewSet, UserViewSet
+from .views import RoleViewSet, UserViewSet
 from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView, MeasuringTableSummationView, DeleteUploadGeoJSONAPIView
-from django.urls import path, include, re_path
+from django.urls import path, include
 from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionViewSet
 from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPhotoGeometryViewSet
-from .views import CategoryBoundingBoxViewSet
 from .views import MeasuringFileUploadViewSet
-# from .views import TaskStatusView
-# from .tiler import Metadata, Tiles
 
 
 router = routers.DefaultRouter()
@@ -40,7 +37,6 @@ router.register('polygon-data', PolygonDataViewSet)
 router.register('linestring-data', LineStringDataViewSet)
 router.register('point-data', PointDataViewSet)
 
-router.register('user-role', UserRoleViewSet)
 
 router.register('standard-inspection', StandardInspectionViewSet)
 router.register('sub-inspection', SubInspectionViewSet)
@@ -55,8 +51,6 @@ router.register('measuring-file-upload', MeasuringFileUploadViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('example/', ExampleViewSet.as_view({'get': 'list'}),
-         name='example-api'),
     path('api-token-auth/', CustomAuthToken.as_view()),
     path('map-measurings/', MapMeasuringsViewSets.as_view()),
     path('category-point-geojson/',  PointDataGeoJSONAPIView.as_view(),
@@ -73,9 +67,5 @@ urlpatterns = [
     path('save-upload/', UploadCategoriesSaveView.as_view(),
          name='save_upload'),
     path('measuring-table-summation/', MeasuringTableSummationView.as_view()),
-    path('category-bounding-box/',  CategoryBoundingBoxViewSet.as_view()),
-    #     path('project-polygon/', ProjectPolygonGeoJSONAPIView.as_view(),
-    #          name='project-polygon'),
-    # path('projects/<project_pk>/rasters/<pk>/<tile_type>/metadata/', Metadata.as_view(), name='metadata'),
-    # path('projects/<project_pk>/rasters/<pk>/<tile_type>/tile/<z>/<x>/<y>/', Tiles.as_view() ,name="tile"),
+
 ]

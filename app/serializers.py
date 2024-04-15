@@ -5,7 +5,7 @@ from .models import Client, Project, ProjectPolygon, GlobalStandardCategory, Glo
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
-from .models import Role, UserRole
+from .models import Role
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .models import StandardInspection, SubInspection, Inspection
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
@@ -260,43 +260,6 @@ class PointDataSerializer (serializers.ModelSerializer):
         fields = "__all__"
 
 
-# For Roles
-class RoleSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField('get_full_name')
-
-    def get_full_name(self, obj):
-        full_name = obj.name
-        return full_name
-
-    class Meta:
-        model = Role
-        fields = "__all__"
-
-
-class UserRoleSerializer(serializers.ModelSerializer):
-
-    role_name = serializers.SerializerMethodField('get_role_name')
-    username = serializers.SerializerMethodField('get_username')
-    email = serializers.SerializerMethodField('get_email')
-    date_joined = serializers.SerializerMethodField('get_date_joined')
-
-    def get_role_name(self, obj):
-        return str(obj.role.name)
-
-    def get_username(self, obj):
-        return str(obj.user.username)
-
-    def get_email(self, obj):
-        return str(obj.user.email)
-
-    def get_date_joined(self, obj):
-        return str(obj.user.date_joined)
-
-    class Meta:
-        model = UserRole
-        fields = "__all__"
-
-
 class CategoryControlSerializer(serializers.ModelSerializer):
     label = serializers.SerializerMethodField('get_label')
     checked = serializers.SerializerMethodField('get_checked')
@@ -540,10 +503,6 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
                   'perimeter', 'type_of_geometry', 'view_name', 'category_id', 'component')
 
 
-class UploadGeoJSONSerializer(serializers.Serializer):
-    geojson_data = serializers.JSONField()
-
-
 # For Inspection types
 class StandardInspectionSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
@@ -559,16 +518,10 @@ class StandardInspectionSerializer(serializers.ModelSerializer):
 
 class SubInspectionSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
-    # standard_inspection_name = serializers.SerializerMethodField(
-    #     'get_standard_inspection_name')
 
     def get_full_name(self, obj):
 
         return obj.name
-
-    # def get_standard_inspection_name(self, obj):
-    #     standard_inspection_name = obj.standard_inspection.name
-    #     return standard_inspection_name
 
     class Meta:
         model = SubInspection
@@ -577,22 +530,10 @@ class SubInspectionSerializer(serializers.ModelSerializer):
 
 class InspectionSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name')
-    # standard_inspection_name = serializers.SerializerMethodField(
-    #     'get_standard_inspection_name')
-    # sub_inspection_name = serializers.SerializerMethodField(
-    #     'get_sub_inspection_name')
 
     def get_full_name(self, obj):
 
         return obj.name
-
-    # def get_standard_inspection_name(self, obj):
-    #     standard_inspection_name = obj.sub_inspection.standard_inspection.name
-    #     return standard_inspection_name
-
-    # def get_sub_inspection_name(self, obj):
-    #     sub_inspection_name = obj.standard_inspection.name + " | " + obj.sub_inspection.name
-    #     return sub_inspection_name
 
     class Meta:
         model = Inspection
@@ -668,4 +609,17 @@ class MeasuringFileUploadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MeasuringFileUpload
+        fields = "__all__"
+
+
+# For Roles
+class RoleSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    def get_full_name(self, obj):
+        full_name = obj.name
+        return full_name
+
+    class Meta:
+        model = Role
         fields = "__all__"

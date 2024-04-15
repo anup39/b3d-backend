@@ -1,26 +1,11 @@
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 from colorfield.fields import ColorField
 from django.contrib.gis.db import models
 from django.db.models import Manager as GeoManager
 from django.contrib.gis.geos import Point
-
-
-class Role(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, help_text=_(
-        "Name of the Role"), verbose_name=_("Name"), default="project admin")
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
-        "The person who created"), verbose_name=_("Created by"))
-    created_at = models.DateTimeField(default=timezone.now, help_text=_(
-        "Creation date"), verbose_name=_("Created at"))
-    is_display = models.BooleanField(default=True)
-    is_edited = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
-
-    def __str__(self) -> str:
-        return self.name
 
 
 class CaseInsensitiveCharField(models.CharField):
@@ -164,29 +149,6 @@ class Project(models.Model):
         verbose_name_plural = _("Projects")
 
 
-class ProjectPolygon(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
-        "Client Associated with this polygon"), verbose_name=_("Client"))
-    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
-        "Project Associated with this polygon"), verbose_name=_("Project"))
-    geom = models.PolygonField(srid=4326, dim=2, null=True, blank=True)
-    attributes = models.JSONField(default=dict,  null=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
-        "The person who created the polygon"), verbose_name=_("Created by"))
-    created_at = models.DateTimeField(default=timezone.now)
-    is_display = models.BooleanField(default=True)
-    is_edited = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
-
-    objects = GeoManager()
-
-    def __str__(self):
-        return self.project.name
-
-    class Meta:
-        verbose_name_plural = 'ProjectPolygon'
-
-
 def validate_png(value):
     if not value.name.endswith('.png'):
         raise ValidationError("Only PNG files are allowed.")
@@ -226,6 +188,29 @@ class RasterData(models.Model):
 
     class Meta:
         verbose_name_plural = 'Property'
+
+
+class ProjectPolygon(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Client Associated with this polygon"), verbose_name=_("Client"))
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Project Associated with this polygon"), verbose_name=_("Project"))
+    geom = models.PolygonField(srid=4326, dim=2, null=True, blank=True)
+    attributes = models.JSONField(default=dict,  null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "The person who created the polygon"), verbose_name=_("Created by"))
+    created_at = models.DateTimeField(default=timezone.now)
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    objects = GeoManager()
+
+    def __str__(self):
+        return self.project.name
+
+    class Meta:
+        verbose_name_plural = 'ProjectPolygon'
 
 
 class OBJData(models.Model):
@@ -548,33 +533,6 @@ class PointData(models.Model):
         return str(self.project.name)
 
 
-class UserRole(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,  help_text=_(
-        "The person who created the project"), verbose_name=_("User"), related_name="roles_as_user")
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, help_text=_(
-        "Role of the user"), verbose_name=_("Role"))
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
-        "Client Associated with this"), verbose_name=_("Client"))
-    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
-        "Project"), verbose_name=_("Project"), related_name="projects_as_user")
-    properti = models.ForeignKey(RasterData, on_delete=models.SET_NULL, null=True, help_text=_(
-        "User related to this property"), verbose_name=_("Property"))
-    created_at = models.DateTimeField(default=timezone.now, help_text=_(
-        "Creation date"), verbose_name=_("Created at"))
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
-        "The person who created"), verbose_name=_("Created by"), related_name="roles_as_creator")
-    is_display = models.BooleanField(default=True)
-    is_edited = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
-
-    def __str__(self) -> str:
-        if self.client:
-            return self.user.username + " | " + self.client.name + " | " + self.role.name
-        else:
-            return self.user.username + " | " + self.role.name
-
-
 # Model for inspection
 class StandardInspection(models.Model):
     name = CaseInsensitiveCharField(max_length=255, help_text=_(
@@ -782,3 +740,27 @@ class MeasuringFileUpload(models.Model):
 
     class Meta:
         verbose_name_plural = 'MeasuringFileUpload'
+
+
+class Role(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, help_text=_(
+        "Name of the Role"), verbose_name=_("Name"), default="my_role")
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "User associated with this role"), verbose_name=_("User"))
+    group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Group associated with this role"), verbose_name=_("Group"))
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Client associated with this role"), verbose_name=_("Client"))
+    project = models.ManyToManyField(Project, help_text=_(
+        "Project associated with this role"), verbose_name=_("Project"))
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "The person who created"), verbose_name=_("Created by"), related_name="role_created_by")
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return self.name
