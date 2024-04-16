@@ -10,7 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status, generics
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .models import Client, Project, GlobalStandardCategory, GlobalSubCategory, GlobalCategory, GlobalCategoryStyle, ProjectPolygon
 from .models import StandardCategory, SubCategory, Category, CategoryStyle
 from .models import PolygonData, LineStringData, PointData
@@ -26,6 +26,7 @@ from .serializers import RoleSerializer, UserSerializer
 from .serializers import StandardCategoryControlSerializer
 from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer
 from .serializers import MeasuringFileUploadSerializer
+from .serializers import GroupSerializer
 from .filters import ProjectFilter, ProjectPolygonFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
@@ -67,6 +68,11 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.pk,
             'username': user.username
         })
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
 
 
 # For Roles

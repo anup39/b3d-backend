@@ -10,6 +10,7 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .models import StandardInspection, SubInspection, Inspection
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 from .models import MeasuringFileUpload
+from django.contrib.auth.models import Group
 import json
 
 
@@ -612,16 +613,31 @@ class MeasuringFileUploadSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class GroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Group
+        fields = ['id', 'name']
+
+
 # For Roles
 class RoleSerializer(serializers.ModelSerializer):
     permissions = serializers.SerializerMethodField('get_permissions')
     group_name = serializers.SerializerMethodField('get_group_name')
+    user_name = serializers.SerializerMethodField('get_user_name')
+    email = serializers.SerializerMethodField('get_email')
 
     def get_permissions(self, obj):
         return obj.group.permissions.values_list('codename', flat=True)
 
     def get_group_name(self, obj):
         return obj.group.name
+
+    def get_user_name(self, obj):
+        return obj.user.username
+
+    def get_email(self, obj):
+        return obj.user.email
 
     class Meta:
         model = Role

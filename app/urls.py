@@ -11,13 +11,14 @@ from django.urls import path, include
 from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionViewSet
 from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPhotoGeometryViewSet
 from .views import MeasuringFileUploadViewSet
-
+from .views import GroupViewSet
 
 router = routers.DefaultRouter()
 
 
 router.register('users', UserViewSet)
 router.register('roles', RoleViewSet)
+router.register('groups', GroupViewSet)
 router.register('global-standard-category', GlobalStandardCategoryViewSet)
 router.register('global-sub-category', GlobalSubCategoryViewSet)
 router.register('global-category', GlobalCategoryViewSet)
