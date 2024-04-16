@@ -626,6 +626,7 @@ class RoleSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField('get_group_name')
     user_name = serializers.SerializerMethodField('get_user_name')
     email = serializers.SerializerMethodField('get_email')
+    project = ProjectSerializer(many=True, read_only=True)
 
     def get_permissions(self, obj):
         return obj.group.permissions.values_list('codename', flat=True)
