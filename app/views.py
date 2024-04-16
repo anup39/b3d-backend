@@ -71,12 +71,13 @@ class CustomAuthToken(ObtainAuthToken):
 
 
 class GroupViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'delete']
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
 
 # For Roles
-class RoleViewSet(viewsets.ReadOnlyModelViewSet):
+class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = RoleSerializer
     filter_backends = [DjangoFilterBackend]
