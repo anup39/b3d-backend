@@ -48,8 +48,8 @@ from rest_framework.authentication import TokenAuthentication
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializer
 
@@ -73,6 +73,8 @@ class CustomAuthToken(ObtainAuthToken):
 class RoleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Role.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = RoleSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user']
 
 
 # For standard Categories
@@ -143,8 +145,6 @@ class ClientViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-   
-
 
 # TODO When project created create the userproject also
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -153,7 +153,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = ProjectFilter
     search_fields = ['name', 'description']
-
 
 
 class ProjectPolygonGeoJSONAPIView(viewsets.ModelViewSet):

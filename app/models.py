@@ -746,7 +746,7 @@ class Role(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, help_text=_(
         "Name of the Role"), verbose_name=_("Name"), default="my_role")
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, help_text=_(
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "User associated with this role"), verbose_name=_("User"))
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, help_text=_(
         "Group associated with this role"), verbose_name=_("Group"))

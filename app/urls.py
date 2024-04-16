@@ -17,7 +17,7 @@ router = routers.DefaultRouter()
 
 
 router.register('users', UserViewSet)
-router.register('global-roles', RoleViewSet)
+router.register('roles', RoleViewSet)
 router.register('global-standard-category', GlobalStandardCategoryViewSet)
 router.register('global-sub-category', GlobalSubCategoryViewSet)
 router.register('global-category', GlobalCategoryViewSet)

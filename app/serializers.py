@@ -614,11 +614,14 @@ class MeasuringFileUploadSerializer(serializers.ModelSerializer):
 
 # For Roles
 class RoleSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField('get_full_name')
+    permissions = serializers.SerializerMethodField('get_permissions')
+    group_name = serializers.SerializerMethodField('get_group_name')
 
-    def get_full_name(self, obj):
-        full_name = obj.name
-        return full_name
+    def get_permissions(self, obj):
+        return obj.group.permissions.values_list('codename', flat=True)
+
+    def get_group_name(self, obj):
+        return obj.group.name
 
     class Meta:
         model = Role
