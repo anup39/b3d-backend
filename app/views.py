@@ -81,7 +81,7 @@ class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = RoleSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user']
+    filterset_fields = ['user', 'client', 'project']
 
 
 # For standard Categories
