@@ -750,11 +750,11 @@ class Role(models.Model):
         "User associated with this role"), verbose_name=_("User"))
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, help_text=_(
         "Group associated with this role"), verbose_name=_("Group"))
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, blank=True,  help_text=_(
         "Client associated with this role"), verbose_name=_("Client"))
     project = models.ManyToManyField(Project, help_text=_(
         "Project associated with this role"), verbose_name=_("Project"), blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,  help_text=_(
         "The person who created"), verbose_name=_("Created by"), related_name="role_created_by")
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))

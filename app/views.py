@@ -27,6 +27,7 @@ from .serializers import StandardCategoryControlSerializer
 from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerializer, LineStringDataGeojsonSerializer
 from .serializers import MeasuringFileUploadSerializer
 from .serializers import GroupSerializer
+from .serializers import RoleSerializerForProjects
 from .filters import ProjectFilter, ProjectPolygonFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
@@ -80,6 +81,13 @@ class GroupViewSet(viewsets.ModelViewSet):
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = RoleSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user', 'client', 'project']
+
+
+class RoleViewProjectSet(viewsets.ModelViewSet):
+    queryset = Role.objects.filter(is_deleted=False).order_by('-created_at')
+    serializer_class = RoleSerializerForProjects
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['user', 'client', 'project']
 

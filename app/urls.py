@@ -5,7 +5,7 @@ from .views import StandardCategoryViewSet, SubCategoryViewSet, CategoryViewSet,
 from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
-from .views import RoleViewSet, UserViewSet
+from .views import RoleViewSet, UserViewSet, RoleViewProjectSet
 from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView, MeasuringTableSummationView, DeleteUploadGeoJSONAPIView
 from django.urls import path, include
 from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionViewSet
@@ -18,6 +18,7 @@ router = routers.DefaultRouter()
 
 router.register('users', UserViewSet)
 router.register('roles', RoleViewSet)
+router.register('roles-for-projects', RoleViewProjectSet)
 router.register('groups', GroupViewSet)
 router.register('global-standard-category', GlobalStandardCategoryViewSet)
 router.register('global-sub-category', GlobalSubCategoryViewSet)

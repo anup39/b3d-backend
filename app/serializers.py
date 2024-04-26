@@ -626,7 +626,30 @@ class RoleSerializer(serializers.ModelSerializer):
     group_name = serializers.SerializerMethodField('get_group_name')
     user_name = serializers.SerializerMethodField('get_user_name')
     email = serializers.SerializerMethodField('get_email')
-    project = ProjectSerializer(many=True, read_only=True)
+
+    def get_permissions(self, obj):
+        return obj.group.permissions.values_list('codename', flat=True)
+
+    def get_group_name(self, obj):
+        return obj.group.name
+
+    def get_user_name(self, obj):
+        return obj.user.username
+
+    def get_email(self, obj):
+        return obj.user.email
+
+    class Meta:
+        model = Role
+        fields = "__all__"
+
+
+class RoleSerializerForProjects(serializers.ModelSerializer):
+    permissions = serializers.SerializerMethodField('get_permissions')
+    group_name = serializers.SerializerMethodField('get_group_name')
+    user_name = serializers.SerializerMethodField('get_user_name')
+    email = serializers.SerializerMethodField('get_email')
+    project = ProjectSerializer(many=True)
 
     def get_permissions(self, obj):
         return obj.group.permissions.values_list('codename', flat=True)
