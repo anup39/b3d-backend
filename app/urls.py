@@ -6,7 +6,7 @@ from .views import PolygonDataViewSet, LineStringDataViewSet, PointDataViewSet
 from .views import RasterDataViewSet
 from .views import MapMeasuringsViewSets
 from .views import RoleViewSet, UserViewSet, RoleViewProjectSet
-from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView, MeasuringTableSummationView, DeleteUploadGeoJSONAPIView
+from .views import PolygonDataGeoJSONAPIView, LineStringDataGeoJSONAPIView, PointDataGeoJSONAPIView, UploadGeoJSONAPIView, UploadCategoriesView, UploadCategoriesSaveView, MeasuringTableSummationView, MeasuringTableSummationPieView,  DeleteUploadGeoJSONAPIView
 from django.urls import path, include
 from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionViewSet
 from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPhotoGeometryViewSet
@@ -69,5 +69,8 @@ urlpatterns = [
     path('save-upload/', UploadCategoriesSaveView.as_view(),
          name='save_upload'),
     path('measuring-table-summation/', MeasuringTableSummationView.as_view()),
+    path('measuring-table-pie-summation/',
+         MeasuringTableSummationPieView.as_view()),
+
 
 ]

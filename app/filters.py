@@ -5,9 +5,14 @@ from .models import GlobalSubCategory, GlobalCategory, GlobalCategoryStyle
 from .models import RasterData
 
 
+class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+    pass
+
 # Project filter
+
+
 class ProjectFilter(django_filters.FilterSet):
-    id = django_filters.CharFilter(field_name='id')
+    id = NumberInFilter(field_name='id', lookup_expr='in')
     client = django_filters.CharFilter(field_name='client__id')
 
     class Meta:
