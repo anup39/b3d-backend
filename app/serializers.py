@@ -398,12 +398,12 @@ class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
         return obj.category.name
 
     def get_area(self, obj):
-        return str(round(obj.geom.area * 1000000, 2)) + " " + "ha"
+        return str(round(obj.geom.area * 1000000, 2)*10000) + " " + "square meters"
 
     def get_perimeter(self, obj):
         # print(dir(obj.geom.length))
         # return obj.geom.length
-        return str(round(obj.geom.length * 1000000, 2)) + " " + "miles"
+        return str(round(obj.geom.length * 1000000, 2) * 1609.34) + " " + "meters"
 
     # def get_centroid(self, obj):
     #     # print(dir(obj.geom.length))
@@ -483,7 +483,7 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
     def get_perimeter(self, obj):
         # print(dir(obj.geom.length))
         # return obj.geom.length
-        return str(round(obj.geom.length * 1000000, 2)) + " " + "miles"
+        return str(round(obj.geom.length * 1000000, 2) * 1609.34) + " " + "meters"
 
     def get_type_of_geometry(self, obj):
         return 'LineString'

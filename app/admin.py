@@ -43,6 +43,10 @@ class CategoryStyleAdmin(admin.ModelAdmin):
     list_filter = ('client', 'project')
 
 
+class RoleAdmin(admin.ModelAdmin):
+    list_filter = ('user',)
+
+
 models = [
     ProjectPolygon,
     RasterData,
@@ -73,7 +77,7 @@ admin.site.register(GlobalSubCategory)
 admin.site.register(GlobalCategoryStyle)
 
 
-admin.site.register(Role)
+admin.site.register(Role, RoleAdmin)
 admin.site.register(OBJData)
 
 admin.site.register(StandardInspection)

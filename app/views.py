@@ -696,7 +696,7 @@ class MeasuringTableSummationView(APIView):
         client = Client.objects.get(id=client_id)
         categories = Category.objects.filter(
             client=client
-        ).values('id', 'type_of_geometry', 'view_name', 'description', 'name')
+        ).values('id', 'type_of_geometry', 'view_name', 'description', 'name',)
 
         for category in categories:
             style = CategoryStyle.objects.get(category=category['id'])
