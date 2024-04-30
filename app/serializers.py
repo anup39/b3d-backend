@@ -366,8 +366,8 @@ class StandardCategoryControlSerializer(serializers.ModelSerializer):
         return []
 
     def get_sub_category(self, obj):
-        print(dir(self), 'queryset')
-        print(dir(obj))
+        # print(dir(self), 'queryset')
+        # print(dir(obj))
         queryset = SubCategory.objects.filter(
             standard_category=obj.id)
         serialized = SubCategoryControlSerializer(queryset, many=True)
@@ -400,13 +400,13 @@ class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
 
     def get_area(self, obj):
         obj.geom.transform(32633)
-        return str(round(obj.geom.area, 2)) + " " + "meter square"
+        # print(round(obj.geom.area, 2), 'area')
+        return str(round(obj.geom.area, 2)) + " " + "m²"
 
     def get_perimeter(self, obj):
-        # print(dir(obj.geom.length))
-        # return obj.geom.length
         obj.geom.transform(32633)
-        return str(round(obj.geom.length, 2)) + " " + "meters"
+        # print(round(obj.geom.length, 2), 'length')
+        return str(round(obj.geom.length, 2)) + " " + "m"
 
     # def get_centroid(self, obj):
     #     # print(dir(obj.geom.length))
@@ -484,10 +484,9 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
         return obj.category.name
 
     def get_length(self, obj):
-        # print(dir(obj.geom.length))
-        # return obj.geom.length
         obj.geom.transform(32633)
-        return str(round(obj.geom.length, 2)) + " " + "meters"
+        # print(round(obj.geom.length, 2), 'length')
+        return str(round(obj.geom.length, 2)) + " " + "m"
 
     def get_type_of_geometry(self, obj):
         return 'LineString'
