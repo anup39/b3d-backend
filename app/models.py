@@ -133,6 +133,8 @@ class Project(models.Model):
         "A label used to describe the project"), verbose_name=_("Name"))
     description = models.TextField(default="", help_text=_(
         "More in-depth description of the project"), verbose_name=_("Description"))
+    url = models.TextField(default="", help_text=_(
+        "3d url of the project"), verbose_name=_("URL"), null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created the project"), verbose_name=_("Created by"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
