@@ -708,6 +708,7 @@ class MeasuringTableSummationView(APIView):
                 category['symbol'] = {"color": style.fill,
                                       "type_of_geometry": "Polygon"}
                 category['color'] = style.fill
+                category['checked'] = False
 
             if category['type_of_geometry'] == "LineString":
                 category['label'] = category['name']
@@ -715,6 +716,7 @@ class MeasuringTableSummationView(APIView):
                 category['symbol'] = {"color": style.fill,
                                       "type_of_geometry": "LineString"}
                 category['color'] = style.fill
+                category['checked'] = False
 
             if category['type_of_geometry'] == "Point":
                 category['label'] = category['name']
@@ -722,6 +724,7 @@ class MeasuringTableSummationView(APIView):
                 category['symbol'] = {"color": style.fill,
                                       "type_of_geometry": "Point"}
                 category['color'] = style.fill
+                category['checked'] = False
 
         return Response({"rows": categories})
 
@@ -744,6 +747,7 @@ class MeasuringTableSummationPieView(APIView):
                 category['symbol'] = {"color": style.fill,
                                       "type_of_geometry": "Polygon"}
                 category['color'] = style.fill
+                category['checked'] = False
 
         return Response({"rows": categories})
 
