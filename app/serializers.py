@@ -12,6 +12,7 @@ from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 from .models import MeasuringFileUpload
 from django.contrib.auth.models import Group
 import json
+from shapely.wkt import loads
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -398,12 +399,14 @@ class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
         return obj.category.name
 
     def get_area(self, obj):
-        return str(round(obj.geom.area * 1000000, 2)*10000) + " " + "square meters"
+        obj.geom.transform(32633)
+        return str(round(obj.geom.area, 2)) + " " + "meter square"
 
     def get_perimeter(self, obj):
         # print(dir(obj.geom.length))
         # return obj.geom.length
-        return str(round(obj.geom.length * 1000000, 2) * 1609.34) + " " + "meters"
+        obj.geom.transform(32633)
+        return str(round(obj.geom.length, 2)) + " " + "meters"
 
     # def get_centroid(self, obj):
     #     # print(dir(obj.geom.length))
@@ -467,7 +470,7 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
     property = serializers.SerializerMethodField('get_property')
     category = serializers.SerializerMethodField('get_category')
     category_id = serializers.SerializerMethodField('get_category_id')
-    perimeter = serializers.SerializerMethodField('get_perimeter')
+    length = serializers.SerializerMethodField('get_length')
     type_of_geometry = serializers.SerializerMethodField(
         'get_type_of_geometry')
     view_name = serializers.SerializerMethodField(
@@ -480,10 +483,11 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
     def get_category(self, obj):
         return obj.category.name
 
-    def get_perimeter(self, obj):
+    def get_length(self, obj):
         # print(dir(obj.geom.length))
         # return obj.geom.length
-        return str(round(obj.geom.length * 1000000, 2) * 1609.34) + " " + "meters"
+        obj.geom.transform(32633)
+        return str(round(obj.geom.length, 2)) + " " + "meters"
 
     def get_type_of_geometry(self, obj):
         return 'LineString'
@@ -501,7 +505,7 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
         model = LineStringData
         geo_field = "geom"
         fields = ('id', 'property', 'category',
-                  'perimeter', 'type_of_geometry', 'view_name', 'category_id', 'component')
+                  'length', 'type_of_geometry', 'view_name', 'category_id', 'component')
 
 
 # For Inspection types
