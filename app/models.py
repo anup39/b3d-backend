@@ -766,3 +766,24 @@ class Role(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Indoor(models.Model):
+    name = models.CharField(max_length=255, help_text=_(
+        "Indoor Name"), verbose_name=_("Name"))
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Client related to this indoor"), verbose_name=_("Client"))
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, help_text=_(
+        "Project related to this indoor"), verbose_name=_("Project"))
+    url = models.TextField(default="",  help_text=_(
+        "Url for indoor"), verbose_name=_("Url"), blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+        "The person who created"), verbose_name=_("Created by"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    is_display = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.project.name + "|" + self.name

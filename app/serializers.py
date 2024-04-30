@@ -10,6 +10,7 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .models import StandardInspection, SubInspection, Inspection
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 from .models import MeasuringFileUpload
+from .models import Indoor
 from django.contrib.auth.models import Group
 import json
 from shapely.wkt import loads
@@ -668,4 +669,10 @@ class RoleSerializerForProjects(serializers.ModelSerializer):
 
     class Meta:
         model = Role
+        fields = "__all__"
+
+
+class IndoorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Indoor
         fields = "__all__"

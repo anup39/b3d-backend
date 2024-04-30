@@ -11,6 +11,7 @@ from .models import OBJData
 from .models import StandardInspection, SubInspection, Inspection
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 from .models import MeasuringFileUpload
+from .models import Indoor
 
 
 class BaseAdmin(admin.ModelAdmin):
@@ -88,3 +89,4 @@ admin.site.register(InspectionPhoto)
 admin.site.register(InpsectionPhotoGeometry)
 
 admin.site.register(MeasuringFileUpload)
+admin.site.register(Indoor)

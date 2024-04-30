@@ -17,6 +17,7 @@ from .models import PolygonData, LineStringData, PointData
 from .models import RasterData
 from .models import Role
 from .models import MeasuringFileUpload
+from .models import Indoor
 from .serializers import ClientSerializer, ProjectSerializer, ProjectPolygonGeojsonSerializer
 from .serializers import GlobalStandardCategorySerializer, GlobalSubCategorySerializer, GlobalCategorySerializer, GlobalCategoryStyleSerializer
 from .serializers import StandardCategorySerializer, SubCategorySerializer, CategorySerializer, CategoryStyleSerializer
@@ -28,6 +29,7 @@ from .serializers import PolygonDataGeojsonSerializer, PointDataGeojsonSerialize
 from .serializers import MeasuringFileUploadSerializer
 from .serializers import GroupSerializer
 from .serializers import RoleSerializerForProjects
+from .serializers import IndoorSerializer
 from .filters import ProjectFilter, ProjectPolygonFilter
 from .filters import StandardCategoryFilter, SubCategoryFilter, CategoryFilter, CategoryStyleFilter
 from .filters import GlobalSubCategoryFilter, GlobalCategoryFilter, GlobalCategoryStyleFilter
@@ -804,4 +806,13 @@ class InpsectionPhotoGeometryViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend,]
     filterset_fields = ['inspection_photo',
                         'standard_inspection', 'sub_inspection', 'inspection']
+    pagination_class = None
+
+
+class IndoorViewSet(viewsets.ModelViewSet):
+    queryset = Indoor.objects.filter(
+        is_deleted=False).order_by('created_at')
+    serializer_class = IndoorSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = ['project']
     pagination_class = None

@@ -12,6 +12,7 @@ from .views import StandardInspectionViewSet, SubInspectionViewSet, InspectionVi
 from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPhotoGeometryViewSet
 from .views import MeasuringFileUploadViewSet
 from .views import GroupViewSet
+from .views import IndoorViewSet
 
 router = routers.DefaultRouter()
 
@@ -49,6 +50,8 @@ router.register('inspection-photo', InspectionPhotoViewSet)
 router.register('inspection-photo-geometry', InpsectionPhotoGeometryViewSet)
 
 router.register('measuring-file-upload', MeasuringFileUploadViewSet)
+
+router.register('indoor', IndoorViewSet)
 
 
 urlpatterns = [
