@@ -293,11 +293,13 @@ class CategoryControlSerializer(serializers.ModelSerializer):
         return []
 
     def get_fill_opacity(self, obj):
-        category_style = CategoryStyle.objects.get(category=obj.id)
+        category_style = GlobalCategoryStyle.objects.get(
+            category=obj.global_category)
         return category_style.fill_opacity
 
     def get_fill_color(self, obj):
-        category_style = CategoryStyle.objects.get(category=obj.id)
+        category_style = GlobalCategoryStyle.objects.get(
+            category=obj.global_category)
         return category_style.fill
 
     class Meta:
