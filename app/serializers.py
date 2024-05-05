@@ -140,6 +140,13 @@ class GlobalCategorySerializer(serializers.ModelSerializer):
     sub_category_name = serializers.SerializerMethodField(
         'get_sub_category_name')
 
+    style = serializers.SerializerMethodField('get_style')
+
+    def get_style(self, obj):
+        category_style = GlobalCategoryStyle.objects.get(
+            category=obj)
+        return GlobalCategoryStyleSerializer(category_style).data
+
     def get_full_name(self, obj):
         full_name = obj.sub_category.standard_category.name + \
             " | " + obj.sub_category.name + " | " + obj.name
@@ -269,6 +276,10 @@ class CategoryControlSerializer(serializers.ModelSerializer):
     extent = serializers.SerializerMethodField('get_extent')
     fill_opacity = serializers.SerializerMethodField('get_fill_opacity')
     fill_color = serializers.SerializerMethodField('get_fill_color')
+    global_category = serializers.SerializerMethodField('get_global_category')
+
+    def get_global_category(self, obj):
+        return obj.global_category.id
 
     def get_label(self, obj):
         return obj.name
@@ -305,7 +316,7 @@ class CategoryControlSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'client', 'label',
-                  'checked', 'extent', 'view_name', 'type_of_geometry', 'fill_opacity', 'fill_color',]
+                  'checked', 'extent', 'view_name', 'type_of_geometry', 'fill_opacity', 'fill_color', 'global_category']
 
 
 class SubCategoryControlSerializer(serializers.ModelSerializer):
