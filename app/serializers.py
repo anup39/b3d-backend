@@ -143,9 +143,11 @@ class GlobalCategorySerializer(serializers.ModelSerializer):
     style = serializers.SerializerMethodField('get_style')
 
     def get_style(self, obj):
-        category_style = GlobalCategoryStyle.objects.get(
-            category=obj)
-        return GlobalCategoryStyleSerializer(category_style).data
+        if GlobalCategoryStyle.objects.filter(category=obj).exists():
+            category_style = GlobalCategoryStyle.objects.get(category=obj)
+            return GlobalCategoryStyleSerializer(category_style).data
+        else:
+            return {}
 
     def get_full_name(self, obj):
         full_name = obj.sub_category.standard_category.name + \

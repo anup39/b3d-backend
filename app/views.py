@@ -49,6 +49,7 @@ from .serializers import InspectionReportSerializer, InspectionPhotoSerializer, 
 from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 from fuzzywuzzy import process
 from rest_framework.authentication import TokenAuthentication
+import glob
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -382,10 +383,17 @@ class UploadGeoJSONAPIView(APIView):
         type_of_file = request.data.get('type_of_file')
         filename = str(uuid.uuid4()) + '_' + file.name
         try:
-            destination_path = f"media/Uploads/UploadVector/{filename}"
-            with open(destination_path, 'wb') as destination_file:
-                for chunk in file.chunks():
-                    destination_file.write(chunk)
+            if type_of_file == "Shapefile":
+                destination_path = f"media/Uploads/UploadVector/Shapefiles/{filename}"
+                with open(destination_path, 'wb') as destination_file:
+                    for chunk in file.chunks():
+                        destination_file.write(chunk)
+            else:
+                destination_path = f"media/Uploads/UploadVector/{filename}"
+                with open(destination_path, 'wb') as destination_file:
+                    for chunk in file.chunks():
+                        destination_file.write(chunk)
+
         except Exception as e:
             return JsonResponse({'message': 'Error saving file'}, status=500)
 
@@ -393,31 +401,83 @@ class UploadGeoJSONAPIView(APIView):
         if type_of_file == "Shapefile":
             ZIP_FILE_PATH = destination_path
             filename_no_ext = ZIP_FILE_PATH.split("/")[-1].split(".")[0]
-            EXTRACTED_PATH = f"media/Uploads/UploadVector/{filename_no_ext}/"
+            EXTRACTED_PATH = f"media/Uploads/UploadVector/Shapefiles/{filename_no_ext}/"
             os.makedirs(EXTRACTED_PATH, exist_ok=True)
             with zipfile.ZipFile(ZIP_FILE_PATH, 'r') as zip_ref:
                 zip_ref.extractall(EXTRACTED_PATH)
-            extracted_files = os.listdir(EXTRACTED_PATH)
-            folder_paths = [f for f in extracted_files if os.path.isdir(
-                os.path.join(EXTRACTED_PATH, f))]
 
-            if not folder_paths:
+            shp_files = glob.glob(f"{EXTRACTED_PATH}*.shp")
+
+            # Take the first matching .shp file
+            first_shp_file = shp_files[0] if shp_files else None
+
+            if first_shp_file:
+                print(first_shp_file, 'first shapefile')
+                gdf = gpd.read_file(first_shp_file)
+                # Convert to GeoJSON
+                geojson = gdf.to_crs(epsg='4326').to_json()
+
+                # Save GeoJSON to a file
+                with open(f"media/Uploads/UploadVector/{filename_no_ext}.json", 'w') as f:
+                    f.write(geojson)
+
+                print('GeoJSON saved to output.geojson')
+
+            else:
+                return JsonResponse({"message": "No .shp files found."})
+
+            # extracted_files = os.listdir(EXTRACTED_PATH)
+            # folder_paths = [f for f in extracted_files if os.path.isdir(
+            #     os.path.join(EXTRACTED_PATH, f))]
+
+            # if not folder_paths:
+            #     return JsonResponse({'message': 'No layers found.'})
+
+            # SHAPEFILE_PATHS = []
+
+            # for folder_path in folder_paths:
+            #     # Check if .shp file exists in the folder
+            #     shp_file_path = os.path.join(
+            #         EXTRACTED_PATH, folder_path, f"{folder_path}.shp")
+            #     if os.path.isfile(shp_file_path):
+            #         SHAPEFILE_PATHS.append(shp_file_path)
+
+            # if not SHAPEFILE_PATHS:
+            #     # No .shp files found in the folders
+            #     return JsonResponse({'message': 'No .shp files found.'})
+
+            # return Response({"file": filename, 'layers': layers,  "result": geojson_layers})
+            GEOJSON_PATH = f"media/Uploads/UploadVector/{filename_no_ext}.json"
+            if not GEOJSON_PATH:
                 return JsonResponse({'message': 'No layers found.'})
+            geojson_layers = []
+            layers = []
+            try:
+                start_time = time.time()
+                gdf = gpd.read_file(GEOJSON_PATH)
+                gdf = gdf.apply(lambda col: col.astype(
+                    str) if col.dtype == 'datetime64[ns]' else col)
+                end_time = time.time()
+                execution_time = end_time - start_time
+                print(
+                    f'Time taken to execute the code: {execution_time} seconds')
+            except Exception as e:
+                delete_geojson_file(filename)
+                return JsonResponse({'message': f'Error reading the file. {str(e)}'}, status=500)
+            geojson_data = gdf.to_crs(epsg='4326').to_json()
+            layer_name = GEOJSON_PATH.split("/")[-1].split(".")[0]
+            filename_parts = layer_name.split('_')
+            layer_name = filename_parts[1] if len(
+                filename_parts) > 1 else layer_name
+            geojson_dict = json.loads(geojson_data)
+            bounding_box_4326 = gdf.to_crs(epsg='4326').total_bounds
+            geojson_layers.append(
+                {"layername": layer_name, "extent": [
+                    bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]], "geojson": geojson_dict})
+            layers.append({"layername": layer_name, "extent": [
+                bounding_box_4326[0], bounding_box_4326[1], bounding_box_4326[2], bounding_box_4326[3]]})
+            return Response({"file": f"{filename_no_ext}.json", 'layers': layers,  "result": geojson_layers})
 
-            SHAPEFILE_PATHS = []
-
-            for folder_path in folder_paths:
-                # Check if .shp file exists in the folder
-                shp_file_path = os.path.join(
-                    EXTRACTED_PATH, folder_path, f"{folder_path}.shp")
-                if os.path.isfile(shp_file_path):
-                    SHAPEFILE_PATHS.append(shp_file_path)
-
-            if not SHAPEFILE_PATHS:
-                # No .shp files found in the folders
-                return JsonResponse({'message': 'No .shp files found.'})
-
-            return Response({"file": filename, 'layers': layers,  "result": geojson_layers})
         else:
             GEOJSON_PATH = destination_path
             if not GEOJSON_PATH:
@@ -491,7 +551,12 @@ class UploadCategoriesView(APIView):
                 return Response({'message': 'No layers found.'})
 
             gdf = gpd.read_file(GEOJSON_PATH)
-            column_name = 'name' if 'name' in gdf.columns else 'undertype'
+            if 'name' in gdf.columns:
+                column_name = 'name'
+            elif 'undertype' in gdf.columns:
+                column_name = 'undertype'
+            else:
+                column_name = 'type'
             distinct_values = gdf[column_name]
 
             unique_cleaned_distinct_values = distinct_values.apply(
