@@ -73,7 +73,7 @@ class GlobalCategory(models.Model):
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
     type_of_geometry = models.CharField(max_length=255, default="Polygon")
-    extra_fileds = models.JSONField(default=dict,  null=True)
+    extra_fields = models.JSONField(default=dict,  null=True, blank=True)
     is_display = models.BooleanField(default=True)
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
