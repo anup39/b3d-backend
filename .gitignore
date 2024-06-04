@@ -16,3 +16,8 @@ __pycache__/
 celerybeat-schedule
 geoserver_data
 data
+
+./optimized.zip
+./media.zip
+
+backup
