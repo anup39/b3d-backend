@@ -50,6 +50,9 @@ from .models import InspectionReport, InspectionPhoto, InpsectionPhotoGeometry
 from fuzzywuzzy import process
 from rest_framework.authentication import TokenAuthentication
 import glob
+import rasterio
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -212,6 +215,38 @@ class RasterDataViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             id = serializer.data.get('id')
+
+            # #repr
+            # # Open your source raster file
+            # with rasterio.open(file_path) as src:
+            #     transform, width, height = calculate_default_transform(
+            #         src.crs, 'EPSG:3857', src.width, src.height, *src.bounds)
+            #     kwargs = src.meta.copy()
+            #     kwargs.update({
+            #         'crs': 'EPSG:3857',
+            #         'transform': transform,
+            #         'width': width,
+            #         'height': height,
+            #         # 'compress': 'ZSTD'
+            #     })
+
+            #     # Create a new raster file with the new coordinate system
+            #     reprojected_file_path = file_path.replace(".tif", "_reprojected.tif")
+
+            #     with rasterio.open(reprojected_file_path, 'w', **kwargs) as dst:
+            #         for i in range(1, src.count + 1):
+            #             reproject(
+            #                 source=rasterio.band(src, i),
+            #                 destination=rasterio.band(dst, i),
+            #                 src_transform=src.transform,
+            #                 src_crs=src.crs,
+            #                 dst_transform=transform,
+            #                 dst_crs='EPSG:3857',
+            #                 resampling=Resampling.nearest)
+
+            # # Update the file_path to point to the new reprojected file
+            # file_path = reprojected_file_path
+
             output_folder = os.path.join(settings.BASE_DIR, "optimized")
             result = handleCreateBandsNormal_.delay(
                 file_path=file_path, raster_id=id, output_folder=output_folder, model="RasterData")
