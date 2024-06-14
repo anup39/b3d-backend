@@ -190,30 +190,41 @@ class RasterDataViewSet(viewsets.ModelViewSet):
     filterset_class = RasterDataFilter
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        id = serializer.data.get('id')
-        file_path = os.path.join(
-            settings.MEDIA_ROOT, serializer.data.get("path_of_file"))
-        headers = self.get_success_headers(serializer.data)
-        output_folder = os.path.join(settings.BASE_DIR, "optimized")
-        # result = handleCreateBandsNormal(file_path=file_path,raster_id=id,output_folder= output_folder)
+        chunk = request.FILES['tif_file']
+        chunk_number = int(request.data['chunk_number'])
+        total_chunks = int(request.data['total_chunks'])
+        file_name = request.data['file_name']
+        file_name_without_extension = os.path.splitext(file_name)[0]
+        uuid_ =request.data['uuid']
+        file_path = os.path.join(settings.MEDIA_ROOT, "Uploads", "RasterData", file_name_without_extension+"_"+uuid_+".tif")
+      
 
-        result = handleCreateBandsNormal_.delay(
-            file_path=file_path, raster_id=id, output_folder=output_folder, model="RasterData")
-        task_id = result.task_id
+        with open(file_path, 'ab') as f:
+            f.write(chunk.read())
+        
+        if chunk_number == total_chunks:
+            print ("Chunk upload completed")
+            request.data['file_path'] = file_path
+            request.data['tif_file']=None
+            request.data['file_name'] = file_name_without_extension+"_"+uuid_+".tif"
+            # File upload completed
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            id = serializer.data.get('id')
+            output_folder = os.path.join(settings.BASE_DIR, "optimized")
+            result = handleCreateBandsNormal_.delay(
+                file_path=file_path, raster_id=id, output_folder=output_folder, model="RasterData")
+            task_id = result.task_id
+            # Update the RasterData instance with the task_id
+            raster_data_instance = RasterData.objects.get(id=id)
+            raster_data_instance.task_id = task_id
+            raster_data_instance.save()
+            if result:
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"message": "Chunk uploaded successfully" , "filename":file_name ,"chunk_number":chunk_number,"total_chunks":total_chunks}, status=status.HTTP_200_OK)
 
-        # Update the RasterData instance with the task_id
-        raster_data_instance = RasterData.objects.get(id=id)
-        raster_data_instance.task_id = task_id
-        # TODO : Check in local why the task id not saved to model
-
-        raster_data_instance.save()  # Save the updated instance
-
-        if result:
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return Response({"error": "Subprocess commands failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # For Measuring File Uploads

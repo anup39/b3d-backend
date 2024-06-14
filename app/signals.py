@@ -8,10 +8,10 @@ from django.conf import settings
 @receiver(pre_delete, sender=RasterData)
 def delete_raster_data_files(sender, instance, **kwargs):
     # Delete the associated file from the media storage
-    if instance.tif_file:
-        if os.path.isfile(instance.tif_file.path):
-            print(instance.tif_file.path)
-            os.remove(instance.tif_file.path)
+    if instance.file_path:
+        if os.path.isfile(instance.file_path):
+            print(instance.file_path)
+            os.remove(instance.file_path)
 
      # Delete the associated file from the media storage
     if instance.screenshot_image:

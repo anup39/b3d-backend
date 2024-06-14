@@ -170,7 +170,9 @@ class RasterData(models.Model):
         "Name for the rater data"), verbose_name=_("Name"))
     file_name = models.CharField(max_length=255, help_text=_(
         "Name for the rater file"), verbose_name=_("File Name"), default="")
-    tif_file = models.FileField(upload_to="Uploads/RasterData")
+    tif_file = models.FileField(upload_to="Uploads/RasterData",null=True, blank=True)
+    file_path = models.CharField(max_length=255, help_text=_(
+        "Path for the raster file"), verbose_name=_("File Path"), default="")
     progress = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=255, help_text=_(
         "Status for the task"), verbose_name=_("Status"), default="Uploaded")
