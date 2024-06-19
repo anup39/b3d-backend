@@ -169,7 +169,7 @@ class ClientViewSet(viewsets.ModelViewSet):
 
 # TODO When project created create the userproject also
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.filter(is_deleted=False).order_by('name')
+    queryset = Project.objects.filter(is_deleted=False).order_by('-name')
     serializer_class = ProjectSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = ProjectFilter
