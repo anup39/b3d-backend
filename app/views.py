@@ -169,7 +169,7 @@ class ClientViewSet(viewsets.ModelViewSet):
 
 # TODO When project created create the userproject also
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.filter(is_deleted=False).order_by('-name')
+    queryset = Project.objects.filter(is_deleted=False).order_by('name')
     serializer_class = ProjectSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = ProjectFilter
@@ -261,7 +261,36 @@ class RasterDataViewSet(viewsets.ModelViewSet):
         return Response({"message": "Chunk uploaded successfully" , "filename":file_name ,"chunk_number":chunk_number,"total_chunks":total_chunks}, status=status.HTTP_200_OK)
 
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        if instance.file_path:
+            if os.path.isfile(instance.file_path):
+                print(instance.file_path)
+                os.remove(instance.file_path)
 
+        # Delete the associated file from the media storage
+        if instance.screenshot_image:
+            if os.path.isfile(instance.screenshot_image.path):
+                print(instance.screenshot_image.path)
+                if not (instance.screenshot_image.path == f"{settings.BASE_DIR}/media/Uploads/RasterImage/raster_sample.png"):
+                    os.remove(instance.screenshot_image.path)
+
+        # Delete the optimized files
+        id_str = str(instance.id)
+        # Replace with the actual path to the 'optimized' folder
+        optimized_folder = f'{settings.BASE_DIR}/optimized/'
+        optimized_filenames = [f'{id_str}_red.tif',
+                            f'{id_str}_green.tif', f'{id_str}_blue.tif']
+
+        for filename in optimized_filenames:
+            file_path = os.path.join(optimized_folder, filename)
+            if os.path.isfile(file_path):
+                print(file_path, 'file path')
+                os.remove(file_path)
+            pass
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 # For Measuring File Uploads
 class MeasuringFileUploadViewSet(viewsets.ModelViewSet):
     queryset = MeasuringFileUpload.objects.filter(
