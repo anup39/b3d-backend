@@ -412,6 +412,8 @@ class PolygonData(models.Model):
         "Standard Category related to the polygon"), verbose_name=_("Standard Category"), null=True)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, help_text=_(
         "Sub Category related to the polygon"), verbose_name=_("Sub Category"), null=True)
+    global_category = models.ForeignKey(GlobalCategory, on_delete=models.SET_NULL, help_text=_(
+        "Global Category related to the polygon"), verbose_name=_("Global Category"), null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this polygon"), verbose_name=_("Category"), null=True)
     standard_category_name = models.CharField(max_length=255,  null=True)
@@ -419,6 +421,7 @@ class PolygonData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.PolygonField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    extra_fields = models.JSONField(default=dict,  null=True, blank=True)
     task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
@@ -458,6 +461,8 @@ class LineStringData(models.Model):
         "Standard Category related to the LineString"), verbose_name=_("Standard Category"), null=True)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, help_text=_(
         "Sub Category related to the LineString"), verbose_name=_("Sub Category"), null=True)
+    global_category = models.ForeignKey(GlobalCategory, on_delete=models.SET_NULL, help_text=_(
+        "Global Category related to the polygon"), verbose_name=_("Global Category"), null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this LineString"), verbose_name=_("Category"), null=True)
     standard_category_name = models.CharField(max_length=255,  null=True)
@@ -465,6 +470,7 @@ class LineStringData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.LineStringField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    extra_fields = models.JSONField(default=dict,  null=True, blank=True)
     task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
@@ -504,6 +510,8 @@ class PointData(models.Model):
         "Standard Category related to the Point"), verbose_name=_("Standard Category"), null=True)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, help_text=_(
         "Sub Category related to the Point"), verbose_name=_("Sub Category"), null=True)
+    global_category = models.ForeignKey(GlobalCategory, on_delete=models.SET_NULL, help_text=_(
+        "Global Category related to the polygon"), verbose_name=_("Global Category"), null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, help_text=_(
         "Cateogyr related to this Point"), verbose_name=_("Category"), null=True)
     standard_category_name = models.CharField(max_length=255,  null=True)
@@ -511,6 +519,7 @@ class PointData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.PointField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
+    extra_fields = models.JSONField(default=dict,  null=True, blank=True)
     task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
