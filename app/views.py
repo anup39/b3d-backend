@@ -978,7 +978,7 @@ class UpdateExtraFields(APIView):
                 for polygon in polygons:
                     print(polygon,'polygon')
                     # Check if extra_fields is the default value {}
-                    if not polygon.extra_fields:
+                    if  polygon.extra_fields == {}:
                         print("Extra fields is empty")
                         polygon.extra_fields = extra_fields
                     else:
