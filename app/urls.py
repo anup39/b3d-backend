@@ -13,6 +13,7 @@ from .views import InspectionReportViewSet, InspectionPhotoViewSet, InpsectionPh
 from .views import MeasuringFileUploadViewSet
 from .views import GroupViewSet
 from .views import IndoorViewSet
+from .views import UpdateExtraFields
 
 router = routers.DefaultRouter()
 
@@ -74,6 +75,8 @@ urlpatterns = [
     path('measuring-table-summation/', MeasuringTableSummationView.as_view()),
     path('measuring-table-pie-summation/',
          MeasuringTableSummationPieView.as_view()),
+    path('update-extra-fields/', UpdateExtraFields.as_view(),
+           name='update_extra_fields'),
 
 
 ]

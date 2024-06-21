@@ -16,7 +16,7 @@ from .models import Indoor
 
 class BaseAdmin(admin.ModelAdmin):
     list_display = ('id', 'client', 'project')
-    list_filter = ('client', 'project')
+    list_filter = ('client', 'project' ,)
 
 
 class ProjectAdmin(admin.ModelAdmin):

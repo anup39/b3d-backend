@@ -956,3 +956,51 @@ class IndoorViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend,]
     filterset_fields = ['project']
     pagination_class = None
+
+
+
+class UpdateExtraFields(APIView):
+    def post(self, request):
+        try:
+            category_edit_data = request.data.get('category_edit_data')
+            extra_fields = request.data.get('extra_fields')
+            print(category_edit_data, 'category_edit_data')
+            print(extra_fields, 'extra_fields')
+
+            global_category_id = category_edit_data['id']
+            global_category = GlobalCategory.objects.get(id=global_category_id)
+            global_category.extra_fields = extra_fields
+
+            type_of_geometry = global_category.type_of_geometry
+
+            if type_of_geometry == "Polygon":
+                polygons = PolygonData.objects.filter(global_category=global_category)
+                for polygon in polygons:
+                    print(polygon,'polygon')
+                    # Check if extra_fields is the default value {}
+                    if not polygon.extra_fields:
+                        print("Extra fields is empty")
+                        polygon.extra_fields = extra_fields
+                    else:
+                        print("Extra fields is not empty")
+                        # Check if "data" key exists and only add new keys if they don't exist
+                        if 'data' in polygon.extra_fields:
+                            print("Data key exists")
+                            for key, value in extra_fields.items():
+                                if key not in polygon.extra_fields['data']:
+                                    print("Key does not exist",key)
+                                    polygon.extra_fields['data'][key] = value
+                        else:
+                            # If "data" key does not exist, add the entire extra_fields
+                            print("Data key does not exist")
+                            polygon.extra_fields.update(extra_fields)
+                    polygon.save()
+
+            # inspection = Inspection.objects.get(id=item['inspection'])
+            # inspection.extra_fields = item['extra_fields']
+            # inspection.save()
+
+            print("Successfully updated the extra fields")
+        except:
+            pass
+        return Response({"message": "Successfully updated the extra fields" , "id":global_category_id })
