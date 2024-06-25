@@ -137,34 +137,34 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.filter(is_deleted=False).order_by('-created_at')
     serializer_class = ClientSerializer
 
-    def create(self, request, *args, **kwargs):
-        username = request.data.get('username')
-        email = request.data.get('email')
-        password = request.data.get('password')
-        first_name = request.data.get('firstname')
-        last_name = request.data.get('lastname')
-        username_exist = User.objects.filter(Q(username=username)).exists()
-        if username_exist:
-            return Response({'message': "Username already exists"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        email_exist = User.objects.filter(Q(email=email)).exists()
-        if email_exist:
-            return Response({'message': "Email already exists"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    # def create(self, request, *args, **kwargs):
+    #     username = request.data.get('username')
+    #     email = request.data.get('email')
+    #     password = request.data.get('password')
+    #     first_name = request.data.get('firstname')
+    #     last_name = request.data.get('lastname')
+    #     username_exist = User.objects.filter(Q(username=username)).exists()
+    #     if username_exist:
+    #         return Response({'message': "Username already exists"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    #     email_exist = User.objects.filter(Q(email=email)).exists()
+    #     if email_exist:
+    #         return Response({'message': "Email already exists"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name
-        )
-        mutable_data = request.data.copy()
-        mutable_data['name'] = first_name + " " + last_name
-        mutable_data['user'] = user.id
-        serializer = self.get_serializer(data=mutable_data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    #     user = User.objects.create_user(
+    #         username=username,
+    #         email=email,
+    #         password=password,
+    #         first_name=first_name,
+    #         last_name=last_name
+    #     )
+    #     mutable_data = request.data.copy()
+    #     mutable_data['name'] = first_name + " " + last_name
+    #     mutable_data['user'] = user.id
+    #     serializer = self.get_serializer(data=mutable_data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 # TODO When project created create the userproject also
