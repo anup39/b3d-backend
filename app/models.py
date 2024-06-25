@@ -105,12 +105,18 @@ class GlobalCategoryStyle(models.Model):
 
 
 class Client(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, help_text=_(
         "Client associated user"), verbose_name=_("Client User"), related_name="clients_as_user")
     name = models.CharField(max_length=255, help_text=_(
         "Client name"), verbose_name=_("Client name"))
     description = models.TextField(default="", help_text=_(
         "More in-depth description of the Client"), verbose_name=_("Description"))
+    administrator = models.CharField(max_length=255, help_text=_(
+        "Administrator name"), verbose_name=_("Administrator name"),null=True, blank=True)
+    lbf_number  = models.CharField(max_length=255, help_text=_(
+        "LBF Number"), verbose_name=_("LBF Number"),null=True, blank=True)
+    cvr_number = models.CharField(max_length=255, help_text=_(
+        "CVR Number"), verbose_name=_("CVR Number"),null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"), related_name="clients_as_creator")
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
