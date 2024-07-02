@@ -804,6 +804,7 @@ class UploadCategoriesSaveView(APIView):
                 created_by=user,
                 is_display=True
             )
+            print(filtered_result, 'filtered_result')
 
             result = process_all_geodata_.delay(
                 client_id=client.id,
