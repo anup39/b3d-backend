@@ -2,18 +2,28 @@ import time
 from django.contrib.gis.geos import GEOSGeometry
 from .models import Category, MeasuringFileUpload
 # from django.contrib.gis.geos import GEOSGeometry, Point, LineString, Polygon
-from shapely.geometry import Polygon, MultiPolygon, Point
+from shapely.geometry import Polygon, MultiPolygon, Point , LineString , MultiLineString
 
 
 def convert_3D_2D(geometry):
     '''
     Takes a 3D geometry (has_z) and returns a 2D geometry
     '''
+    print (geometry,'geometry')
     if geometry.has_z:
+        print(geometry.has_z, 'geometry.has_z')
+        print(geometry.geom_type, 'geometry.geom_type')
         if geometry.geom_type == 'Point':
             return Point(geometry.x, geometry.y)
+        elif geometry.geom_type == 'MultiPoint':
+            return MultiPoint([(x, y) for x, y, _ in geometry.coords])
         elif geometry.geom_type == 'LineString':
             return LineString([(x, y) for x, y, _ in geometry.coords])
+        elif geometry.geom_type == 'MultiLineString':
+            new_multi_l = []
+            for l in geometry:
+                new_multi_l.append(LineString([(x, y) for x, y, _ in l.coords]))
+            return MultiLineString(new_multi_l)
         elif geometry.geom_type == 'Polygon':
             lines = [xy[:2] for xy in list(geometry.exterior.coords)]
             return Polygon(lines)
@@ -25,7 +35,6 @@ def convert_3D_2D(geometry):
             return MultiPolygon(new_multi_p)
     else:
         return geometry
-
 
 def process_geodata(df, filtered_result, geom_type, DataModel, standard_categories, sub_categories, categories, client, project, user, id, task_id):
     print(id, 'id')
