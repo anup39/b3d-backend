@@ -756,7 +756,7 @@ class MeasuringFileUpload(models.Model):
     is_edited = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return self.name + " | " + self.project.name + " | " + self.client.name
 
     class Meta:
         verbose_name_plural = 'MeasuringFileUpload'
