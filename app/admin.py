@@ -43,6 +43,18 @@ class CategoryStyleAdmin(admin.ModelAdmin):
     list_display = ('id', 'client', 'project', 'category')
     list_filter = ('client', 'project')
 
+class PolygonDataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+    list_filter = ( 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+
+class LineStringDataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+    list_filter = ( 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+
+class PointDataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+    list_filter = ( 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+
 
 class RoleAdmin(admin.ModelAdmin):
     list_filter = ('user',)
@@ -52,7 +64,7 @@ models = [
     ProjectPolygon,
     RasterData,
     # StandardCategory, SubCategory, Category, CategoryStyle,
-    PolygonData, LineStringData, PointData,
+    # PolygonData, LineStringData, PointData,
     InspectionReport,
 ]
 
@@ -90,3 +102,8 @@ admin.site.register(InpsectionPhotoGeometry)
 
 admin.site.register(MeasuringFileUpload)
 admin.site.register(Indoor)
+
+admin.site.register(PolygonData, PolygonDataAdmin)
+admin.site.register(LineStringData, LineStringDataAdmin)
+admin.site.register(PointData, PointDataAdmin)
+

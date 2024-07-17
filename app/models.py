@@ -451,8 +451,8 @@ class PolygonData(models.Model):
     class Meta:
         verbose_name_plural = 'PolygonData'
 
-    def __str__(self):
-        return str(self.project.name)
+    # def __str__(self):
+    #     return str(self.project.name)
 
 
 class LineStringData(models.Model):
@@ -500,8 +500,8 @@ class LineStringData(models.Model):
     class Meta:
         verbose_name_plural = 'LineStringData'
 
-    def __str__(self):
-        return str(self.project.name)
+    # def __str__(self):
+    #     return str(self.project.name)
 
 
 class PointData(models.Model):
@@ -549,8 +549,8 @@ class PointData(models.Model):
     class Meta:
         verbose_name_plural = 'PointData'
 
-    def __str__(self):
-        return str(self.project.name)
+    # def __str__(self):
+    #     return str(self.project.name)
 
 
 # Model for inspection
