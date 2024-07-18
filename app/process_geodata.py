@@ -36,7 +36,6 @@ def convert_3D_2D(geometry):
     else:
         return geometry
 
-
 def process_geodata(df, filtered_result, geom_type, DataModel, standard_categories, sub_categories, categories, client, project, user, id, task_id):
     print(id, 'id')
     print(task_id, 'task_id')
