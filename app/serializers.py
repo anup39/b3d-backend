@@ -252,6 +252,13 @@ class CategoryStyleSerializer(serializers.ModelSerializer):
 
 # For Polygon
 class PolygonDataSerializer (serializers.ModelSerializer):
+    extra_fields_category = serializers.SerializerMethodField(
+        'get_extra_fields_category')
+
+    def get_extra_fields_category(self, obj):
+        extra_fields = obj.global_category.extra_fields
+        return extra_fields
+    
     class Meta:
         model = PolygonData
         fields = "__all__"
@@ -260,6 +267,14 @@ class PolygonDataSerializer (serializers.ModelSerializer):
 
 
 class LineStringDataSerializer (serializers.ModelSerializer):
+    extra_fields_category = serializers.SerializerMethodField(
+        'get_extra_fields_category')
+    
+    def get_extra_fields_category(self, obj):
+        extra_fields = obj.global_category.extra_fields
+        return extra_fields
+
+
     class Meta:
         model = LineStringData
         fields = "__all__"
@@ -267,6 +282,12 @@ class LineStringDataSerializer (serializers.ModelSerializer):
 
 # For Point
 class PointDataSerializer (serializers.ModelSerializer):
+    extra_fields_category = serializers.SerializerMethodField(
+        'get_extra_fields_category')
+    
+    def get_extra_fields_category(self, obj):
+        extra_fields = obj.global_category.extra_fields
+        return extra_fields
     class Meta:
         model = PointData
         fields = "__all__"
@@ -407,7 +428,7 @@ class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
     view_name = serializers.SerializerMethodField(
         'get_view_name')
     component = serializers.SerializerMethodField('get_component')
-    extra_fields = serializers.SerializerMethodField('get_extra_fields')
+
 
     def get_property(self, obj):
         return obj.project.name
@@ -441,9 +462,7 @@ class PolygonDataGeojsonSerializer(GeoFeatureModelSerializer):
     def get_component(self, obj):
         return "category"
 
-    def get_extra_fields(self, obj):
-        data = GlobalCategory.objects.get(id=obj.category.global_category.id)
-        return data.extra_fields
+    
 
     class Meta:
         model = PolygonData
@@ -461,7 +480,7 @@ class PointDataGeojsonSerializer(GeoFeatureModelSerializer):
     view_name = serializers.SerializerMethodField(
         'get_view_name')
     component = serializers.SerializerMethodField('get_component')
-    extra_fields = serializers.SerializerMethodField('get_extra_fields')
+
 
     def get_property(self, obj):
         return obj.project.name
@@ -481,9 +500,6 @@ class PointDataGeojsonSerializer(GeoFeatureModelSerializer):
     def get_component(self, obj):
         return "category"
 
-    def get_extra_fields(self, obj):
-        data = GlobalCategory.objects.get(id=obj.category.global_category.id)
-        return data.extra_fields
 
     class Meta:
         model = PointData
@@ -502,7 +518,7 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
     view_name = serializers.SerializerMethodField(
         'get_view_name')
     component = serializers.SerializerMethodField('get_component')
-    extra_fields = serializers.SerializerMethodField('get_extra_fields')
+
 
     def get_property(self, obj):
         return obj.project.name
@@ -527,15 +543,13 @@ class LineStringDataGeojsonSerializer(GeoFeatureModelSerializer):
     def get_component(self, obj):
         return "category"
 
-    def get_extra_fields(self, obj):
-        data = GlobalCategory.objects.get(id=obj.category.global_category.id)
-        return data.extra_fields
+
 
     class Meta:
         model = LineStringData
         geo_field = "geom"
         fields = ('id', 'property', 'category',
-                  'length', 'type_of_geometry', 'view_name', 'category_id', 'component', 'extra_fields')
+                  'length', 'type_of_geometry', 'view_name', 'category_id', 'component', 'extra_fields', )
 
 
 # For Inspection types
