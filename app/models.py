@@ -73,7 +73,8 @@ class GlobalCategory(models.Model):
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
     type_of_geometry = models.CharField(max_length=255, default="Polygon")
-    extra_fields = models.JSONField(default=dict,  null=True, blank=True)
+    extra_fields = models.TextField(default="[]",  help_text=_(
+        "Extra fields for this category"), verbose_name=_("Extra Fields"))
     is_display = models.BooleanField(default=True)
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
@@ -427,7 +428,8 @@ class PolygonData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.PolygonField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
-    extra_fields = models.JSONField(default=dict,  null=True, blank=True)
+    extra_fields = models.TextField(default="[]",  help_text=_(
+        "Extra fields for this category"), verbose_name=_("Extra Fields"))
     task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
@@ -476,7 +478,8 @@ class LineStringData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.LineStringField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
-    extra_fields = models.JSONField(default=dict,  null=True, blank=True)
+    extra_fields = models.TextField(default="[]",  help_text=_(
+        "Extra fields for this category"), verbose_name=_("Extra Fields"))
     task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
@@ -525,7 +528,8 @@ class PointData(models.Model):
     category_name = models.CharField(max_length=255,  null=True)
     geom = models.PointField(srid=4326, dim=2)
     attributes = models.JSONField(default=dict,  null=True)
-    extra_fields = models.JSONField(default=dict,  null=True, blank=True)
+    extra_fields = models.TextField(default="[]",  help_text=_(
+        "Extra fields for this category"), verbose_name=_("Extra Fields"))
     task_id = models.UUIDField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text=_(
         "The person who created"), verbose_name=_("Created by"))
