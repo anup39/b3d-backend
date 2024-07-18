@@ -92,6 +92,7 @@ def process_geodata(df, filtered_result, geom_type, DataModel, standard_categori
                 standard_category=standard_categories[row['standard_category']],
                 sub_category=sub_categories[row['sub_category']],
                 category=categories[row['category']],
+                global_category=categories[row['category']].global_category,
                 standard_category_name=standard_categories[row['standard_category']].name,
                 sub_category_name=sub_categories[row['sub_category']].name,
                 category_name=categories[row['category']].name,
