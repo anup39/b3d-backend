@@ -43,6 +43,22 @@ class CategoryStyleAdmin(admin.ModelAdmin):
     list_display = ('id', 'client', 'project', 'category')
     list_filter = ('client', 'project')
 
+class PolygonDataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'standard_category', 'sub_category', 'global_category','category' ,"extra_fields")
+    list_filter = ( 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+
+class LineStringDataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'standard_category', 'sub_category', 'global_category','category',"extra_fields")
+    list_filter = ( 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+
+class PointDataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'client', 'project', 'standard_category', 'sub_category', 'global_category','category',"extra_fields")
+    list_filter = ( 'client', 'project', 'standard_category', 'sub_category', 'global_category','category')
+
+class GlobalCategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'extra_fields')
+   
+
 
 class RoleAdmin(admin.ModelAdmin):
     list_filter = ('user',)
@@ -52,7 +68,7 @@ models = [
     ProjectPolygon,
     RasterData,
     # StandardCategory, SubCategory, Category, CategoryStyle,
-    PolygonData, LineStringData, PointData,
+    # PolygonData, LineStringData, PointData,
     InspectionReport,
 ]
 
@@ -73,7 +89,7 @@ admin.site.register(CategoryStyle, CategoryStyleAdmin)
 admin.site.register(Client)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(GlobalStandardCategory)
-admin.site.register(GlobalCategory)
+admin.site.register(GlobalCategory, GlobalCategoryAdmin)
 admin.site.register(GlobalSubCategory)
 admin.site.register(GlobalCategoryStyle)
 
@@ -90,3 +106,8 @@ admin.site.register(InpsectionPhotoGeometry)
 
 admin.site.register(MeasuringFileUpload)
 admin.site.register(Indoor)
+
+admin.site.register(PolygonData, PolygonDataAdmin)
+admin.site.register(LineStringData, LineStringDataAdmin)
+admin.site.register(PointData, PointDataAdmin)
+
