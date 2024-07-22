@@ -320,7 +320,7 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.filter(
-        is_deleted=False).order_by('-created_at')
+        is_deleted=False).order_by('view_name')
     serializer_class = CategorySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryFilter
