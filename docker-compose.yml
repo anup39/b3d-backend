@@ -12,8 +12,8 @@ services:
       - .:/code
     ports:
       - "8000:8000"
-    networks:
-      - b3d
+    # networks:
+    #   - b3d
     # command:
     #   ["bash", "-c", "chmod +x /code/entrypoint.sh && sh /code/entrypoint.sh"]
 
@@ -24,8 +24,8 @@ services:
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/var/lib/redis
-    networks:
-      - b3d
+    # networks:
+    #   - b3d
 
   worker:
     container_name: worker
@@ -41,8 +41,8 @@ services:
       - logs:/logs/
     env_file:
       - .env
-    networks:
-      - b3d
+    # networks:
+    #   - b3d
 
   # beat:
   #   build:
@@ -64,8 +64,7 @@ volumes:
     name: redis_data
   logs:
     name: logs
-
-networks:
-  b3d:
-    external:
-      name: b3d
+# networks:
+#   b3d:
+#     external:
+#       name: b3d

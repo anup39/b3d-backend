@@ -1,0 +1,32 @@
+version: "3"
+services:
+  postgres:
+    container_name: postgis
+    image: postgis/postgis:15-3.4-alpine
+    env_file: pg_env.txt
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # networks:
+    #   - b3d
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    env_file: pgadmin_env.txt
+    ports:
+      - "5051:80"
+    restart: always
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+    name: postgres_data
+  pgadmin_data:
+    name: pgadmin_data
+# networks:
+#   b3d:
+#     name: b3d
+
