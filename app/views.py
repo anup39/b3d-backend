@@ -598,12 +598,13 @@ class DeleteUploadGeoJSONAPIView(APIView):
 
 
 def clean_text(text):
-    text = text.lower()
-    text = re.sub(r'\S*@\S*\s?', '', text)
-    text = re.sub(r'[^\w\s]', '', text)
-    text = re.sub(r'\d+', '', text)
-    text = text.strip()
-    return text
+    if isinstance(text, str):
+        text = text.lower()
+        text = re.sub(r'\S*@\S*\s?', '', text)
+        text = re.sub(r'[^\w\s]', '', text)
+        text = re.sub(r'\d+', '', text)
+        text = text.strip()
+        return text
 
 
 def clean_name(name, unique_cleaned_distinct_values, component):
